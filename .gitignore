@@ -1,0 +1,10 @@
+*.lst
+*.bin
+spectrum-desolate-master/
+old/
+latest/
+z_richards/
+example_code/
+asm_tutorials/
+info/
+tools/
