@@ -45,7 +45,7 @@ Draw_Small_Alien:
 
     ; --- X Coordinate (MUST SEND 2 BYTES) ---
     ld hl, (small_alien_x)
-    ld bc, 64           ; Match the Player's X offset if applicable
+    ld bc, 64           ; X screen offset if applicable
     add hl, bc
     ld a, l             ; Send Low Byte (e.g., 180)
     rst.lil $10
@@ -54,7 +54,7 @@ Draw_Small_Alien:
 
     ; --- Y Coordinate (MUST SEND 2 BYTES) ---
     ld hl, (small_alien_y)
-    ld bc, 83           ; THE VIEWPORT OFFSET
+    ld bc, 83           ; Y screen offset if applicable
     add hl, bc
     ld a, l             ; Send Low Byte
     rst.lil $10
@@ -114,7 +114,7 @@ Draw_Big_Alien:
 
     ; --- X Coordinate (MUST SEND 2 BYTES) ---
     ld hl, (big_alien_x)
-    ld bc, 64           ; Match the Player's X offset if applicable
+    ld bc, 64           ; X screen offset if applicable
     add hl, bc
     ld a, l             ; Send Low Byte (e.g., 180)
     rst.lil $10
@@ -123,7 +123,7 @@ Draw_Big_Alien:
 
     ; --- Y Coordinate (MUST SEND 2 BYTES) ---
     ld hl, (big_alien_y)
-    ld bc, 83           ; THE VIEWPORT OFFSET
+    ld bc, 83           ; Y screen offset if applicable
     add hl, bc
     ld a, l             ; Send Low Byte
     rst.lil $10

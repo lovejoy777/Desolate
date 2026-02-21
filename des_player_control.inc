@@ -102,7 +102,7 @@ check_up:
     ld l, a
     ld a, (player_y + 1)
     ld h, a
-    ld bc, 14 
+    ld bc, 14              ; 14 for 2.5D head doesnt touch 
     add hl, bc
     push hl
     pop de                 ; DE = Y + 20
@@ -358,7 +358,7 @@ send_vdu:
     ld a, (player_x + 1)
     ld h, a
 
-    ld bc, 64         
+    ld bc, 64         ; Screen X offset for game screen
     add hl, bc
 
     ; Move sprite
@@ -380,7 +380,7 @@ send_vdu:
     ld l, a
     ld a, (player_y + 1)
     ld h, a
-    ld bc, 83          
+    ld bc, 83          ; Screen Y offset for game screen
     add hl, bc
     ld a, l
     rst.lil $10        

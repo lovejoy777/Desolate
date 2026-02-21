@@ -19,8 +19,8 @@ Init_Display:
 ; Set Graphics ViewPort for game window.
 ;----------------------------------------
 Set_Graphics_VP:
-    ld a, 24           
-    rst.lil $10
+    ld a, 24           ; vdu 24,x1;y1;x2;y2; set graphics viewport
+    rst.lil $10        ; send command to VDU
     ld hl, 64          ; left (X1)
     call vdu_write_word
     ld hl, 210         ; bottom (Y1)
@@ -40,17 +40,17 @@ get_tile_at_coords:
     push de
     push bc
     ; HL contains X, DE contains Y
-    ld a, l
-    cp 192
-    jp nc, is_a_wall
+    ld a, l                  ; get X coordinate
+    cp 192                   ; 
+    jp nc, is_a_wall         ; if X >= 192, it's a wall
     srl a
     srl a
     srl a
     srl a
-    ld b, a                   
-    ld a, e                ; Y Coordinate from E
-    cp 128
-    jp nc, is_a_wall
+    ld b, a                  ; 
+    ld a, e                  ; Y Coordinate from E
+    cp 128                   ; if Y >= 128, it's a wall
+    jp nc, is_a_wall         ; if Y >= 128, it's a wall
     srl a
     srl a
     srl a
@@ -61,19 +61,19 @@ get_tile_at_coords:
     add a, a
     add a, a
     add a, b
-    ld hl, ram_buffer
-    ld bc, 0
-    ld c, a 
-    add hl, bc
+    ld hl, ram_buffer         ; get tile from ram buffer
+    ld bc, 0                  ; 
+    ld c, a                   ; 
+    add hl, bc                ; 
 
-    ld a, (hl)    
+    ld a, (hl)                ; get tile from ram buffer
     pop bc
     pop de
     pop hl
     ret
 
 is_a_wall:
-    ld a, $0D     
+    ld a, $0D                 ; return tile 13 (wall)   
     pop bc
     pop de
     pop hl

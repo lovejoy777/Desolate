@@ -54,7 +54,7 @@ Update_Small_Alien:
     ret
 
 .move_s:
-    ; --- Step 1: Check (Exactly like Player's check_down) ---
+    ; --- Step 1: Check_down) ---
     ld hl, 0
     ld a, (small_alien_x)
     ld l, a
@@ -65,7 +65,7 @@ Update_Small_Alien:
     ld hl, 0
     ld a, (small_alien_y)
     ld l, a
-    ld bc, 17             ; Check 1 pixel below the feet (16 + 1)
+    ld bc, 16             ; Check 0 pixel below the feet (16)
     add hl, bc
     push hl
     pop de                ; DE = Y + 17
@@ -93,7 +93,7 @@ Update_Small_Alien:
     ld hl, 0
     ld a, (small_alien_y)
     ld l, a
-    ld bc, -1             ; Check 1 pixel above the head
+    ld bc, 0             ; Check 0 pixel above the head
     add hl, bc
     push hl
     pop de                ; DE = Y - 1
@@ -114,7 +114,7 @@ Update_Small_Alien:
     ld hl, 0
     ld a, (small_alien_x)
     ld l, a
-    ld bc, 17             ; Check 1 pixel past right side (16 + 1)
+    ld bc, 16             ; Check 0 pixel past right side (16)
     add hl, bc
     push hl               ; Save New X
 
@@ -142,14 +142,14 @@ Update_Small_Alien:
     ld hl, 0
     ld a, (small_alien_x)
     ld l, a
-    ld bc, -1             ; Check 1 pixel past left side
+    ld bc, 0             ; Check 0 pixel past left side
     add hl, bc
     push hl               ; Save New X
 
     ld hl, 0
     ld a, (small_alien_y)
     ld l, a
-    ld bc, 8
+    ld bc, 8              ; Middle of alien Y
     add hl, bc
     push hl
     pop de                ; DE = Y + 8
@@ -248,17 +248,17 @@ Update_Big_Alien:
     ld hl, 0
     ld a, (big_alien_x)
     ld l, a
-    ld bc, 8              ; Alien is 16x32, so +8 is the middle
+    ld bc, 8              ; Alien is 16x32, so +8 is the x middle
     add hl, bc            ; HL = X + 8
     push hl               ; Save X for the call
 
     ld hl, 0
     ld a, (big_alien_y)
     ld l, a
-    ld bc, 32             ; Check 1 pixel below the feet (32 + 1)
+    ld bc, 32             ; Check 0 pixel below the feet (32)
     add hl, bc
     push hl
-    pop de                ; DE = Y + 17
+    pop de                ; DE = Y + 32
     pop hl                ; HL = X + 8
 
     call get_tile_at_coords
@@ -283,7 +283,7 @@ Update_Big_Alien:
     ld hl, 0
     ld a, (big_alien_y)
     ld l, a
-    ld bc, 0             ; Check 1 pixel above the head
+    ld bc, 0             ; Check 0 pixel above the head
     add hl, bc
     push hl
     pop de                ; DE = Y - 1
@@ -304,14 +304,14 @@ Update_Big_Alien:
     ld hl, 0
     ld a, (big_alien_x)
     ld l, a
-    ld bc, 16             ; Check 1 pixel past right side (16 + 1)
+    ld bc, 16             ; Check right side (16)
     add hl, bc
     push hl               ; Save New X
 
     ld hl, 0
     ld a, (big_alien_y)
     ld l, a
-    ld bc, 8              ; Middle of big alien Y
+    ld bc, 16              ; Middle of big alien Y
     add hl, bc
     push hl
     pop de                ; DE = Y + 8
@@ -332,14 +332,14 @@ Update_Big_Alien:
     ld hl, 0
     ld a, (big_alien_x)
     ld l, a
-    ld bc, 0             ; Check 1 pixel past left side
+    ld bc, 0             ; Check 0 pixel past left side
     add hl, bc
     push hl               ; Save New X
 
     ld hl, 0
     ld a, (big_alien_y)
     ld l, a
-    ld bc, 8
+    ld bc, 16
     add hl, bc
     push hl
     pop de                ; DE = Y + 8
