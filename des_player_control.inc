@@ -12,26 +12,23 @@ Movement_anim:
     ld a, c
 
 ;---------------------------------------------
-; Check Key presses
+; Check Key presses of keyboard
 ;---------------------------------------------
     ; Check UP
     ld b, KEY_UP_BYTE
     ld c, KEY_UP_BIT
     call Is_Key_Held_Matrix
     jp nz, set_up
-
     ; Check DOWN
     ld b, KEY_DOWN_BYTE
     ld c, KEY_DOWN_BIT
     call Is_Key_Held_Matrix
     jp nz, set_down
-
     ; Check Left
     ld b, KEY_LEFT_BYTE
     ld c, KEY_LEFT_BIT
     call Is_Key_Held_Matrix
     jp nz, set_left
-
     ; Check Right
     ld b, KEY_RIGHT_BYTE
     ld c, KEY_RIGHT_BIT
@@ -39,8 +36,6 @@ Movement_anim:
     jp nz, set_right
 
 ;------------------------------------------------
-    
-
     ld hl, move_timeout
     ld a, (hl)
     or a
@@ -58,21 +53,20 @@ logic_stopped:
 ;------------------------------
 ; Direction & Action Handlers
 ;------------------------------
-
 set_down:
-    ld a, 0
+    ld a, 0                 ; South
     ld (player_dir), a
     jp set_moving
 set_up:
-    ld a, 1
+    ld a, 1                 ; North
     ld (player_dir), a
     jp set_moving
 set_right:
-    ld a, 2
+    ld a, 2                 ; East
     ld (player_dir), a
     jp set_moving
 set_left:
-    ld a, 3
+    ld a, 3                 ; West
     ld (player_dir), a
     jp set_moving
 
@@ -83,50 +77,22 @@ set_moving:
     ld (move_timeout), a
 
 ;-----------------------------------------------------------
-; apply_movement (Preserved VDP/Coordinate Logic)
+; apply_movement 
 ;-----------------------------------------------------------
 apply_movement:
     ld a, (player_dir)
     or a
-    jp z, check_down   
+    jp z, check_down       ; South
     cp 1
-    jp z, check_up     
+    jp z, check_up         ; North
     cp 2
-    jp z, check_right  
+    jp z, check_right      ; East
     cp 3
-    jp z, check_left   
+    jp z, check_left       ; West
 
-check_up:
-    ld hl, 0
-    ld a, (player_y)
-    ld l, a
-    ld a, (player_y + 1)
-    ld h, a
-    ld bc, 14              ; 14 for 2.5D head doesnt touch 
-    add hl, bc
-    push hl
-    pop de                 ; DE = Y + 20
-    ld hl, 0
-    ld a, (player_x)
-    ld l, a
-    ld a, (player_x + 1)
-    ld h, a
-    ld bc, 16
-    add hl, bc             ; HL = X + 16
+;----------------------------------------------------------------
 
-    call get_tile_at_coords
-    cp $29                
-    jp z, Found_North_Door
-    cp $2A                
-    jp z, Found_North_Door
-    cp $01                
-    jp nz, update_animation
-
-    ld hl, (player_y)
-    dec hl
-    ld (player_y), hl
-    jp update_animation
-
+; SOUTH
 check_down:
     ld hl, 0
     ld a, (player_y)
@@ -146,18 +112,61 @@ check_down:
     add hl, bc             ; HL = X + 16
 
     call get_tile_at_coords
-    cp $18                
-    jp z, Found_South_Door
-    cp $19                
-    jp z, Found_South_Door
-    cp $01                
+    cp $18                 ; south door tile id                
+    jp z, .at_south_door
+    cp $19                 ; south door tile id                
+    jp z, .at_south_door
+    cp $01                 ; floor tile id                
     jp nz, update_animation
     
-
     ld hl, (player_y)
     inc hl
     ld (player_y), hl
     jp update_animation
+
+.at_south_door:
+    ; "Player hit a South door, find where it leads."
+    ld a, 0                 ; 0 = South direction ID
+    call Find_And_Load_Room
+    ret         
+
+; NORTH
+check_up:
+    ld hl, 0
+    ld a, (player_y)
+    ld l, a
+    ld a, (player_y + 1)
+    ld h, a
+    ld bc, 14              ; 14 for 2.5D (head doesn't touch) 
+    add hl, bc
+    push hl
+    pop de                 ; DE = Y + 20
+    ld hl, 0
+    ld a, (player_x)
+    ld l, a
+    ld a, (player_x + 1)
+    ld h, a
+    ld bc, 16
+    add hl, bc             ; HL = X + 16
+
+    call get_tile_at_coords
+    cp $29                 ; north door tile id                
+    jp z, .at_north_door
+    cp $2A                 ; north door tile id                
+    jp z, .at_north_door
+    cp $01                 ; floor tile id                
+    jp nz, update_animation
+
+    ld hl, (player_y)
+    dec hl
+    ld (player_y), hl
+    jp update_animation
+
+.at_north_door:
+    ; "Player hit a North door, find where it leads."
+    ld a, 1                 ; 1 = North direction ID
+    call Find_And_Load_Room
+    ret
 
 check_right:
     ld hl, 0
@@ -180,18 +189,23 @@ check_right:
     pop hl                 ; HL = X + 18
 
     call get_tile_at_coords
-    cp $2C
-    jp z, Found_East_Door
-    cp $2D
-    jp z, Found_East_Door
-    cp $01                   ; floor tile
+    cp $2C                 ; east door tile id
+    jp z, .at_east_door
+    cp $2D                 ; east door tile id
+    jp z, .at_east_door
+    cp $01                 ; floor tile id
     jp nz, update_animation
-
 
     ld hl, (player_x)
     inc hl
     ld (player_x), hl
     jp update_animation
+
+.at_east_door:
+    ; "Player hit a East door, find where it leads."
+    ld a, 2                 ; 2 = East direction ID
+    call Find_And_Load_Room
+    ret 
 
 check_left:
     ld hl, 0
@@ -214,11 +228,11 @@ check_left:
     pop hl                 ; HL = X + 2
 
     call get_tile_at_coords
-    cp $2E
-    jp z, Found_West_Door
-    cp $2F
-    jp z, Found_West_Door
-    cp $01
+    cp $2E                 ; west door tile id
+    jp z, .at_west_door
+    cp $2F                 ; west door tile id
+    jp z, .at_west_door
+    cp $01                 ; floor tile id
     jp nz, update_animation
 
     ld hl, (player_x)
@@ -226,13 +240,19 @@ check_left:
     ld (player_x), hl
     jp update_animation
 
+.at_west_door:
+    ; "Player hit a West door, find where it leads."
+    ld a, 3                 ; 3 = West direction ID
+    call Find_And_Load_Room
+    ret
+
+
 ;====================================================
 ; Update Annimation
 ;=====================================================
 
 update_animation:
     Select_Sprite_8bit 0
-
     ld a, (is_moving)
     or a
     jp z, force_idle
@@ -341,6 +361,7 @@ use_bm_11:
 
 send_vdu:
     ld b, a
+    
     ; swap frame
     ld a, 23
     rst.lil $10
@@ -386,5 +407,3 @@ send_vdu:
     rst.lil $10        
     ld a, h
     rst.lil $10
-
-    ; Show sprite

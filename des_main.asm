@@ -28,13 +28,13 @@
     ; Game Logic Includes
     .include "des_load_assets.inc"
     .include "des_draw_banner.inc"
+    .include "des_metadata_logic.inc"
     .include "des_draw_room.inc"
     .include "des_ui_logic.inc"
     .include "des_player_control.inc"
     .include "des_update_aliens.inc"
     .include "des_draw_aliens.inc"
     .include "des_draw_popups.inc"
-    .include "des_room_map.inc"
 
     ; Game Data Includes
     .include "des_room_data.inc"
@@ -158,6 +158,7 @@ start_here:
 ;--------------------------
 Trigger_Room_Load:
     CLG                     ; clear graphics in the game screen.
+    
     xor a                   ; clear accumulator
     ld (is_moving), a       ; Force the player to stop moving
     ld (move_timeout), a    ; Reset the timer
@@ -167,7 +168,6 @@ Trigger_Room_Load:
     ld (small_alien_x), hl       ; store small alien x
     ld hl, (small_alien_spawn_y) ; get small alien spawn y
     ld (small_alien_y), hl       ; store small alien y
-
     ; --- Reset Big Alien to Spawn Point ---
     ld hl, (big_alien_spawn_x)     ; get big alien spawn x
     ld (big_alien_x), hl           ; store big alien x
@@ -175,23 +175,23 @@ Trigger_Room_Load:
     ld (big_alien_y), hl           ; store big alien y
 
     call Check_Alien_Presence      ; Checks list and sets alien_is_active
+   
+    call Decode_Room_Metadata      ; from des_metadata_logic.inc
+    call Draw_Room                 ; from des_draw_room.inc
 
-    call Draw_Room          ; from des_draw_room.inc
-    call Draw_Health_Value  ; from main_subs.inc
-    call update_animation   ; from player_control.inc
+    call Draw_Health_Value         ; from main_subs.inc
+    call update_animation          ; from des_player_control.inc
 
     ; Player sprite
-    Select_Sprite_8bit 0
+    Select_Sprite_8bit 0    ; Select player
     Show_Sprite
-    Update_GPU
-    
+    Update_GPU 
     jp main_loop
 
 ;=====================================================================
 ; MAIN LOOP
 ;======================================================================
 main_loop:
-
     ; --- Decrement Cooldown for player damage ---
     ld a, (damage_cooldown)                    ; get damage cooldown
     or a                                       ; check if zero
@@ -200,30 +200,33 @@ main_loop:
     ld (damage_cooldown), a                    ; store damage cooldown
 
 .ready:
-    ; 1 Check if space was pressed near a terminal
+    ;
+    ; 1 Checks
+    ; a. Check if space was pressed near a terminal
     call Check_Action_Triggers                      ; des_ui_logic.inc
-    ; Check if gameplay should be frozen
+    ; b. Check if gameplay should be frozen
     ld a, (ui_win_active)
     or a
     ; If window is open (1), skip movement/logic to (skip_gameplay)
     jr nz, .skip_gameplay
+
     ; 2. Handle Player Movement and Animation
     call Movement_anim                              ; player_control.inc
     ; 3. Move the small alien in memory
     call Update_Small_Alien                         
     ; 4. Move the big alien in memory
     call Update_Big_Alien
-    ; Update midpoints for player and aliens for collision detection
+    ; 5. Update midpoints for player and aliens for collision detection
     call Update_Midpoints 
-    ; 5. Check if Player and Alien are touching
+    ; 6. Check if Player and Alien are touching
     call Collision_Detection
 
     ;----------------------------------------------
     ; Draw routines 
     ;----------------------------------------------
-    ; 1. Draw the Small Alien 
+    ; 7. Draw the Small Alien 
     call Draw_Small_Alien            ; from des_draw_room.inc
-    ; 2. Draw the Big Alien 
+    ; 8. Draw the Big Alien 
     call Draw_Big_Alien              ; from des_draw_room.inc
     
     ; --- Update all active sprites in the GPU ---
@@ -231,7 +234,8 @@ main_loop:
     ; tell the GPU to refresh everything at once.
     Update_GPU
     
-    .skip_gameplay: ; if pop up window is open jump here
+    ; if pop up window is open jump here
+    .skip_gameplay: 
 
     ;----------------------------------------
     ; Debug Print outs top left of screen
@@ -420,7 +424,9 @@ Take_Damage:
     call Draw_Dead               ; Draw dead text
 
 Game_Over_Loop:
+
     V_SYNC                       ; Wait for vertical sync
+
     ; --- ESC key Check ---
     MOSCALL $1E                  ; Get pointer from keyboard matrix
     ld a, (ix + $0E)             ; ESC byte from keyboard matrix
@@ -452,7 +458,6 @@ Draw_Dead:
 ; Check Alien Presence (Combined Small & Big)
 ;---------------------------------------------
 Check_Alien_Presence:
-
     ;--------------------------------------
     ; --- STEP 1: Check for Small Alien ---
     ;--------------------------------------
@@ -524,8 +529,10 @@ Check_Alien_Presence:
     ld (big_alien_is_active), a   ; Save big alien active flag
     ret
 
+;------------------------------------
+; Update Player and Aliens MidPoints
+;------------------------------------
 Update_Midpoints:
-
 ; --- Player ---
 ld a, (player_x)
 add a, 16
@@ -541,7 +548,6 @@ ld (small_alien_x_mid), a
 ld a, (small_alien_y)
 add a, 8
 ld (small_alien_y_mid), a
-
 ; --- Big Alien ---
 ld a, (big_alien_x)
 add a, 8
@@ -572,20 +578,3 @@ exit_back_to_mos:                 ;  exit back to mos
 
 ram_buffer:                      ; ram buffer
     .ds 4096                     ; 4096 bytes
-
-;==============================================
-; Strings
-;==============================================
-
-; Game Over Strings
-Dead_String_1:                            ; game over string 1
-    .db "The Desolate has claimed", 0     ; game over string 1
-Dead_String_2:                            ; game over string 2
-    .db "your life too . . .", 0          ; game over string 2
-
-; Inventory popup strings
-Inv_Title_String:                         ; inventory title string
-    .db "-INVENTORY-", 0                  ; inventory title string
-Inv_Item_String:                          ; inventory item string
-    .db "No Items", 0                     ; inventory item string
-

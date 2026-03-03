@@ -31,7 +31,6 @@ Set_Graphics_VP:
     call vdu_write_word
     ret
 
-
 ;--------------------------------------
 ; get_tile_at_coords: Our Players check
 ;--------------------------------------
@@ -199,6 +198,18 @@ print_string:
     inc hl
     jr print_string
 
+print_string1:
+    
+    ld a, (hl)
+    ld b, 6
+    or a
+    ret z
+    rst.lil $10
+    
+    inc hl
+    dec b
+    jr print_string1
+
 ; Helper to send 16-bit words (little endian) to VDU.
 vdu_write_word:
     ld a, l
@@ -256,6 +267,30 @@ Print_Hex_Byte:
     rst.lil $10
     ret
 
+;-----------------------------------------------------------
+; Print_Hex_24: Prints the 24-bit value in HL as Hex (6 digits)
+;-----------------------------------------------------------
+Print_Hex_24:
+    push hl
+    ; Get the 'Upper' byte of HL (the 3rd byte in ADL mode)
+    push hl
+    inc sp
+    inc sp
+    pop af              ; A now contains the Upper byte of HL
+    call Print_Hex_Byte ; Print first 2 digits
+    
+    ; Get the middle and lower bytes
+    push hl
+    pop af
+    ld a, h             ; Get H byte
+    call Print_Hex_Byte ; Print middle 2 digits
+    
+    ld a, l             ; Get L byte
+    call Print_Hex_Byte ; Print last 2 digits
+    
+    pop hl
+    ret
+
 ; Simple Random number
 Get_Random_0_3:
     ld a, (alien_random_seed)
@@ -269,17 +304,17 @@ Get_Random_0_3:
 
 ;----------------------------------------------------------
 
-
 ;---------------------------------------------------------
 ; Debug Helpers
 ;---------------------------------------------------------
-
 ;---------------------------------------------------------
 ; Debug_Overlay:
-; Row 0 = Current Room
-; Row 1 = Current Direction
-; Row 2 = Tile Under Player
-; Row 3 = Tile In Front of Player
+; Row 0 = CRN Current Room Number 
+; Row 1 = CRP Current Room Pointer
+; Row 2 = PCD Players Current Direction
+; Row 3 = TPO Tile Player On
+; Row 4 = TIP Tile In Front Of Player
+
 ;---------------------------------------------------------
 Debug_Overlay:
     push af
@@ -289,21 +324,39 @@ Debug_Overlay:
     push ix
 
     SET_TXT_BG_COL black
-
+    
+    TABTO 0, 0                  ; tab to column 0, row 0
+    ld hl, Debug_CRN_String         
+    call print_string           
     ; --- Line 0: Current Room ---
-    TABTO 0, 0
+    TABTO 4, 0
     SET_TXT_COL bright_white
     ld a, (current_room_id)
     call Print_A_Number
     
+    TABTO 0, 1                  ; tab to column 0, row 0
+    ld hl, Debug_CRP_String         
+    call print_string
+    ; --- Line 1: Current Room ---
+    TABTO 4, 1
+    SET_TXT_COL bright_white
+    ld hl, (current_room_ptr)
+    ;call Print_Hex_Byte
+    
+    TABTO 0, 2                  ; tab to column 0, row 0
+    ld hl, Debug_PCD_String         
+    call print_string
     ; --- Line 1: Current Direction ---
-    TABTO 0, 1
+    TABTO 4, 2
     SET_TXT_COL bright_white
     ld a, (player_dir)
     call Print_A_Number
 
+    TABTO 0, 3                  ; tab to column 0, row 0
+    ld hl, Debug_TPO_String         
+    call print_string
     ; --- Line 2: Tile Under Player ---
-    TABTO 0, 2
+    TABTO 4, 3
     SET_TXT_COL bright_white
     ld hl, (player_x)
     ld de, (player_y)
@@ -317,8 +370,11 @@ Debug_Overlay:
     call get_tile_at_coords 
     call Print_A_Number
 
+    TABTO 0, 4                  ; tab to column 0, row 0
+    ld hl, Debug_TIP_String         
+    call print_string
     ; --- Line 3: Tile In Front ---
-    TABTO 0, 3
+    TABTO 4, 4
     SET_TXT_COL bright_white
     
     ld hl, (player_x)
@@ -368,6 +424,8 @@ Debug_Overlay:
 .dbg_print:
     call get_tile_at_coords
     call Print_A_Number
+
+
 
     pop ix
     pop hl

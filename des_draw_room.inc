@@ -1,19 +1,16 @@
 ;------------------------------------
 ; File: des_draw_room.inc
+; Logic: decompress and draw room tiles
 ;------------------------------------
-
-;------------------------------
-; DECODE & DRAW ROOM
-;------------------------------
 Draw_Room:
     push ix
     push iy
     ld hl, (current_room_ptr)
     ld de, ram_buffer          
-    ld b, 96                   
+    ld b, 96            ; 96 bytes
 decode_main:
     ld a, (hl)            
-    cp $FF              
+    cp $FF              ; repeat flag
     jr nz, literal_byte
     
     inc hl
@@ -105,60 +102,96 @@ draw_col_loop:
 
     ret
 
-;-------------------------------------------
-; Find & Load Room
-;-------------------------------------------
+;------------------------------
+; Find_And_Load_Room
+; Input: A = Direction (0:S, 1:N, 2:E, 3:W)
+;------------------------------
 Find_And_Load_Room:
-    ld b, a                
-    ld a, (current_room_id)
-    ld c, a                
-    ld ix, Room_Links      
-.loop:
-    ld a, (ix + 0)         
-    cp $FF                 
-    ret z                  
-    cp c                   
-    jr nz, .next
-    ld a, (ix + 2)         
-    cp b
-    jr nz, .next
-    ld a, (ix + 1)         
-    ld (current_room_id), a    
-    ld a, (ix + 4)         
-    ld (player_x), a
-    ld a, (ix + 5)         
-    ld (player_x + 1), a
-    ld a, (ix + 6)         
-    ld (player_y), a
-    ld a, (ix + 7)         
-    ld (player_y + 1), a
-    ld hl, (ix + 8)            
+    push af
+    ld hl, current_room_metadata
+
+    ; Determine the base offset for the direction from the 49 bytes metadata
+    cp 0                  ; SOUTH
+    ld de, $23            ; Corrected: $1C + $07 = $23
+    jr z, .do_load
+    cp 1                  ; NORTH
+    ld de, $24            ; Corrected: $1D + $07 = $24
+    jr z, .do_load
+    cp 2                  ; EAST
+    ld de, $26            ; Corrected: $1F + $07 = $26
+    jr z, .do_load     
+    cp 3                  ; West
+    ld de, $25            ; Corrected: $1E + $07 = $25
+    jr z, .do_load
+
+.do_load:
+    add hl, de
+    ld a, (hl)            ; A = New Room ID from the metadata buffer
+    
+    ; Basic exit check: $61 denotes "no exit"
+    cp $61
+    jr z, .no_exit
+
+    ; Update current room id tracking
+    ld (current_room_id), a
+
+    ; Update the Room Pointer for the Draw_Room routine (ID * 3)
+    ld hl, Room_Pointer_Table
+    ld d, 0
+    ld e, a
+    add hl, de
+    add hl, de
+    add hl, de
+    ld hl, (hl)           ; Load the 24-bit tile address
     ld (current_room_ptr), hl
-    ld a, (ix + 3)             
-    ld (player_dir), a         
-    xor a
-    ld (is_moving), a          
-    pop hl                     
-    jp Trigger_Room_Load
-.next:
-    ld de, 12             
-    add ix, de
-    jr .loop
 
-Found_South_Door:
-    ld a, 0               
-    call Find_And_Load_Room
+    pop af                ; Restore direction for player repositioning
+    call Set_Player_Spawn_Coords
+    ld (player_dir), a    ; set player direction for after room transition.
+    call Trigger_Room_Load
     ret
-Found_North_Door:
-    ld a, 1               
-    call Find_And_Load_Room
-    ret
-Found_East_Door:
-    ld a, 2               
-    call Find_And_Load_Room
-    ret
-Found_West_Door:
-    ld a, 3               
-    call Find_And_Load_Room
 
+.no_exit:
+    pop af
     ret
+;-----------------------------------------------------------
+; Set_Player_Spawn_Coords
+; Sets X/Y based on which side of the screen we entered from
+;-----------------------------------------------------------
+Set_Player_Spawn_Coords:
+    cp 0                  ; Hit South door
+    jr z, .spawn_north
+    cp 1                  ; Hit North door
+    jr z, .spawn_south
+    cp 2                  ; Hit East door
+    jr z, .spawn_west
+    cp 3                  ; Hit West door
+    jr z, .spawn_east
+
+.spawn_north:
+    ld hl, 79             ; X center
+    ld (player_x), hl
+    ld hl, 34             ; Y top
+    ld (player_y), hl
+    ret
+.spawn_south:
+    ld hl, 79             ; X center
+    ld (player_x), hl
+    ld hl, 82             ; Y bottom
+    ld (player_y), hl
+    ret
+.spawn_west:
+    ld hl, 10             ; X left
+    ld (player_x), hl
+    ld hl, 48             ; Y center
+    ld (player_y), hl
+    ret
+.spawn_east:
+    ld hl, 154            ; X right
+    ld (player_x), hl
+    ld hl, 48             ; Y center
+    ld (player_y), hl
+    ret
+
+
+

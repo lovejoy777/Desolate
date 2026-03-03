@@ -1,5 +1,4 @@
-; --- desolstrs.asm (Agon Reformat) ---
-; One instruction per line for ez80asm compatibility
+; --- From desolstrs.asm and new Agon Strings ---
 
 SE129:
     db "You dont seem to be able", 0
@@ -18,9 +17,34 @@ SE12F:
 SE130:
     db "All of the panels are loose", 0
 
-; The "No Power" terminal string
+; The "No Power" Terminal String
 SE131:
     db "This workstation|doesnt seem to|have any power...? ", 0
 
 SE133:
     db "The Workstation has now|successfully booted up", 0
+
+; Game Over Screen Strings
+Dead_String_1:                            
+    .db "The Desolate has claimed", 0     ; game over string 1
+Dead_String_2:                            
+    .db "your life too . . .", 0          ; game over string 2
+
+; Inventory Popup Strings
+Inv_Title_String:                         
+    .db "-INVENTORY-", 0                  ; inventory title string
+Inv_Item_String:                          
+    .db "No Items", 0                     ; inventory item string
+
+; Debug Strings
+Debug_CRN_String:                         
+    .db "CRN:", 0                  
+Debug_CRP_String:                        
+    .db "CRP:", 0                  
+Debug_PCD_String:                          
+    .db "PCD:", 0                     
+Debug_TPO_String:                        
+    .db "TPO:", 0                  
+Debug_TIP_String:                          
+    .db "TIP:", 0   
+                

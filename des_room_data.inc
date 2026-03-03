@@ -458,19 +458,34 @@ room_71:
   DEFB $12,$FF,$0A,$20,$14,$2E,$45,$FF,$08,$01,$46,$14,$2F,$FF,$09,$01 ;
   DEFB $1F,$14,$12,$25,$01,$71,$6D,$70,$70,$6E,$71,$01,$45,$14,$12,$46 ;
   DEFB $45,$40,$6B,$6F,$6F,$6C,$40,$1E,$1F,$14,$17,$FF,$0A,$15,$08     ;
-;
+
+
+;------------------------------------------------------------------------------------
 ; Room descriptions, RLE encoded, for 72 rooms, 49 decoded bytes per description
+;------------------------------------------------------------------------------------
 LD243:
-  DEFB $4D,$4E,$00,$61,$61,$61,$40,$41,$01,$01,$01,$44,$50,$03,$00,$FF ; Room #0
+  DEFB $4D,$4E,$00,$61,$61,$61,$40,$41,$01,$01,$01,$44,$50,$03,$00,$FF ; Room #0 encoded
   DEFB $05,$61,$33,$36,$39,$FF,$05,$61,$01,$00,$00,$00,$61,$61,$61,$01 ; desc
   DEFB $61,$61,$61,$00,$FF,$07,$61,$00,$61 
+     ; $4D,$4E,$00,$61,$61,$61,$40,$41,$01,$01,$01,$44,$50,$03,$00,$61 ; Room #0 decoded
+     ; $61,$61,$61,$61,$33,$36,$39,$61,$61,$61,$61,$61,$01,$00,$00,$00
+     ; $61,$61,$61,$01,$61,$61,$61,$00,$61,$61,$61,$61,$61,$61,$61,$00
+     ; $61
 LD26C:
-  DEFB $4D,$4E,$00,$29,$2A,$01,$61,$61,$61,$00,$FF,$12,$61,$00,$01,$00 ; Room #1
-  DEFB $00,$61,$61,$61,$02,$00,$61,$61,$01,$00,$FF,$06,$61,$00,$61     ; desc
+  DEFB $4D,$4E,$00,$29,$2A,$01,$61,$61,$61,$00,$FF,$12,$61,$00,$01,$00 ; Room #1 encoded
+  DEFB $00,$61,$61,$61,$02,$00,$61,$61,$01,$00,$FF,$06,$02,$00,$61     ; desc
+     ; $4D,$4E,$00,$29,$2A,$01,$61,$61,$61,$00,$61,$61,$61,$61,$61,$61 ; Room #1 decoded
+     ; $61,$61,$61,$61,$61,$61,$61,$61,$61,$61,$61,$61,$00,$01,$00,$00
+     ; $61,$61,$61,$02,$00,$61,$61,$01,$00,$61,$61,$61,$61,$61,$61,$00
+     ; $61
 LD28B:
-  DEFB $4D,$4E,$00,$29,$2A,$01,$32,$33,$01,$01,$05,$FF,$09,$61,$31,$34 ; Room #2
+  DEFB $4D,$4E,$00,$29,$2A,$01,$32,$33,$01,$01,$05,$FF,$09,$61,$31,$34 ; Room #2 encoded
   DEFB $FF,$06,$61,$01,$00,$00,$01,$2E,$3A,$03,$05,$01,$61,$03,$04,$01 ; desc
   DEFB $61,$02,$FF,$04,$61,$00,$61                                     ;
+     ; $4D,$4E,$00,$29,$2A,$01,$32,$33,$01,$01,$05,$61,$61,$61,$61,$61 ; Room #2 decoded
+     ; $61,$61,$61,$61,$31,$34,$61,$61,$61,$61,$61,$61,$01,$00,$00,$01
+     ; $2E,$3A,$03,$05,$01,$61,$03,$04,$01,$61,$02,$61,$61,$61,$61,$00
+     ; $61
 LD2B2:
   DEFB $61,$61,$61,$29,$2A,$01,$61,$61,$61,$00,$FF,$0F,$61,$25,$31,$02 ; Room #3
   DEFB $00,$01,$01,$00,$FF,$04,$61,$04,$02,$61,$61,$03,$02,$FF,$05,$61 ; desc
@@ -486,10 +501,14 @@ LD2F9:
 LD320:
   DEFB $4D,$4E,$00,$29,$2A,$01,$4F,$50,$01,$00,$00,$FF,$09,$61,$3D,$61 ; Room #7
   DEFB $61,$FF,$05,$61,$01,$00,$00,$00,$61,$61,$61,$09,$0A,$61,$61,$09 ; desc
-  DEFB $0A,$FF,$06,$61,$00,$61                                         ;
+  DEFB $0A,$FF,$06,$61,$00,$61                                         
 LD346:
   DEFB $61,$61,$61,$29,$2A,$01,$61,$61,$61,$00,$FF,$12,$61,$FF,$04,$00 ; Room #8
   DEFB $2E,$3A,$03,$61,$05,$61,$09,$61,$07,$61,$08,$FF,$04,$61,$00,$61 ; desc
+     ; $61,$61,$61,$29,$2A,$01,$61,$61,$61,$00,$61,$61,$61,$61,$61,$61
+     ; $61,$61,$61,$61,$61,$61,$61,$61,$61,$61,$61,$61,$00,$00,$00,$00
+     ; $2E,$3A,$03,$61,$05,$61,$09,$61,$07,$61,$08,$61,$61,$61,$61,$00
+     ; $61 
 LD366:
   DEFB $61,$61,$61,$29,$2A,$01,$FF,$05,$00,$44,$44,$00,$19,$FF,$0A,$61 ; Room #9
   DEFB $25,$31,$02,$00,$01,$00,$00,$FF,$04,$61,$07,$08,$61,$61,$09,$08 ; desc
@@ -713,74 +732,158 @@ LDB4C:
   DEFB $FF,$09,$61,$00,$FF,$05,$61,$35,$36,$00,$00,$06,$33,$34,$37,$38 ; Room #71
   DEFB $61,$25,$31,$02,$00,$00,$04,$00,$FF,$05,$61,$46,$61,$61,$61,$4B ; desc
   DEFB $61,$04,$20,$04,$02,$01,$00                                     ;
-;
-DesolateVarsBeg:
-;
-; Variables
-;
-L86D7:  DEFB $00          ; penCol
-L86D8:  DEFB $00          ; penRow
-;
-LDB73:  DEFB $00          ; ?? $00 $01
-;LDB74:  DEFB $0C          ; Line width in tiles
-LDB75:  DEFB $00          ; Player Direction/orientation: $00 down, $01 up, $02 left, $03 right
-LDB76:  DEFB $06          ; X coord in tiles: $01 $06 $0A INC/DEC
-LDB77:  DEFB $30          ; Y coord/line on the screen: 0..127
-LDB78:  DEFB $03          ; Y coord in tiles: $03 $06 INC/DEC
-LDB79:  DEFB $00          ; Room number
-LDB7A:  DEFW $0064        ; Health; initially $64
-LDB7C:  DEFB $00          ; ??
-LDB7D:  DEFB $00          ; Look/shoot switch: $00 look, $01 shoot
-LDB7E:  DEFB $00          ; Alien X coord ??
-LDB7F:  DEFB $00          ; Alien Y coord ??
-LDB80:  DEFB $00          ; Alien Y tile coord ??
-LDB81:  DEFB $00          ; Alien type: $02
-LDB82:  DEFB $00          ; Alien: $01 = we already have an alien in the room
-LDB83:  DEFB $00          ; Alien tile phase
-LDB84:  DEFB $02          ; Alien $01 = alive, $00 = dead
-LDB85:  DEFB $03          ; Alien health: $03, then DEC to $00
-LDB86:  DEFB $00          ; Alien direction/orientation: $00 down, $01 up, $02 left, $03 right
-LDB87:  DEFB $00          ; Alien position within the room, calculated in LB6ED
-LDB88:  DEFB $00          ; Bullet X coord in tiles
-LDB89:  DEFB $00          ; Bullet Y coord/line on the screen
-LDB8A:  DEFB $00          ; Bullet Y coord in tiles
-LDB8B:  DEFB $00          ; Bullet Direction/orientation: $00 down, $01 up, $02 left, $03 right
-LDB8C:  DEFB $00          ; shooting flag ??
-LDB8D:  DEFB $00          ; $01 = shooting in process, bullet in the air
-;  DEFB $00
-LDB8F:  DEFB $3A          ; Menu Y pos: $3A $46 $52 $5E $6A
-LDB90:                    ; Flags about performed progress
-  DEFB $00
-  DEFB $00                ; +$01: $01 = the Generator is working
-  DEFB $00                ; +$02: $01 = the Workstation is working
-  DEFB $00
-  DEFB $00                ; +$04: $01 = Life-Support System is working
-  DEFB $00                ; +$05: $01 = Evacuation Deck re-pressurised
-  DEFB $00                ; +$06: $01 = Guidance System working
-  DEFB $00
-  DEFB $00,$00,$00,$00
-LDB9C:                    ; Inventory items: $00 = not having, $01 = have it
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00
-LDBC3:  DEFW $0000        ; Player Deaths count
-LDBC5:  DEFW $0000        ; Enemies Killed count
-LDBC7:  DEFB $00          ; Items Found count
-LDBF4:  DEFB $00          ; Counter of achievements on the Stats screen
-;
-; Screen/room buffer, 12 * 8 = 96 bytes
-LDBF5:
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
-  DEFB $00,$00,$00,$00,$00,$00,$00,$00
+
+;------------------------------------------------------------
+; Pointer table to the compressed room tiles for each room
+; In the original, this is a table of 72 word pointers
+;------------------------------------------------------------
+Room_Pointer_Table:
+    dl LBFF8 ; room_00
+    dl LC04D ; room_01
+    dl LC09D ; room_02
+    dl LC0F4 ; room_03
+    dl LC141 ; room_04
+    dl LC18D ; room_05
+    dl LC1DE ; room_06 (dummy)
+    dl LC1DE ; room_07
+    dl LC22E ; room_08
+    dl LC276 ; room_09
+    dl LC2BC ; room_10
+    dl LC2F4 ; room_11
+    dl LC33F ; room_12
+    dl LC38D ; room_13
+    dl LC3D3 ; room_14
+    dl LC41E ; room_15
+    dl LC467 ; room_16
+    dl LC4AA ; room_17
+    dl LC4F7 ; room_18
+    dl LC538 ; room_19
+    dl LC584 ; room_20
+    dl LC5C6 ; room_21
+    dl LC609 ; room_22
+    dl LC645 ; room_23 (dummy)
+    dl LC645 ; room_24
+    dl LC692 ; room_25 (dummy)
+    dl LC692 ; room_26
+    dl LC6DC ; room_27
+    dl LC720 ; room_28
+    dl LC766 ; room_29
+    dl LC7B3 ; room_30
+    dl LC7F5 ; room_31
+    dl LC837 ; room_32
+    dl LC87A ; room_33
+    dl LC8C3 ; room_34 (dummy)
+    dl LC8C3 ; room_35
+    dl LC903 ; room_36 (dummy)
+    dl LC903 ; room_37
+    dl LC93B ; room_38
+    dl LC979 ; room_39
+    dl LC9C1 ; room_40
+    dl LCA07 ; room_41
+    dl LCA4E ; room_42
+    dl LCA92 ; room_43
+    dl LCAD4 ; room_44 
+    dl LCB19 ; room_45
+    dl LCB5B ; room_46
+    dl LCBA2 ; room_47
+    dl LCBEA ; room_48
+    dl LCC28 ; room_49
+    dl LCC68 ; room_50
+    dl LCCA9 ; room_51
+    dl LCCEF ; room_52
+    dl LCD36 ; room_53
+    dl LCD7B ; room_54
+    dl LCDBC ; room_55
+    dl LCE09 ; room_56
+    dl LCE4D ; room_57
+    dl LCE93 ; room_58 (dummy)
+    dl LCE93 ; room_59
+    dl LCED9 ; room_60
+    dl LCF20 ; room_61
+    dl LCF59 ; room_62
+    dl LCFA0 ; room_63
+    dl LCFDE ; room_64
+    dl LD03E ; room_65 
+    dl LD082 ; room_66
+    dl LD0D3 ; room_67
+    dl LD11F ; room_68
+    dl LD17F ; room_69
+    dl LD1BB ; room_70
+    dl LD204 ; room_71
+;------------------------------------------------------------
+; Pointer table to the compressed metadata for each room
+; In the original, this is a table of 72 word pointers
+;------------------------------------------------------------
+Metadata_Pointer_Table:
+    dl LD243 ; Room 0
+    dl LD26C ; Room 1
+    dl LD28B ; Room 2
+    dl LD2B2 ; Room 3
+    dl LD2D4 ; Room 4
+    dl LD2F9 ; Room 5
+    dl LD320 ; Room 6 (dummy)
+    dl LD320 ; Room 7
+    dl LD346 ; Room 8
+    dl LD366 ; Room 9
+    dl LD38B ; Room 10
+    dl LD3A9 ; Room 11
+    dl LD3D1 ; Room 12
+    dl LD3F8 ; Room 13
+    dl LD417 ; Room 14
+    dl LD438 ; Room 15
+    dl LD45C ; Room 16
+    dl LD483 ; Room 17
+    dl LD4A2 ; Room 18
+    dl LD4C4 ; Room 19
+    dl LD4E7 ; Room 20
+    dl LD508 ; Room 21
+    dl LD529 ; Room 22
+    dl LD555 ; Room 23 (dummy)
+    dl LD555 ; Room 24
+    dl LD579 ; Room 25 (dummy)
+    dl LD579 ; Room 26
+    dl LD59D ; Room 27
+    dl LD5C5 ; Room 28
+    dl LD5E6 ; Room 29
+    dl LD60D ; Room 30
+    dl LD630 ; Room 31
+    dl LD657 ; Room 32
+    dl LD683 ; Room 33
+    dl LD6A8 ; Room 34 (dummy)
+    dl LD6A8 ; Room 35
+    dl LD6CE ; Room 36 (dummy)
+    dl LD6CE ; Room 37
+    dl LD6ED ; Room 38
+    dl LD70B ; Room 39
+    dl LD72E ; Room 40
+    dl LD74F ; Room 41
+    dl LD778 ; Room 42
+    dl LD79D ; Room 43
+    dl LD7C4 ; Room 44
+    dl LD7E7 ; Room 45
+    dl LD809 ; Room 46
+    dl LD82B ; Room 47
+    dl LD852 ; Room 48
+    dl LD873 ; Room 49
+    dl LD894 ; Room 50
+    dl LD8B8 ; Room 51
+    dl LD8DB ; Room 52
+    dl LD8FF ; Room 53
+    dl LD91E ; Room 54
+    dl LD944 ; Room 55
+    dl LD969 ; Room 56
+    dl LD98D ; Room 57
+    dl LD9AE ; Room 58 (dummy)
+    dl LD9AE ; Room 59
+    dl LD9CF ; Room 60
+    dl LD9F0 ; Room 61
+    dl LDA0F ; Room 62
+    dl LDA31 ; Room 63
+    dl LDA4E ; Room 64
+    dl LDA74 ; Room 65
+    dl LDA90 ; Room 66
+    dl LDAB7 ; Room 67
+    dl LDADA ; Room 68
+    dl LDB03 ; Room 69
+    dl LDB25 ; Room 70
+    dl LDB4C ; Room 71

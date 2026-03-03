@@ -187,7 +187,6 @@ Update_Small_Alien:
     ld (alien_state), a   ; Back to choosing a new direction
     ret
 
-
 ;======================
 ; BIG ALIEN
 ;======================
@@ -375,4 +374,24 @@ Update_Big_Alien:
     ret nz                ; Keep waiting until timer is 0
     xor a
     ld (big_alien_state), a   ; Back to choosing a new direction
+    ret
+
+;-----------------------------------------------------------
+; Example Usage: Loading Alien from Metadata
+;-----------------------------------------------------------
+Load_Alien_From_Meta:
+    ld ix, current_room_metadata
+    ld a, (ix + 40)       ; Byte 40 = Alien Type
+    cp 0
+    jr z, .no_alien
+    
+    ld (sm_alien_is_active), a
+    ld a, (ix + 41)       ; Byte 41 = Spawn X
+    ld (small_alien_x), a
+    ld a, (ix + 42)       ; Byte 42 = Spawn Y
+    ld (small_alien_y), a
+    ret
+.no_alien:
+    xor a
+    ld (sm_alien_is_active), a
     ret

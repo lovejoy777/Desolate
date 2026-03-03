@@ -1,0 +1,28 @@
+Room descriptions, RLE encoded, for 72 rooms, 49 decoded bytes per description.
+
+Byte Offset,Description
+=========================
+0  - 3     Neighboring Rooms:
+[0]=North
+[1]=South
+[2]=West
+[3]=East.
+($FF = No Exit)
+===============================
+4  - 7     Door Logic:
+Flags for whether doors are locked or require specific items.
+===============================
+8  - 39    Object Slots (8 Slots total, 4 bytes each):
++0: Object/Item ID ($00 = Empty)
++1: Tile X-coordinate
++2: Tile Y-coordinate
++3: Attribute (State, e.g., picked up or active)
+================================
+40 - 43    Alien Data:
+[40]=Alien Type
+[41]=Spawn X
+[42]=Spawn Y
+[43]=Movement Pattern.
+
+44 - 48    Room Properties: 
+Room Name ID, special palette triggers, or gravity/oxygen flags.
