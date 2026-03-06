@@ -376,22 +376,3 @@ Update_Big_Alien:
     ld (big_alien_state), a   ; Back to choosing a new direction
     ret
 
-;-----------------------------------------------------------
-; Example Usage: Loading Alien from Metadata
-;-----------------------------------------------------------
-Load_Alien_From_Meta:
-    ld ix, current_room_metadata
-    ld a, (ix + 46)       ; Byte 40 = Alien Type
-    cp 0
-    jr z, .no_alien
-    
-    ld (sm_alien_is_active), a
-    ld a, (ix + 43)       ; Byte 41 = Spawn X
-    ld (small_alien_x), a
-    ld a, (ix + 44)       ; Byte 42 = Spawn Y
-    ld (small_alien_y), a
-    ret
-.no_alien:
-    xor a
-    ld (sm_alien_is_active), a
-    ret

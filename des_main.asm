@@ -314,8 +314,8 @@ Take_Damage:
     ; --- 2. Check for Death ---
     ld a, (player_health)           ; get player health
     sub 2                           ; Subtract the damage first
-    jr z, .is_dead                  ; If result is 0, player is dead
-    jr c, .is_dead                  ; If result is negative (Carry), they are dead
+    jp z, .is_dead                  ; If result is 0, player is dead
+    jp c, .is_dead                  ; If result is negative (Carry), they are dead
     ld (player_health), a           ; Otherwise, save the new health
 
     ; --- 3. Apply Physical Knockback --- Dir S(0)N(1)E(2)W(3),
@@ -332,37 +332,56 @@ Take_Damage:
 
 .kb_up:
     ld hl, (player_y)               ; Get current Y
-    ld bc, 4                        ; knock back pixels
+    ld bc, 8                        ; knock back pixels
     or a                            ; or a
     sbc hl, bc                      ; Subtract from Y
+
+    call get_tile_at_coords
+    cp $01
+    jp nz, .apply_damage 
+
     ld (player_y), hl               ; Save new Y
     jr .apply_damage                ; Apply damage
 
 .kb_down:
     ld hl, (player_y)               ; Get current Y
-    ld bc, 4                        ; knock back pixels
+    ld bc, 8                        ; knock back pixels
     add hl, bc                      ; Add to Y
+
+    call get_tile_at_coords
+    cp $01
+    jp nz, .apply_damage 
+
     ld (player_y), hl               ; Save new Y
     jr .apply_damage                ; Apply damage
 
 .kb_right:
     ld hl, (player_x)               ; Get current X
-    ld bc, 4                        ; knock back pixels
+    ld bc, 8                        ; knock back pixels
     add hl, bc                      ; Add to X
+
+    call get_tile_at_coords
+    cp $01
+    jp nz, .apply_damage 
+
     ld (player_x), hl               ; Save new X
     jr .apply_damage                ; Apply damage
 
 .kb_left:
     ld hl, (player_x)               ; Get current X
-    ld bc, 4                        ; knock back pixels
+    ld bc, 8                        ; knock back pixels
     or a                            ; or a
     sbc hl, bc                      ; Subtract from X
+
+    call get_tile_at_coords
+    cp $01
+    jp nz, .apply_damage 
+
     ld (player_x), hl               ; Save new X
 
 .apply_damage:
     ; --- 4. Process Health Reduction ---
     ld a, (player_health)           ; Get current health
-    sub 2                           ; Reduce health
     ld (player_health), a           ; Save new health
     ld a, 20                        ; Reset cooldown (0.5s at 30fps)
     ld (damage_cooldown), a         ; Save new cooldown
