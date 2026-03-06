@@ -17,15 +17,13 @@
 ;--------------------
 ; Includes
 ;--------------------
-    
-    ; Main Includes
     .include "des_input.inc"
     .include "des_load_font.inc"
     .include "des_font.inc"
     .include "des_strings.inc"
     .include "des_main_subs.inc"
+    .include "strings24.asm"
 
-    ; Game Logic Includes
     .include "des_load_assets.inc"
     .include "des_draw_banner.inc"
     .include "des_metadata_logic.inc"
@@ -35,8 +33,7 @@
     .include "des_update_aliens.inc"
     .include "des_draw_aliens.inc"
     .include "des_draw_popups.inc"
-
-    ; Game Data Includes
+    
     .include "des_room_data.inc"
     .include "des_tiles.inc"
     
@@ -45,8 +42,12 @@
 ;-------------------------
 debug_delay_counter:   db   60      ; delay counter for debugging
 
+; Rooms vars
+current_room_ptr:      dl room_00
+current_room_id:       db  0
+
 ;---------------
-; Player.
+; Player Vars
 ;---------------
 player_sprite_id:      equ  0       ; Sprite ID number
 player_x_mid:          db   16      ; Middle of player X
@@ -66,18 +67,18 @@ cooldown_time:         db   20      ; time to wait before taking damage again
 knock_back_px:         db   2       ; amount of knock back in pixels
 
 ;----------------
-; Aliens
+; Aliens Vars
 ;----------------
 ; --- Small_alien ---
 small_alien_sprite_id: equ 1    ; Sprite ID number
 alien:                 equ 63   ; used for bitmap ID number
 small_alien_x_mid:     db  8    ; Middle of alien X
 small_alien_y_mid:     db  8    ; Middle of alien Y
-small_alien_x:         dw  79   ; Current X
-small_alien_y:         dw  80   ; Current Y
+small_alien_x:         dw  0   ; Current X
+small_alien_y:         dw  0   ; Current Y
 small_alien_dir:       db  0    ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
-small_alien_spawn_x:   dw  79   ; Default Spawn X
-small_alien_spawn_y:   dw  80   ; Default Spawn Y
+small_alien_spawn_x:   dw  0   ; Default Spawn X
+small_alien_spawn_y:   dw  0   ; Default Spawn Y
 small_alien_room:      db  1    ; The ID of the room where he lives
 sm_alien_is_active:    db  0    ; 1 = Visible, 0 = Hidden
 alien_anim_timer:      db  0    ; Animation timer
@@ -86,23 +87,16 @@ alien_state:           db  0    ; 0=Choosing, 1=Moving, 2=Waiting
 alien_move_count:      db  0    ; How many steps left to take
 alien_wait_timer:      db  0    ; How long to stay still
 
-alien_random_seed:     db  $A5  ; A starting seed for our random numbers
-
-; --- Alien Room List ---
-; A list of all rooms containing a small alien. End with 255 as a marker.
-alien_rooms_list: 
-    .db 3, 18, 26, 29, 32, 33, 35, 39, 43, 45, 48, 49, 51, 54, 67, 68, 70, 255
-
 ; --- Big Alien ---
 big_alien_sprite_id:   equ 2    ; Sprite ID number
 big_alien:             equ 38   ; used for bitmap ID number
 big_alien_x_mid:       db  8    ; Middle of alien X
 big_alien_y_mid:       db  16   ; Middle of alien Y
-big_alien_x:           dw  90   ; Current X
-big_alien_y:           dw  50   ; Current Y
+big_alien_x:           dw  0   ; Current X
+big_alien_y:           dw  0   ; Current Y
 big_alien_dir:         db  0    ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
-big_alien_spawn_x:     dw  90   ; Default Spawn X
-big_alien_spawn_y:     dw  50   ; Default Spawn Y
+big_alien_spawn_x:     dw  0   ; Default Spawn X
+big_alien_spawn_y:     dw  0   ; Default Spawn Y
 big_alien_is_active:   db  0    ; 1 = Visible, 0 = Hidden
 big_alien_anim_timer:  db  0    ; Animation timer
 big_alien_move_timer:  db  0    ; Movement timer
@@ -110,27 +104,16 @@ big_alien_state:       db  0    ; 0=Choosing, 1=Moving, 2=Waiting
 big_alien_move_count:  db  0    ; How many steps left to take
 big_alien_wait_timer:  db  0    ; How long to stay still
 
-; --- Big Alien Room List ---
-; A list of all rooms containing a big alien. End with 255 as a marker.
-big_alien_rooms_list:  
-    .db 4, 22, 37, 38, 40, 41, 47, 52, 53, 56, 57, 61, 64, 65, 66, 69, 71, 255
-    ; byte 47 of room description (alien in room) 01 small alien, 02 big alien.
-    
-; Rooms
-current_room_ptr:      dl room_00
-current_room_id:       db  0
-
-;--------------------
+alien_random_seed:     db  $A5  ; A starting seed for our random numbers
+   
 ; Popup Window Vars
-;--------------------
 ui_win_active:         db  0
 space_lock:            db  0
 inv_lock:              db  0
 
 ;----------------
 ; Start Here
-;----------------
-          
+;----------------     
 start_here:
     push af
     push bc
@@ -158,38 +141,24 @@ start_here:
 ;--------------------------
 Trigger_Room_Load:
     CLG                     ; clear graphics in the game screen.
-    
     xor a                   ; clear accumulator
     ld (is_moving), a       ; Force the player to stop moving
     ld (move_timeout), a    ; Reset the timer
 
-    ; --- Reset small Alien to Spawn Point ---
-    ld hl, (small_alien_spawn_x) ; get small alien spawn x
-    ld (small_alien_x), hl       ; store small alien x
-    ld hl, (small_alien_spawn_y) ; get small alien spawn y
-    ld (small_alien_y), hl       ; store small alien y
-    ; --- Reset Big Alien to Spawn Point ---
-    ld hl, (big_alien_spawn_x)     ; get big alien spawn x
-    ld (big_alien_x), hl           ; store big alien x
-    ld hl, (big_alien_spawn_y)     ; get big alien spawn y
-    ld (big_alien_y), hl           ; store big alien y
-
-    call Check_Alien_Presence      ; Checks list and sets alien_is_active
-   
     call Decode_Room_Metadata      ; from des_metadata_logic.inc
+    call Check_Alien_Presence      ; Checks room metadata and sets sm_alien_is_active & big_alien_is_active
     call Draw_Room                 ; from des_draw_room.inc
-
     call Draw_Health_Value         ; from main_subs.inc
     call update_animation          ; from des_player_control.inc
 
-    ; Player sprite
-    Select_Sprite_8bit 0    ; Select player
+    ; Select Player Sprite (0)
+    Select_Sprite_8bit 0
     Show_Sprite
     Update_GPU 
     jp main_loop
 
 ;=====================================================================
-; MAIN LOOP
+; MAIN GAME LOOP
 ;======================================================================
 main_loop:
     ; --- Decrement Cooldown for player damage ---
@@ -220,10 +189,6 @@ main_loop:
     call Update_Midpoints 
     ; 6. Check if Player and Alien are touching
     call Collision_Detection
-
-    ;----------------------------------------------
-    ; Draw routines 
-    ;----------------------------------------------
     ; 7. Draw the Small Alien 
     call Draw_Small_Alien            ; from des_draw_room.inc
     ; 8. Draw the Big Alien 
@@ -237,9 +202,9 @@ main_loop:
     ; if pop up window is open jump here
     .skip_gameplay: 
 
-    ;----------------------------------------
-    ; Debug Print outs top left of screen
-    ;----------------------------------------
+;----------------------------------------
+; Debug Print outs top left of screen
+;----------------------------------------
     ; --- Delayed Debug Update ---
     ld a, (debug_delay_counter) ; get debug delay counter
     dec a                       ; decrement debug delay counter
@@ -262,7 +227,6 @@ main_loop:
     bit 0, a                ; ESC bit from keyboard matrix
     jp nz, exit_back_to_mos ; Exit if pressed
     
-
     jp main_loop
 ;===========================================
 ; END MAIN GAME LOOP
@@ -335,7 +299,6 @@ jp Take_Damage
 ;---------------------------------------
 ; TAKE DAMAGE
 ;---------------------------------------
-
 Take_Damage:
     ; --- 1. Cooldown Check ---
     ld a, (damage_cooldown)         ; get damage cooldown
@@ -455,78 +418,86 @@ Draw_Dead:
     ret
 
 ;---------------------------------------------
-; Check Alien Presence (Combined Small & Big)
+; Check Alien Presence (Using Metadata 43-47)
+; 43: X Tile, 44: Y Tile, 46: Type (1=Sm, 2=Bg)
 ;---------------------------------------------
 Check_Alien_Presence:
-    ;--------------------------------------
-    ; --- STEP 1: Check for Small Alien ---
-    ;--------------------------------------
-    ld hl, alien_rooms_list      ; load alien rooms list
-    ld a, (current_room_id)      ; load current room id
-    ld b, a                      ; copy to b
+    ; Default both to inactive
+    xor a
+    ld (sm_alien_is_active), a
+    ld (big_alien_is_active), a
 
-.sm_check_loop:
-    ld a, (hl)                   ; load byte from hl
-    cp 255                       ; 255 is the end of the list
-    jr z, .sm_not_found          ; If not in small list, go to 'not found'
-    cp b                         ; Compare with current room id
-    jr z, .sm_found              ; If in list, go to 'found'
-    inc hl                       ; Move to next room id
-    jr .sm_check_loop            ; loop back to check next room id
+    ld hl, current_room_metadata
+    push hl
+    ; Check Alien Type (Byte 46)
+    ld de, $2E
+    add hl, de
+    ld a, (hl)       ; Offset $2E
+    cp $01                ; Small Alien?
+    jr z, .init_small
+    cp $02                ; Big Alien?
+    jr z, .init_big
+    pop hl
+    ret                   ; No alien or $61
 
-.sm_found:
-    ld a, 1                      ; Set small alien active flag
-    ld (sm_alien_is_active), a   ; Save small alien active flag
-    ; Reset small alien to spawn point
-    ld a, (small_alien_spawn_x)  ; load small alien spawn x
-    ld (small_alien_x), a        ; save small alien x
-    xor a                        ; clear a
-    ld (small_alien_x + 1), a    ; save small alien x + 1
-    ld a, (small_alien_spawn_y)  ; load small alien spawn y
-    ld (small_alien_y), a        ; save small alien y
-    xor a                        ; clear a
-    ld (small_alien_y + 1), a    ; save small alien y + 1
-    jr .big_alien_start          ; Done with small, move to big check
+.init_small:
+    ld a, 1
+    ld (sm_alien_is_active), a
+    pop hl
+    push hl
+    ; Get X Tile (Byte 43-2B), multiply by 16 for Pixels
+    ld de, $2B
+    add hl, de
+    ld a, (hl)
+    ld l, a
+    ld h, 0
+    add hl, hl    ; *2
+    add hl, hl    ; *4
+    add hl, hl    ; *8
+    add hl, hl    ; *16
+    ld (small_alien_x), hl
+    pop hl
+    ; Get Y Tile (Byte 45-2D), multiply by 16 for Pixels
+    ld de, $2D
+    add hl, de
+    ld a, (hl)
+    ld l, a
+    ld h, 0
+    add hl, hl    ; *2
+    add hl, hl    ; *4
+    add hl, hl    ; *8
+    add hl, hl    ; *16
+    ld (small_alien_y), hl
+    ret
 
-.sm_not_found:
-    xor a                        ; clear a
-    ld (sm_alien_is_active), a   ; Save small alien active flag
-    ; Fall through to check the big alien list
-
-    ;------------------------------------
-    ; --- STEP 2: Check for Big Alien ---
-    ;-------------------------------------
-.big_alien_start:
-    ld hl, big_alien_rooms_list   ; load big alien rooms list
-    ld a, (current_room_id)       ; load current room id
-    ld b, a                       ; copy to b
-
-.big_check_loop:
-    ld a, (hl)                    ; load byte from hl
-    cp 255                        ; 255 is the end of the list
-    jr z, .big_not_found          ; Not in big list
-    cp b                          ; Compare with current room id
-    jr z, .big_found              ; Found in big list
-    inc hl                        ; Move to next room id
-    jr .big_check_loop            ; loop back to check next room id
-
-.big_found:
-    ld a, 1                       ; Set big alien active flag
-    ld (big_alien_is_active), a   ; Save big alien active flag
-    ; Reset big alien to spawn point
-    ld a, (big_alien_spawn_x)     ; load big alien spawn x
-    ld (big_alien_x), a           ; save big alien x
-    xor a                         ; clear a
-    ld (big_alien_x + 1), a       ; save big alien x + 1
-    ld a, (big_alien_spawn_y)     ; load big alien spawn y
-    ld (big_alien_y), a           ; save big alien y
-    xor a                         ; clear a
-    ld (big_alien_y + 1), a       ; save big alien y + 1
-    ret                           ; END OF ROUTINE
-
-.big_not_found:
-    xor a                         ; clear a
-    ld (big_alien_is_active), a   ; Save big alien active flag
+.init_big:
+    ld a, 1
+    ld (big_alien_is_active), a
+    pop hl
+    push hl
+    ; Get X Tile (Byte 43-2B), multiply by 16 for Pixels
+    ld de, $2B
+    add hl, de
+    ld a, (hl)
+    ld l, a
+    ld h, 0
+    add hl, hl    ; *2
+    add hl, hl    ; *4
+    add hl, hl    ; *8
+    add hl, hl    ; *16
+    ld (big_alien_x), hl
+    pop hl
+    ; Get Y Tile (Byte 45-2D), multiply by 16 for Pixels
+    ld de, $2D
+    add hl, de
+    ld a, (hl)
+    ld l, a
+    ld h, 0
+    add hl, hl    ; *2
+    add hl, hl    ; *4
+    add hl, hl    ; *8
+    add hl, hl    ; *16
+    ld (big_alien_y), hl
     ret
 
 ;------------------------------------

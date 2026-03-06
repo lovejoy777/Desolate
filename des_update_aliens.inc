@@ -114,7 +114,7 @@ Update_Small_Alien:
     ld hl, 0
     ld a, (small_alien_x)
     ld l, a
-    ld bc, 16             ; Check 0 pixel past right side (16)
+    ld bc, 16             ; Check 0 pixel past right side (16) small_alien_spawn_x
     add hl, bc
     push hl               ; Save New X
 
@@ -381,14 +381,14 @@ Update_Big_Alien:
 ;-----------------------------------------------------------
 Load_Alien_From_Meta:
     ld ix, current_room_metadata
-    ld a, (ix + 40)       ; Byte 40 = Alien Type
+    ld a, (ix + 46)       ; Byte 40 = Alien Type
     cp 0
     jr z, .no_alien
     
     ld (sm_alien_is_active), a
-    ld a, (ix + 41)       ; Byte 41 = Spawn X
+    ld a, (ix + 43)       ; Byte 41 = Spawn X
     ld (small_alien_x), a
-    ld a, (ix + 42)       ; Byte 42 = Spawn Y
+    ld a, (ix + 44)       ; Byte 42 = Spawn Y
     ld (small_alien_y), a
     ret
 .no_alien:

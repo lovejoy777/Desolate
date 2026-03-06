@@ -3,67 +3,58 @@
 ;=============================================
 Draw_Small_Alien:
     ; 1. ACTIVE CHECK: Only draw if alien_is_active is 1
-    ld a, (sm_alien_is_active) ; You may need to rename 'small_alien_active' in des_main.asm to match this
+    ld a, (sm_alien_is_active) 
     or a
-    jr z, .hide_small_alien       ; If 0, hide it
-
-    jr .init_spawn
+    jr nz, .draw_active       ; IF ACTIVE: Jump OVER the hide logic
 
 .hide_small_alien:
-    ; If not in the room, hide the sprite and exit
+    ; IF NOT ACTIVE: Hide the sprite and exit
     Select_Sprite_8bit 1
     Hide_Sprite
-
-    ret
+    ret                       ; Return here so we don't draw anything
     
-.init_spawn:
-
+.draw_active:                 ; This was formerly .init_spawn
     ; Select Sprite 1.
     Select_Sprite_8bit 1
     
-    ; --- Slow down logic ---
+    ; --- Animation logic ---
     ld hl, alien_anim_timer
     inc (hl)
     ld a, (hl)
-    cp 5                ; <--- number to adjust speed (Higher = Slower)
+    cp 5                
     jr nz, .skip_frame_swap
     
-    ld (hl), 0           ; Reset alien_anim_timer timer
-
-    ; Next frame
+    ld (hl), 0          
     Load_Next_Frame
 
 .skip_frame_swap:
-
-    ; Move sprite
+    ; --- Move sprite (VDU 23, 27, 13) ---
     ld a, 23
     rst.lil $10
     ld a, 27
     rst.lil $10
-    ld a, 13            ; Command 3: move sprite
+    ld a, 13            
     rst.lil $10
 
-    ; --- X Coordinate (MUST SEND 2 BYTES) ---
+    ; Send X (2 bytes)
     ld hl, (small_alien_x)
-    ld bc, 64           ; X screen offset if applicable
+    ld bc, 64           ; Screen Offset
     add hl, bc
-    ld a, l             ; Send Low Byte (e.g., 180)
+    ld a, l             
     rst.lil $10
-    ld a, h             ; Send High Byte (e.g., 0)
+    ld a, h             
     rst.lil $10
 
-    ; --- Y Coordinate (MUST SEND 2 BYTES) ---
+    ; Send Y (2 bytes)
     ld hl, (small_alien_y)
-    ld bc, 83           ; Y screen offset if applicable
+    ld bc, 83           ; Screen Offset
     add hl, bc
-    ld a, l             ; Send Low Byte
+    ld a, l             
     rst.lil $10
-    ld a, h             ; Send High Byte
+    ld a, h             
     rst.lil $10
 
-    ; Show sprite
     Show_Sprite
-    ; Update gpu
     Update_GPU
     ret
 
@@ -72,18 +63,29 @@ Draw_Small_Alien:
 ;=============================================
 Draw_Big_Alien:
     ; 1. ACTIVE CHECK: Only draw if alien_is_active is 1
-    ld a, (big_alien_is_active) ; You may need to rename 'big_alien_active' in des_main.asm to match this
+    ld a, (big_alien_is_active) 
     or a
-    jr z, .hide_big_alien       ; If 0, hide it
-
-    jr .init_big_spawn
+    jr nz, .draw_big_active       ; If 0, hide it
 
 .hide_big_alien:
-    ; If not in the room, hide the sprite and exit
+    ; IF NOT ACTIVE: Hide the sprite and exit
     Select_Sprite_8bit 2
     Hide_Sprite
+    ret 
 
-    ret
+.draw_big_active:                 
+    ; Select Sprite 2.
+    Select_Sprite_8bit 2
+    
+    ; --- Animation logic ---
+    ld hl, big_alien_anim_timer
+    inc (hl)
+    ld a, (hl)
+    cp 5                
+    jr nz, .skip_big_frame_swap
+    
+    ld (hl), 0          
+    Load_Next_Frame
     
 .init_big_spawn:
 
@@ -104,7 +106,7 @@ Draw_Big_Alien:
 
 .skip_big_frame_swap:
 
-    ; Move sprite
+    ; Move sprite 
     ld a, 23
     rst.lil $10
     ld a, 27

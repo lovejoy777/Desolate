@@ -20,7 +20,6 @@ SE130:
 ; The "No Power" Terminal String
 SE131:
     db "This workstation|doesnt seem to|have any power...? ", 0
-
 SE133:
     db "The Workstation has now|successfully booted up", 0
 
@@ -37,14 +36,22 @@ Inv_Item_String:
     .db "No Items", 0                     ; inventory item string
 
 ; Debug Strings
+; Current Room Number
 Debug_CRN_String:                         
-    .db "CRN:", 0                  
-Debug_CRP_String:                        
-    .db "CRP:", 0                  
+    .db "CRN:", 0    
+; Is Small Alien Active              
+Debug_SAA_String:                        
+    .db "SAA:", 0  
+    ; Is Big Alien Active
+Debug_BAA_String:                        
+    .db "BAA:", 0 
+; Players Current Direction           
 Debug_PCD_String:                          
-    .db "PCD:", 0                     
+    .db "PCD:", 0   
+; Tile ID Under Player                  
 Debug_TPO_String:                        
-    .db "TPO:", 0                  
+    .db "TPO:", 0   
+; Tile ID In Front Of Player               
 Debug_TIP_String:                          
     .db "TIP:", 0   
                 

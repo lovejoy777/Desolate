@@ -139,9 +139,9 @@ Find_And_Load_Room:
     ld hl, Room_Pointer_Table
     ld d, 0
     ld e, a
-    add hl, de
-    add hl, de
-    add hl, de
+    add hl, de ;*2
+    add hl, de ;*4
+    add hl, de ;*8
     ld hl, (hl)           ; Load the 24-bit tile address
     ld (current_room_ptr), hl
 
@@ -192,6 +192,3 @@ Set_Player_Spawn_Coords:
     ld hl, 48             ; Y center
     ld (player_y), hl
     ret
-
-
-

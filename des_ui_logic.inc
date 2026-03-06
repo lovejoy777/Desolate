@@ -160,6 +160,10 @@ Check_Action_Triggers:
     PLAY_SOUND 0, 127, 1000, 15
     Select_Sprite_8bit 0
     Hide_Sprite
+    Select_Sprite_8bit 1
+    Hide_Sprite
+    Select_Sprite_8bit 2
+    Hide_Sprite
     call Draw_Terminal_Popup
     SET_TXT_BG_COL 8
     SET_TXT_COL black
@@ -176,6 +180,8 @@ Check_Action_Triggers:
     SET_TXT_COL bright_white
     Select_Sprite_8bit 0
     Show_Sprite
+    
+    
     CLG
     call Draw_Room
 
