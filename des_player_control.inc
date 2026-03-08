@@ -81,7 +81,7 @@ set_moving:
 ;-----------------------------------------------------------
 apply_movement:
     ld a, (player_dir)
-    or a
+    cp 0
     jp z, check_down       ; South
     cp 1
     jp z, check_up         ; North
@@ -372,16 +372,6 @@ send_vdu:
     ld a, b
     rst.lil $10
 
-    ; load X for VDP Sprite Position
-    ld hl, 0
-    ld a, (player_x)
-    ld l, a
-    ld a, (player_x + 1)
-    ld h, a
-
-    ld bc, 64         ; Screen X offset for game screen
-    add hl, bc
-
     ; Move sprite
     ld a, 23
     rst.lil $10
@@ -389,21 +379,26 @@ send_vdu:
     rst.lil $10
     ld a, 13          ; Move sprite
     rst.lil $10
-    
+
+    ; load X for VDP Sprite Position
+    ld hl, (player_x)
+    ld bc, 64         ; Screen X offset for game screen
+    add hl, bc
     ld a, l
     rst.lil $10       
     ld a, h
     rst.lil $10
 
     ; load Y for VDP Sprite Position
-    ld hl, 0
-    ld a, (player_y)
-    ld l, a
-    ld a, (player_y + 1)
-    ld h, a
+    ld hl, (player_y)
     ld bc, 83          ; Screen Y offset for game screen
     add hl, bc
     ld a, l
     rst.lil $10        
     ld a, h
     rst.lil $10
+
+    Select_Sprite_8bit 0
+    Show_Sprite
+   ; Update_GPU
+    ret

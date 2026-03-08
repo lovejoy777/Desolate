@@ -13,8 +13,7 @@ Draw_Small_Alien:
     Hide_Sprite
     ret                       ; Return here so we don't draw anything
     
-.draw_active:                 ; This was formerly .init_spawn
-    ; Select Sprite 1.
+.draw_active:                 
     Select_Sprite_8bit 1
     
     ; --- Animation logic ---
@@ -54,8 +53,8 @@ Draw_Small_Alien:
     ld a, h             
     rst.lil $10
 
+    Select_Sprite_8bit 1
     Show_Sprite
-    Update_GPU
     ret
 
 ;=============================================
@@ -68,13 +67,11 @@ Draw_Big_Alien:
     jr nz, .draw_big_active       ; If 0, hide it
 
 .hide_big_alien:
-    ; IF NOT ACTIVE: Hide the sprite and exit
     Select_Sprite_8bit 2
     Hide_Sprite
     ret 
 
 .draw_big_active:                 
-    ; Select Sprite 2.
     Select_Sprite_8bit 2
     
     ; --- Animation logic ---
@@ -89,7 +86,6 @@ Draw_Big_Alien:
     
 .init_big_spawn:
 
-    ; Select Sprite 2.
     Select_Sprite_8bit 2
     
     ; --- Slow down logic ---
@@ -101,7 +97,6 @@ Draw_Big_Alien:
     
     ld (hl), 0           ; Reset big_alien_anim_timer timer
 
-    ; Next frame
     Load_Next_Frame
 
 .skip_big_frame_swap:
@@ -132,10 +127,8 @@ Draw_Big_Alien:
     ld a, h             ; Send High Byte
     rst.lil $10
 
-    ; Show sprite
+    Select_Sprite_8bit 2
     Show_Sprite
-    ; Update gpu
-    Update_GPU
     ret
     
     

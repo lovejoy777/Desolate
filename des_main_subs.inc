@@ -168,11 +168,10 @@ Print_Desol_String:
     jp z, .newline
     cp $20                 ; Skip control codes
     jp c, .skip_it
-    ; --- Character Printing & Sound ---
+    ; --- Character Printing ---
     push af
-    cp $21                 ; No sound for space
+    cp $21               
     jr c, .skip_sound
-   ; PLAY_SOUND 0, 127, 1000, 20
 .skip_sound:
     pop af
     rst.lil $10
@@ -189,9 +188,6 @@ Print_Desol_String:
     jp .string_loop
     ret
 
-;===================================
-; Common Routines
-;===================================
 ;--------------------------
 ; Print A String
 ;--------------------------
@@ -281,17 +277,79 @@ Get_Random_0_3:
 
 ;----------------------------------------------------------
 
+;--------------------------------------------------------
+; DEBUG TEMP CODE
 ;---------------------------------------------------------
-; Debug_Overlay:
+; Debug_Overlay_Titles:
 ;---------------------------------------------------------
-Debug_Overlay:
+Debug_Overlay_Titles:
     push af
     push bc
     push de
     push hl
     push ix
 
-    SET_TXT_BG_COL black
+    ;SET_TXT_BG_COL black
+    
+    ;----------------------------
+    ; Current Room Number Title
+    ;----------------------------
+    TABTO 0, 0                  
+    ld hl, Debug_CRN_String         
+    call print_string     
+    
+    ;--------------------------
+    ; Small Alien Active Title
+    ;--------------------------
+    TABTO 0, 1                  
+    ld hl, Debug_SAA_String         
+    call print_string
+    
+    ;--------------------------
+    ; Big alien active Title
+    ;--------------------------
+    TABTO 0, 2              
+    ld hl, Debug_BAA_String         
+    call print_string
+
+    ;--------------------------------
+    ; Player current direction Title
+    ;--------------------------------
+    TABTO 0, 3                  
+    ld hl, Debug_PCD_String         
+    call print_string
+
+    ;----------------------------
+    ; Tile ID under Player Title
+    ;----------------------------
+    TABTO 0, 4               
+    ld hl, Debug_TPO_String         
+    call print_string
+
+    ;-----------------------------------
+    ; Tile ID In Front of Player Title
+    ;-----------------------------------
+    TABTO 0, 5                  
+    ld hl, Debug_TIP_String         
+    call print_string
+
+    pop ix
+    pop hl
+    pop de
+    pop bc
+    pop af
+    ret
+;---------------------------------------------------------
+; Debug_Overlay Values:
+;---------------------------------------------------------
+Debug_Overlay_Values:
+    push af
+    push bc
+    push de
+    push hl
+    push ix
+
+    ;SET_TXT_BG_COL black
     
     ;--------------------------
     ; Current Room Number

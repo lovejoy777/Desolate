@@ -1,68 +1,59 @@
-;-----------------------------------------------------------
-; Check_Action_Triggers
-;-----------------------------------------------------------
 Check_Action_Triggers:
-
-; --- "I" Key for Inventory ---
-    ld b, KEY_I_BYTE        ; Ensure KEY_I_BYTE is defined in your key_defs
-    ld c, KEY_I_BIT         ; Ensure KEY_I_BIT is defined
-    call Is_Key_Held_Matrix
-    jp nz, .i_key_is_down
-
-    ; --- Check Spacebar ---
+;---------------------------------------------
+; Check Key presses of keyboard
+;---------------------------------------------
+;=========================
+; SPACEBAR ACTION KEY
+;=========================
+    ; --- Check Spacebar for Look or Shoot ---
     ld b, KEY_SPACE_BYTE
     ld c, KEY_SPACE_BIT
     call Is_Key_Held_Matrix
     jp nz, .space_is_down
 
+    ; --- Check "Z" Key for Look Mode ---
+    ld b, KEY_Z_BYTE
+    ld c, KEY_Z_BIT
+    call Is_Key_Held_Matrix
+    jp nz, .z_key_is_down
+
+    ; --- Check "X" Key for Shoot Mode ---
+    ld b, KEY_X_BYTE
+    ld c, KEY_X_BIT
+    call Is_Key_Held_Matrix
+    jp nz, .x_key_is_down
+
+    ; --- Check "C" Key for Close All Popups ---
+    ld b, KEY_C_BYTE
+    ld c, KEY_C_BIT
+    call Is_Key_Held_Matrix
+    jp nz, .c_key_is_down
+
+    ; --- Check "M" Key for Menu ---
+    ld b, KEY_M_BYTE        
+    ld c, KEY_M_BIT         
+    call Is_Key_Held_Matrix
+    jp nz, .m_key_is_down
+
+    ; --- Check "I" Key for Inventory ---
+    ld b, KEY_I_BYTE        
+    ld c, KEY_I_BIT         
+    call Is_Key_Held_Matrix
+    jp nz, .i_key_is_down
+
     ; --- Key is NOT held (Released) ---
     xor a
-    ld (inv_lock), a
     ld (space_lock), a
-    ret
-
-.i_key_is_down:
-    ld a, (inv_lock)        ; Debounce check for inventory key [cite: 117]
-    or a
-    ret nz
-    ld a, 1
+    ld (look_lock), a
+    ld (shoot_lock), a
+    ld (close_lock), a
+    ld (menu_lock), a
     ld (inv_lock), a
-
-    ld a, (ui_win_active)   ; Check if a window is already open 
-    or a
-    jp nz, .close_window    ; If open, close it
-    jp .open_inventory      ; Otherwise, open the inventory
-
-    ; --- SUCCESS: OPEN INVENTORY ---
-.open_inventory:
-    ld a, 1
-    ld (ui_win_active), a   ; This freezes the main_loop logic
-    
-    PLAY_SOUND 0, 127, 500, 10
-    
-    ; Hide the player
-    Select_Sprite_8bit 0
-    Hide_Sprite
-    Update_GPU
-
-    ; Draw the UI
-    call Draw_Inv_Popup     ; Your routine to draw the inventory box
-
-    ; print inventory title
-    SET_TXT_COL black
-    SET_TXT_BG_COL dark_grey
-    TABTO 15, 13
-    ld hl, Inv_Title_String
-    call print_string
-    TABTO 16, 24
-    ld hl, Inv_Item_String
-    call print_string
-    ; call Display_Inv_Items; (Optional: call your item list here)
     ret
 
-;=========================
-; SPACEBAR ACTION KEY
-;=========================
+;==============================
+; KEYS PRESSED
+;==============================
 
 .space_is_down:
     ; --- Debounce Check ---
@@ -73,21 +64,7 @@ Check_Action_Triggers:
     ; Lock it now so we only trigger once per press
     ld a, 1
     ld (space_lock), a
-
-    ; --- Toggle Logic ---
     ld a, (ui_win_active)
-    or a
-    jp nz, .close_window
-    
-
-.open_window_check:
-    ;PLAY_SOUND 0, 127, 1000, 10
-    ; --- Check Room ID ---
-    ; If this is not 0, it currently exits. 
-    ; Ensure you are actually in Room 0 when testing!
-    ;ld a, (current_room_id)
-    ;or a 
-    ;ret nz                       
 
     ; --- Get Current Position ---
     ld hl, (player_x)
@@ -97,7 +74,6 @@ Check_Action_Triggers:
     ld a, l
     add a, 16
     ld l, a
-    
     ld a, e
     add a, 24
     ld e, a
@@ -148,7 +124,7 @@ Check_Action_Triggers:
     cp 29
     jr z, .terminal_found
     
-    ; If not 26 or 28, exit
+    ; If not 26,27,28 or 29 exit
     ret
 
 .terminal_found:
@@ -156,34 +132,142 @@ Check_Action_Triggers:
     ld a, 1
     ld (ui_win_active), a        
     ld hl, SE131  
+
     PLAY_SOUND 0, 127, 1000, 15
     PLAY_SOUND 0, 127, 1000, 15
+
     Select_Sprite_8bit 0
     Hide_Sprite
     Select_Sprite_8bit 1
     Hide_Sprite
     Select_Sprite_8bit 2
     Hide_Sprite
+
     call Draw_Terminal_Popup
+
     SET_TXT_BG_COL 8
     SET_TXT_COL black
     ;call Draw_Sm_Popup      ; Draw the 192x48 border
-    ;call Display_Message         
+    ;call Display_Message 
+
+    ; --- Restore Screen colours---
+    SET_TXT_BG_COL black
+    SET_TXT_COL bright_white        
     ret
 
-.close_window:
-    xor a
+;=========================
+; Z Look KEY
+;=========================
+.z_key_is_down:
+    ld a, (look_lock)        ; Debounce check for Z look key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (look_lock), a
+
+    PLAY_SOUND 0, 127, 500, 10
+    ret
+
+;=========================
+; X Shoot KEY
+;=========================
+.x_key_is_down:
+    ld a, (shoot_lock)        ; Debounce check for X shoot key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (shoot_lock), a
+
+    PLAY_SOUND 0, 127, 500, 10
+    ret
+
+;=================================
+; "C" Close All Popup Windows KEY
+;=================================
+.c_key_is_down:
+    ld a, (ui_win_active)
+    cp $01
+    ret nz
+
+
+    ld a, (close_lock)        ; Debounce check for C Close popups key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (close_lock), a
+
+    ld a, 0
     ld (ui_win_active), a
-    PLAY_SOUND 0, 127, 1000, 30
-    ; --- Restore Screen ---
-    SET_TXT_BG_COL 0
-    SET_TXT_COL bright_white
+    PLAY_SOUND 0, 127, 500, 10
+
     Select_Sprite_8bit 0
     Show_Sprite
-    
-    
     CLG
-    call Draw_Room
 
+    call Draw_Room
+    call Draw_Health_Value         ; from main_subs.inc
+    
     ret
 
+;=========================
+; "M" Menu KEY
+;=========================
+.m_key_is_down:
+    ld a, (menu_lock)        ; Debounce check for M Menu key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (menu_lock), a
+
+
+    PLAY_SOUND 0, 127, 500, 10
+    
+    ret
+
+;=========================
+; I INVENTORY KEY
+;=========================
+.i_key_is_down:
+    ld a, (inv_lock)        ; Debounce check for inventory key [cite: 117]
+    or a
+    ret nz
+    ld a, 1
+    ld (inv_lock), a
+
+    ld a, 1
+    ld (ui_win_active), a   ; This freezes the main_loop logic
+    
+    PLAY_SOUND 0, 127, 500, 10
+    
+    ; Hide the player
+    Select_Sprite_8bit 0
+    Hide_Sprite
+    Select_Sprite_8bit 1
+    Hide_Sprite
+    Select_Sprite_8bit 2
+    Hide_Sprite
+
+    ; Draw the UI
+    call Draw_Inv_Popup     ; routine to draw the inventory box
+
+    ; print inventory title
+    SET_TXT_COL black
+    SET_TXT_BG_COL dark_grey
+    TABTO 15, 13
+    ld hl, Inv_Title_String
+    call print_string
+    TABTO 16, 24
+    ld hl, Inv_Item_String
+    call print_string
+    ; call Display_Inv_Items; (Optional: call the item list here)
+
+    ; --- Restore Screen colours---
+    SET_TXT_BG_COL black
+    SET_TXT_COL bright_white 
+    ret
+
+    

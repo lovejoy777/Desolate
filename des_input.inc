@@ -1,46 +1,32 @@
+;============================================
 ; Keyboard Matrix Offsets (IX + Offset)
-; Byte, Bit
-KEY_UP_BYTE:    EQU $07
+;============================================
+KEY_UP_BYTE:    EQU $07    ; Up Cursor
 KEY_UP_BIT:     EQU 1
-KEY_DOWN_BYTE:  EQU $05
+KEY_DOWN_BYTE:  EQU $05    ; Down Cursor
 KEY_DOWN_BIT:   EQU 1
-KEY_LEFT_BYTE:  EQU $03
+KEY_LEFT_BYTE:  EQU $03    ; Left Cursor
 KEY_LEFT_BIT:   EQU 1
-KEY_RIGHT_BYTE: EQU $0F
+KEY_RIGHT_BYTE: EQU $0F    ; Right Cursor
 KEY_RIGHT_BIT:  EQU 1
-KEY_SPACE_BYTE: EQU $0C
+KEY_SPACE_BYTE: EQU $0C    ; Look or Shoot
 KEY_SPACE_BIT:  EQU 2
-KEY_I_BYTE:     EQU $04
-KEY_I_BIT:      EQU 5
-KEY_M_BYTE:     EQU $0C
+KEY_Z_BYTE:     EQU $0C    ; Look Mode
+KEY_Z_BIT:      EQU 1
+KEY_X_BYTE:     EQU $08    ; Shoot Mode
+KEY_X_BIT:      EQU 2
+KEY_C_BYTE:     EQU $0A    ; Close Popup Windows
+KEY_C_BIT:      EQU 2
+KEY_M_BYTE:     EQU $0C    ; Menu
 KEY_M_BIT:      EQU 5
+KEY_I_BYTE:     EQU $04    ; Inventory
+KEY_I_BIT:      EQU 5
+
 KEY_ENTER_BYTE: EQU $09
 KEY_ENTER_BIT:  EQU 1
-KEY_ESC_BYTE:   EQU $0E
+KEY_ESC_BYTE:   EQU $0E    ; Quit to Mos
 KEY_ESC_BIT:    EQU 0
-KEY_0_BYTE:     EQU $04
-KEY_0_BIT:      EQU 7
-KEY_1_BYTE:     EQU $6
-KEY_1_BIT:      EQU 0
-KEY_2_BYTE:     EQU $06
-KEY_2_BIT:      EQU 1
-KEY_3_BYTE:     EQU $02
-KEY_3_BIT:      EQU 1
-KEY_4_BYTE:     EQU $02
-KEY_4_BIT:      EQU 2
-KEY_5_BYTE:     EQU $02
-KEY_5_BIT:      EQU 3
-KEY_6_BYTE:     EQU $06
-KEY_6_BIT:      EQU 4
-KEY_7_BYTE:     EQU $04
-KEY_7_BIT:      EQU 4
-KEY_8_BYTE:     EQU $02
-KEY_8_BIT:      EQU 5
-KEY_9_BYTE:     EQU $04
-KEY_9_BIT:      EQU 6
-
-
-
+  
 ;----------------------------------------------------------
 ; Is_Key_Held_Matrix
 ; Input: B = Byte Offset, C = Bit Number
@@ -53,7 +39,6 @@ Is_Key_Held_Matrix:
     ld a, $1E
     rst.lil $08             ; IX = Pointer to keyboard matrix
     
-    ; Workaround for 'add ix, hl'
     push ix
     pop hl                  ; HL = Start of matrix
     ld de, 0

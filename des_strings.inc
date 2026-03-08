@@ -1,4 +1,4 @@
-; --- From desolstrs.asm and new Agon Strings ---
+; --- From desolstrs.asm and new Agon Strings --- SE131
 
 SE129:
     db "You dont seem to be able", 0

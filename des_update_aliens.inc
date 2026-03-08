@@ -29,10 +29,12 @@ Update_Small_Alien:
     ret
 
 .state_moving:
+    ld a, (alien_speed)
+    ld b, a
     ld hl, alien_move_timer
     inc (hl)
     ld a, (hl)
-    cp 4                ; Adjust speed here
+    cp b                ; Adjust speed here
     ret nz
     ld (hl), 0
     
@@ -218,10 +220,12 @@ Update_Big_Alien:
     ret
 
 .big_state_moving:
+    ld a, (alien_speed)
+    ld b, a
     ld hl, big_alien_move_timer
     inc (hl)
     ld a, (hl)
-    cp 4                ; Adjust speed here
+    cp b                ; Adjust speed here
     ret nz
     ld (hl), 0
     

@@ -4,10 +4,9 @@
 ; =============================================================================
 
     .include "initial_macros.inc"
-    .include "des_sound_macros.inc"
     .include "des_vdp_macros.inc"
+    .include "des_sound_macros.inc"
     
-
     assume adl=1             ; use 24-bit addressing mode
     .org $40000              ; set origin to $40000
     jp start_here            ; jump to start_here
@@ -17,13 +16,15 @@
 ;--------------------
 ; Includes
 ;--------------------
+    ;.include "strings24.asm"
+    ;.include "des_load_font.inc"
+    ;.include "des_font.inc"
     .include "des_input.inc"
-    .include "des_load_font.inc"
-    .include "des_font.inc"
-    .include "des_strings.inc"
     .include "des_main_subs.inc"
-    .include "strings24.asm"
-
+    .include "des_data.inc"
+    .include "des_tiles.inc"
+    .include "des_strings.inc"
+    
     .include "des_load_assets.inc"
     .include "des_draw_banner.inc"
     .include "des_metadata_logic.inc"
@@ -34,15 +35,12 @@
     .include "des_draw_aliens.inc"
     .include "des_draw_popups.inc"
     
-    .include "des_room_data.inc"
-    .include "des_tiles.inc"
-    
 ;-------------------------
 ; --- Global Variables ---
 ;-------------------------
 debug_delay_counter:   db   60      ; delay counter for debugging
 
-; Rooms vars
+; Room vars
 current_room_ptr:      dl room_00
 current_room_id:       db  0
 
@@ -70,17 +68,14 @@ knock_back_px:         db   2       ; amount of knock back in pixels
 ; Aliens Vars
 ;----------------
 ; --- Small_alien ---
-small_alien_sprite_id: equ 1    ; Sprite ID number
-alien:                 equ 63   ; used for bitmap ID number
 small_alien_x_mid:     db  8    ; Middle of alien X
 small_alien_y_mid:     db  8    ; Middle of alien Y
-small_alien_x:         dw  0   ; Current X
-small_alien_y:         dw  0   ; Current Y
-small_alien_dir:       db  0    ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
-small_alien_spawn_x:   dw  0   ; Default Spawn X
-small_alien_spawn_y:   dw  0   ; Default Spawn Y
-small_alien_room:      db  1    ; The ID of the room where he lives
+small_alien_x:         dw  0    ; Current X
+small_alien_y:         dw  0    ; Current Y
+small_alien_spawn_x:   dw  0    ; Default Spawn X
+small_alien_spawn_y:   dw  0    ; Default Spawn Y
 sm_alien_is_active:    db  0    ; 1 = Visible, 0 = Hidden
+small_alien_dir:       db  0    ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
 alien_anim_timer:      db  0    ; Animation timer
 alien_move_timer:      db  0    ; Movement timer
 alien_state:           db  0    ; 0=Choosing, 1=Moving, 2=Waiting
@@ -88,27 +83,30 @@ alien_move_count:      db  0    ; How many steps left to take
 alien_wait_timer:      db  0    ; How long to stay still
 
 ; --- Big Alien ---
-big_alien_sprite_id:   equ 2    ; Sprite ID number
-big_alien:             equ 38   ; used for bitmap ID number
 big_alien_x_mid:       db  8    ; Middle of alien X
 big_alien_y_mid:       db  16   ; Middle of alien Y
 big_alien_x:           dw  0   ; Current X
 big_alien_y:           dw  0   ; Current Y
-big_alien_dir:         db  0    ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
 big_alien_spawn_x:     dw  0   ; Default Spawn X
 big_alien_spawn_y:     dw  0   ; Default Spawn Y
-big_alien_is_active:   db  0    ; 1 = Visible, 0 = Hidden
+big_alien_is_active:   db  0    ; 1 = Visible, 0 = 
+big_alien_dir:         db  0    ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
 big_alien_anim_timer:  db  0    ; Animation timer
 big_alien_move_timer:  db  0    ; Movement timer
 big_alien_state:       db  0    ; 0=Choosing, 1=Moving, 2=Waiting
 big_alien_move_count:  db  0    ; How many steps left to take
 big_alien_wait_timer:  db  0    ; How long to stay still
 
+alien_speed:           db  2    ; less is faster
 alien_random_seed:     db  $A5  ; A starting seed for our random numbers
    
 ; Popup Window Vars
 ui_win_active:         db  0
 space_lock:            db  0
+look_lock:             db  0
+shoot_lock:            db  0
+close_lock:            db  0
+menu_lock:             db  0
 inv_lock:              db  0
 
 ;----------------
@@ -122,7 +120,6 @@ start_here:
     push iy
 
     CLEAR_ALL_BUFFERS          ; from des_main_subs.inc
-    ; Initailize the display.
     call Init_Display          ; from des_main_subs.inc
     call Load_All_Assets       ; from des_load_assets.inc
     ; call Upload_Desol_Font   ; need to return to this.
@@ -132,29 +129,25 @@ start_here:
     SET_SOUND_WAVEFORM 1, 4    ; Channel 1: Noise for death crash
 
     call Draw_Banner           ; from des_draw_banner.inc
-    call Set_Graphics_VP       ; Set the Graphics VP for the game area
+    call Debug_Overlay_Titles
+    call Set_Graphics_VP       
 
-    V_SYNC                     ; wait for vertical sync
+    V_SYNC                     
 
 ;--------------------------
 ; Trigger a Room Reload.
 ;--------------------------
 Trigger_Room_Load:
-    CLG                     ; clear graphics in the game screen.
-    xor a                   ; clear accumulator
-    ld (is_moving), a       ; Force the player to stop moving
-    ld (move_timeout), a    ; Reset the timer
+    CLG                            ; clear graphics in the game screen.
+    xor a                          ; clear accumulator
+    ld (is_moving), a              ; Force the player to stop moving
+    ld (move_timeout), a           ; Reset the timer
 
     call Decode_Room_Metadata      ; from des_metadata_logic.inc
     call Check_Alien_Presence      ; Checks room metadata and sets sm_alien_is_active & big_alien_is_active
     call Draw_Room                 ; from des_draw_room.inc
     call Draw_Health_Value         ; from main_subs.inc
-    call update_animation          ; from des_player_control.inc
 
-    ; Select Player Sprite (0)
-    Select_Sprite_8bit 0
-    Show_Sprite
-    Update_GPU 
     jp main_loop
 
 ;=====================================================================
@@ -169,30 +162,25 @@ main_loop:
     ld (damage_cooldown), a                    ; store damage cooldown
 
 .ready:
-    ;
-    ; 1 Checks
-    ; a. Check if space was pressed near a terminal
+    ; Check if space was pressed near a terminal
     call Check_Action_Triggers                      ; des_ui_logic.inc
-    ; b. Check if gameplay should be frozen
+    ; Check if gameplay should be frozen
     ld a, (ui_win_active)
     or a
     ; If window is open (1), skip movement/logic to (skip_gameplay)
     jr nz, .skip_gameplay
 
-    ; 2. Handle Player Movement and Animation
-    call Movement_anim                              ; player_control.inc
-    ; 3. Move the small alien in memory
+    ; Handle Player Movement and Animation
+    call Movement_anim                ; from player_control.inc
+    ; Move the small alien
     call Update_Small_Alien                         
-    ; 4. Move the big alien in memory
+    ; Move the big alien
     call Update_Big_Alien
-    ; 5. Update midpoints for player and aliens for collision detection
+    ; Update midpoints for player and aliens for collision detection
     call Update_Midpoints 
-    ; 6. Check if Player and Alien are touching
     call Collision_Detection
-    ; 7. Draw the Small Alien 
-    call Draw_Small_Alien            ; from des_draw_room.inc
-    ; 8. Draw the Big Alien 
-    call Draw_Big_Alien              ; from des_draw_room.inc
+    call Draw_Small_Alien            ; from des_draw_aliens.inc
+    call Draw_Big_Alien              ; from des_draw_aliens.inc
     
     ; --- Update all active sprites in the GPU ---
     ; Now that all sprites have sent their new coordinates to the VDP,
@@ -210,18 +198,17 @@ main_loop:
     dec a                       ; decrement debug delay counter
     ld (debug_delay_counter), a ; store debug delay counter
     jr nz, .skip_debug          ; if not zero, skip to .skip_debug
-    
     ; Reset counter to 60 (1 second at 60Hz)
     ld a, 60                    ; reset counter to 60 (1 second at 60Hz)
     ld (debug_delay_counter), a ; store debug delay counter
     ; print debug info to screen
-    call Debug_Overlay      ; des_ui_logic.inc
+    call Debug_Overlay_Values      ; des_ui_logic.inc
 
 .skip_debug:  
 
     V_SYNC                  ; Wait for vertical sync
 
-   ; --- ESC key Check ---
+    ; --- ESC key Check ---
     MOSCALL $1E             ; Get pointer from keyboard matrix
     ld a, (ix + $0E)        ; ESC byte from keyboard matrix
     bit 0, a                ; ESC bit from keyboard matrix
@@ -302,18 +289,21 @@ jp Take_Damage
 Take_Damage:
     ; --- 1. Cooldown Check ---
     ld a, (damage_cooldown)         ; get damage cooldown
-    or a                            ; if a is not 0, exit
+    cp 0                            ; if a is not 0, exit
     ret nz                          ; Exit if we are still in cooldown
 
     ; --- Play Damage Sound ---
     ; Channel 0, Volume 127, 150Hz, 100ms
     PLAY_SOUND 0, 127, 150, 100
-    ; Update health value
+    
     call Draw_Health_Value  ; from main_subs.inc
 
     ; --- 2. Check for Death ---
+    ld a, (damage_taken)
+    ld b, a
     ld a, (player_health)           ; get player health
-    sub 2                           ; Subtract the damage first
+    
+    sub b                           ; Subtract the damage first
     jp z, .is_dead                  ; If result is 0, player is dead
     jp c, .is_dead                  ; If result is negative (Carry), they are dead
     ld (player_health), a           ; Otherwise, save the new health
@@ -321,69 +311,89 @@ Take_Damage:
     ; --- 3. Apply Physical Knockback --- Dir S(0)N(1)E(2)W(3),
     ld a, (player_dir)              ; Get current facing direction
     cp 0                            ; compare with 0
-    jr z, .kb_up                    ; if equal, go to .kb_up
+    jp z, .kb_up                    ; if equal, go to .kb_up
     cp 1                            ; compare with 1
-    jr z, .kb_down                  ; if equal, go to .kb_down
+    jp z, .kb_down                  ; if equal, go to .kb_down
     cp 2                            ; compare with 2
-    jr z, .kb_left                  ; if equal, go to .kb_left
+    jp z, .kb_left                  ; if equal, go to .kb_left
     cp 3                            ; compare with 3
-    jr z, .kb_right                 ; if equal, go to .kb_right
-    jr .apply_damage                ; Apply damage
+    jp z, .kb_right                 ; if equal, go to .kb_right
+    jp .apply_damage                ; Apply damage
 
 .kb_up:
-    ld hl, (player_y)               ; Get current Y
-    ld bc, 8                        ; knock back pixels
-    or a                            ; or a
-    sbc hl, bc                      ; Subtract from Y
+    ld hl, (player_y)
+    ld bc, 8
+    sbc hl, bc              ; Subtract from Y
+
+    ; To stop getting stuck, check the Top edge of the player
+    push hl                 ; Save potential New Y
+    ld bc, 14               ; check Top pixel
+    add hl, bc
+    ex de, hl               ; DE = Y coordinate for check
+    ld hl, (player_x)       ; HL = X coordinate for check
 
     call get_tile_at_coords
-    cp $01
+    pop hl                  ; Restore potential New Y
+    cp $01                  ; Only move if it's Floor
     jp nz, .apply_damage 
-
-    ld (player_y), hl               ; Save new Y
-    jr .apply_damage                ; Apply damage
+    ld (player_y), hl       ; Save new Y
+    jp .apply_damage
 
 .kb_down:
-    ld hl, (player_y)               ; Get current Y
-    ld bc, 8                        ; knock back pixels
-    add hl, bc                      ; Add to Y
+    ld hl, (player_y)
+    ld bc, 8
+    add hl, bc              ; Add to 
+    
+    ; To stop getting stuck, check the BOTTOM edge of the player
+    push hl                 ; Save potential New Y
+    ld bc, 14               ; check bottom pixel
+    add hl, bc
+    ex de, hl               ; DE = Y coordinate for check
+    ld hl, (player_x)       ; HL = X coordinate for check
 
     call get_tile_at_coords
+    pop hl                  ; Restore potential New Y
     cp $01
     jp nz, .apply_damage 
-
-    ld (player_y), hl               ; Save new Y
-    jr .apply_damage                ; Apply damage
-
-.kb_right:
-    ld hl, (player_x)               ; Get current X
-    ld bc, 8                        ; knock back pixels
-    add hl, bc                      ; Add to X
-
-    call get_tile_at_coords
-    cp $01
-    jp nz, .apply_damage 
-
-    ld (player_x), hl               ; Save new X
-    jr .apply_damage                ; Apply damage
+    ld (player_y), hl       ; Save new Y
+    jp .apply_damage
 
 .kb_left:
-    ld hl, (player_x)               ; Get current X
-    ld bc, 8                        ; knock back pixels
-    or a                            ; or a
-    sbc hl, bc                      ; Subtract from X
+    ld hl, (player_x)
+    ld bc, 8
+    sbc hl, bc              ; Subtract from X
 
+    
     call get_tile_at_coords
     cp $01
-    jp nz, .apply_damage 
+    jp nz, .apply_damage
+    ld (player_x), hl       ; Save new X
+    jp .apply_damage
 
-    ld (player_x), hl               ; Save new X
+.kb_right:
+    ld hl, (player_x)
+    ld bc, 8
+    add hl, bc              ; Add to 
+    
+    ; To stop getting stuck, check the RIGHT edge of the player
+    push hl                 ; Save potential New X
+    ld bc, 8               ; Sprite is 16 wide, check right pixel
+    add hl, bc              ; HL = New X + 15
+    ld de, (player_y)       ; DE = Y coordinate for check
+
+
+    call get_tile_at_coords
+    pop hl                  ; Restore potential New X
+    cp $01
+    jp nz, .apply_damage 
+    ld (player_x), hl       ; Save new X
+
 
 .apply_damage:
     ; --- 4. Process Health Reduction ---
     ld a, (player_health)           ; Get current health
     ld (player_health), a           ; Save new health
-    ld a, 20                        ; Reset cooldown (0.5s at 30fps)
+    ld a, (cooldown_time)                        ; Reset cooldown (0.5s at 30fps)
     ld (damage_cooldown), a         ; Save new cooldown
     call Draw_Health_Value          ; Update HUD
     ret

@@ -3,16 +3,12 @@
 ; -----------------------------------------------------------------------------
 
 ; Call a MOS API function
-; Arguments:
-;   arg1: MOS command ID (e.g., $08 for sysvars, $13 for vblank)
 macro MOSCALL arg1
 	ld a, arg1
 	rst.lil $08
 endmacro
 
 ; Wait for Vertical Blanking Interval (VSYNC)
-; Uses VDU 23, 0, &C3 to wait for VSYNC (and swap buffers if double buffered).
-; This ensures the VDP command queue is synchronized with the display.
 macro V_SYNC
     ld a, 23
     rst.lil $10
@@ -34,9 +30,7 @@ macro CLG
 	rst.lil $10
 endmacro
 
-; Set Video Mode
-; Arguments:
-;   mode: Screen mode (e.g., 8 for 320x240 64-colour)
+; Set Screen Mode
 macro SET_MODE mode
 	ld a, 22					; set mode...
 	rst.lil $10
@@ -54,10 +48,7 @@ macro TEXT_AT_GRAPHICS_CURSOR
     rst.lil $10
 endmacro
 
-
 ; Set Text Foreground Colour
-; Arguments:
-;   col: Colour index (0-63 in Mode 8)
 macro SET_TXT_COL col
 	ld a, 17					; set text colour
 	rst.lil $10
@@ -66,8 +57,6 @@ macro SET_TXT_COL col
 endmacro
 
 ; Set Text Background Colour
-; Arguments:
-;   col: Colour index (0-63 in Mode 8)
 macro SET_TXT_BG_COL col
 	ld a, 17					; set text colour
 	rst.lil $10
@@ -77,8 +66,6 @@ macro SET_TXT_BG_COL col
 endmacro
 
 ; Set Graphics Foreground Colour (GCOL)
-; Arguments:
-;   col: Colour index
 macro SET_GCOL_COL col
 	ld a, 18					; set graphics colour
 	rst.lil $10
@@ -88,20 +75,19 @@ macro SET_GCOL_COL col
 	rst.lil $10
 endmacro
 
+; Set Graphics Background Colour (GCOL)
 macro SET_GCOL_BG_COL col
 	ld a, 18					; set graphics colour
 	rst.lil $10
     ld a, 0                     ; mode 0
     rst.lil $10
-	ld a, col		    ; colour to use
+	ld a, col		            ; colour to use
     add a, 128
 	rst.lil $10
 endmacro
 
 ; Disable Graphics Scaling
-; Ensures 1 logical unit = 1 pixel. Essential for direct pixel mapping.
-; Sends VDU 23, 0, &C0, 0
-macro SET_NONSCALED_GRAPHICS     ; set to non-scaled graphics
+macro SET_NONSCALED_GRAPHICS
     ld a, 23                   
     rst.lil $10
     ld a, 0
@@ -113,7 +99,7 @@ macro SET_NONSCALED_GRAPHICS     ; set to non-scaled graphics
 endmacro
 
 ; Hide the flashing text cursor
-macro HIDE_CURSOR               ; Hide Text cursor
+macro HIDE_CURSOR
 	ld a, 23					
 	rst.lil $10
 	ld a, 1		
@@ -123,7 +109,7 @@ macro HIDE_CURSOR               ; Hide Text cursor
 endmacro
 
 ; Show the flashing text cursor
-macro SHOW_CURSOR              ; Show Text cursor
+macro SHOW_CURSOR
 	ld a, 23
     rst.lil $10
     ld a, 1
@@ -132,10 +118,6 @@ macro SHOW_CURSOR              ; Show Text cursor
     rst.lil $10
 endmacro
 
-; Move text cursor to X, Y coordinates
-; Arguments:
-;   x: Column (0-based)
-;   y: Row (0-based)
 macro TABTO x, y
     ld a, 31
     rst.lil $10
@@ -146,7 +128,6 @@ macro TABTO x, y
 endmacro
 
 macro CLEAR_ALL_BUFFERS
-    ; --- NEW: CLEAR VDP BUFFERS ---
     ld a, 23
     rst.lil $10
     ld a, 0
