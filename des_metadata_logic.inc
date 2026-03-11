@@ -23,7 +23,7 @@ Decode_Room_Metadata:
 
 meta_decode_main:
     ld a, (hl)            
-    cp $FF                  ; Repeater?
+    cp $FF                  ; Repeater Flag
     jr nz, meta_literal_byte
     
     ; --- Handle Repeater ---

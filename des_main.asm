@@ -40,13 +40,22 @@
 ;-------------------------
 debug_delay_counter:   db   60      ; delay counter for debugging
 
+ram_buffer:            ds   4096    ; 4096 bytes
+look_shoot_mode:       db   0       ; Look/Shoot Mode (0=Look, 1=Shoot)
+ui_win_active:         db   0       ; Popup Window Flag
+
 ; Room vars
 current_room_ptr:      dl room_00
 current_room_id:       db  0
 
+playerSprite:          equ     0
+smAlienSprite:         equ     1
+bigAlienSprite:        equ     2
+
 ;---------------
 ; Player Vars
 ;---------------
+
 player_sprite_id:      equ  0       ; Sprite ID number
 player_x_mid:          db   16      ; Middle of player X
 player_y_mid:          db   16      ; Middle of player Y
@@ -57,51 +66,50 @@ is_moving:             db   0       ; 0 = not moving
 move_timeout:          db   0       ; timer for movement
 anim_frame:            db   0       ; frame 0 = looking down
 anim_delay:            db   0       ; delay between frames
-player_health:         db   100     ; Start health (100)
+player_health:         db   64      ; Start health (64)
 last_health:           db   0       ; Used to track changes
 damage_cooldown:       db   0       ; cooldown after taking damage
 damage_taken:          db   2       ; amount of damage to take
 cooldown_time:         db   20      ; time to wait before taking damage again
-knock_back_px:         db   2       ; amount of knock back in pixels
+knock_back_px:         db   8       ; amount of knock back in pixels
 
 ;----------------
 ; Aliens Vars
 ;----------------
 ; --- Small_alien ---
-small_alien_x_mid:     db  8    ; Middle of alien X
-small_alien_y_mid:     db  8    ; Middle of alien Y
-small_alien_x:         dw  0    ; Current X
-small_alien_y:         dw  0    ; Current Y
-small_alien_spawn_x:   dw  0    ; Default Spawn X
-small_alien_spawn_y:   dw  0    ; Default Spawn Y
-sm_alien_is_active:    db  0    ; 1 = Visible, 0 = Hidden
-small_alien_dir:       db  0    ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
-alien_anim_timer:      db  0    ; Animation timer
-alien_move_timer:      db  0    ; Movement timer
-alien_state:           db  0    ; 0=Choosing, 1=Moving, 2=Waiting
-alien_move_count:      db  0    ; How many steps left to take
-alien_wait_timer:      db  0    ; How long to stay still
+small_alien_x_mid:     db  8        ; Middle of alien X
+small_alien_y_mid:     db  8        ; Middle of alien Y
+small_alien_x:         dw  0        ; Current X
+small_alien_y:         dw  0        ; Current Y
+small_alien_spawn_x:   dw  0        ; Default Spawn X
+small_alien_spawn_y:   dw  0        ; Default Spawn Y
+sm_alien_is_active:    db  0        ; 1 = Visible, 0 = Hidden
+small_alien_dir:       db  0        ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
+alien_anim_timer:      db  0        ; Animation timer
+alien_move_timer:      db  0        ; Movement timer
+alien_state:           db  0        ; 0=Choosing, 1=Moving, 2=Waiting
+alien_move_count:      db  0        ; How many steps left to take
+alien_wait_timer:      db  0        ; How long to stay still
 
 ; --- Big Alien ---
-big_alien_x_mid:       db  8    ; Middle of alien X
-big_alien_y_mid:       db  16   ; Middle of alien Y
-big_alien_x:           dw  0   ; Current X
-big_alien_y:           dw  0   ; Current Y
-big_alien_spawn_x:     dw  0   ; Default Spawn X
-big_alien_spawn_y:     dw  0   ; Default Spawn Y
-big_alien_is_active:   db  0    ; 1 = Visible, 0 = 
-big_alien_dir:         db  0    ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
-big_alien_anim_timer:  db  0    ; Animation timer
-big_alien_move_timer:  db  0    ; Movement timer
-big_alien_state:       db  0    ; 0=Choosing, 1=Moving, 2=Waiting
-big_alien_move_count:  db  0    ; How many steps left to take
-big_alien_wait_timer:  db  0    ; How long to stay still
+big_alien_x_mid:       db  8        ; Middle of alien X
+big_alien_y_mid:       db  16       ; Middle of alien Y
+big_alien_x:           dw  0        ; Current X
+big_alien_y:           dw  0        ; Current Y
+big_alien_spawn_x:     dw  0        ; Default Spawn X
+big_alien_spawn_y:     dw  0        ; Default Spawn Y
+big_alien_is_active:   db  0        ; 1 = Visible, 0 = 
+big_alien_dir:         db  0        ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
+big_alien_anim_timer:  db  0        ; Animation timer
+big_alien_move_timer:  db  0        ; Movement timer
+big_alien_state:       db  0        ; 0=Choosing, 1=Moving, 2=Waiting
+big_alien_move_count:  db  0        ; How many steps left to take
+big_alien_wait_timer:  db  0        ; How long to stay still
 
-alien_speed:           db  2    ; less is faster
-alien_random_seed:     db  $A5  ; A starting seed for our random numbers
+alien_speed:           db  2        ; less is faster
+alien_random_seed:     db  $A5      ; A starting seed for our random numbers
    
-; Popup Window Vars
-ui_win_active:         db  0
+; keyboard locks
 space_lock:            db  0
 look_lock:             db  0
 shoot_lock:            db  0
@@ -129,7 +137,7 @@ start_here:
     SET_SOUND_WAVEFORM 1, 4    ; Channel 1: Noise for death crash
 
     call Draw_Banner           ; from des_draw_banner.inc
-    call Debug_Overlay_Titles
+    call Debug_Overlay_Titles  ; Temp
     call Set_Graphics_VP       
 
     V_SYNC                     
@@ -147,6 +155,7 @@ Trigger_Room_Load:
     call Check_Alien_Presence      ; Checks room metadata and sets sm_alien_is_active & big_alien_is_active
     call Draw_Room                 ; from des_draw_room.inc
     call Draw_Health_Value         ; from main_subs.inc
+    call Look_Shoot_Mode           ; from des_ui_logic.inc
 
     jp main_loop
 
@@ -296,7 +305,7 @@ Take_Damage:
     ; Channel 0, Volume 127, 150Hz, 100ms
     PLAY_SOUND 0, 127, 150, 100
     
-    call Draw_Health_Value  ; from main_subs.inc
+    call Draw_Health_Value          ; from main_subs.inc
 
     ; --- 2. Check for Death ---
     ld a, (damage_taken)
@@ -342,7 +351,7 @@ Take_Damage:
 .kb_down:
     ld hl, (player_y)
     ld bc, 8
-    add hl, bc              ; Add to 
+    add hl, bc               
     
     ; To stop getting stuck, check the BOTTOM edge of the player
     push hl                 ; Save potential New Y
@@ -363,7 +372,6 @@ Take_Damage:
     ld bc, 8
     sbc hl, bc              ; Subtract from X
 
-    
     call get_tile_at_coords
     cp $01
     jp nz, .apply_damage
@@ -373,14 +381,13 @@ Take_Damage:
 .kb_right:
     ld hl, (player_x)
     ld bc, 8
-    add hl, bc              ; Add to 
+    add hl, bc               
     
     ; To stop getting stuck, check the RIGHT edge of the player
     push hl                 ; Save potential New X
-    ld bc, 8               ; Sprite is 16 wide, check right pixel
+    ld bc, 8                ; Sprite is 16 wide, check right pixel
     add hl, bc              ; HL = New X + 15
     ld de, (player_y)       ; DE = Y coordinate for check
-
 
     call get_tile_at_coords
     pop hl                  ; Restore potential New X
@@ -393,7 +400,7 @@ Take_Damage:
     ; --- 4. Process Health Reduction ---
     ld a, (player_health)           ; Get current health
     ld (player_health), a           ; Save new health
-    ld a, (cooldown_time)                        ; Reset cooldown (0.5s at 30fps)
+    ld a, (cooldown_time)           ; Reset cooldown (0.5s at 30fps)
     ld (damage_cooldown), a         ; Save new cooldown
     call Draw_Health_Value          ; Update HUD
     ret
@@ -411,7 +418,6 @@ Take_Damage:
     rst.lil $10                  ; Send to vdp
 
     call Draw_Banner             ; Draw banner
-
     ; --- Draw Text ---
     call Draw_Dead               ; Draw dead text
 
@@ -540,7 +546,6 @@ ld (player_x_mid), a
 ld a, (player_y)
 add a, 16
 ld (player_y_mid), a
-
 ; --- Small Alien ---
 ld a, (small_alien_x)
 add a, 8
@@ -555,7 +560,6 @@ ld (big_alien_x_mid), a
 ld a, (big_alien_y)
 add a, 16
 ld (big_alien_y_mid), a
-
 ret
 
 ;----------------
@@ -575,6 +579,3 @@ exit_back_to_mos:                 ;  exit back to mos
     pop af
     ld hl, 0
     ret
-
-ram_buffer:                      ; ram buffer
-    .ds 4096                     ; 4096 bytes

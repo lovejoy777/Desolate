@@ -98,7 +98,6 @@ macro SET_NONSCALED_GRAPHICS
     rst.lil $10
 endmacro
 
-; Hide the flashing text cursor
 macro HIDE_CURSOR
 	ld a, 23					
 	rst.lil $10
@@ -108,7 +107,6 @@ macro HIDE_CURSOR
 	rst.lil $10
 endmacro
 
-; Show the flashing text cursor
 macro SHOW_CURSOR
 	ld a, 23
     rst.lil $10

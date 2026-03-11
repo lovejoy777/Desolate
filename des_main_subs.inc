@@ -40,13 +40,13 @@ get_tile_at_coords:
     push bc
     ; HL contains X, DE contains Y
     ld a, l                  ; get X coordinate
-    cp 192                   ; 
+    cp 192                    
     jp nc, is_a_wall         ; if X >= 192, it's a wall
     srl a
     srl a
     srl a
     srl a
-    ld b, a                  ; 
+    ld b, a                   
     ld a, e                  ; Y Coordinate from E
     cp 128                   ; if Y >= 128, it's a wall
     jp nc, is_a_wall         ; if Y >= 128, it's a wall
@@ -61,9 +61,9 @@ get_tile_at_coords:
     add a, a
     add a, b
     ld hl, ram_buffer         ; get tile from ram buffer
-    ld bc, 0                  ; 
-    ld c, a                   ; 
-    add hl, bc                ; 
+    ld bc, 0                  
+    ld c, a                    
+    add hl, bc                 
 
     ld a, (hl)                ; get tile from ram buffer
     pop bc
@@ -84,7 +84,6 @@ is_a_wall:
 Draw_Health_Value:
      
     SET_GCOL_COL grey           ; set gcol colour to grey for the clearing the health value.
-
     ; draw grey rectangle over current health value.
     ld a, 25
     rst.lil $10
@@ -200,7 +199,7 @@ print_string:
     jr print_string
 
 ;------------------------------------------------------
-; Helper to send 16-bit words (little endian) to VDU.
+; Helper to send 16-bit words to VDU.
 ;------------------------------------------------------
 vdu_write_word:
     ld a, l
@@ -288,8 +287,6 @@ Debug_Overlay_Titles:
     push de
     push hl
     push ix
-
-    ;SET_TXT_BG_COL black
     
     ;----------------------------
     ; Current Room Number Title
@@ -333,6 +330,14 @@ Debug_Overlay_Titles:
     ld hl, Debug_TIP_String         
     call print_string
 
+    ;-----------------------------------
+    ; Look/Shoot Mode
+    ;-----------------------------------
+    TABTO 0, 6                  
+    ld hl, Debug_LSM_String         
+    call print_string
+
+
     pop ix
     pop hl
     pop de
@@ -349,58 +354,37 @@ Debug_Overlay_Values:
     push hl
     push ix
 
-    ;SET_TXT_BG_COL black
-    
     ;--------------------------
     ; Current Room Number
     ;--------------------------
-    TABTO 0, 0                  
-    ld hl, Debug_CRN_String         
-    call print_string           
     TABTO 4, 0
     SET_TXT_COL bright_white
     ld a, (current_room_id)
     call Print_A_Number
-    
     ;--------------------------
     ; Small Alien Active
     ;--------------------------
-    TABTO 0, 1                  
-    ld hl, Debug_SAA_String         
-    call print_string
     TABTO 4, 1
     SET_TXT_COL bright_white
-    ld a,(sm_alien_is_active)
+    ld a, (sm_alien_is_active)
     call Print_A_Number
-    
     ;--------------------------
     ; Big alien active
     ;--------------------------
-    TABTO 0, 2              
-    ld hl, Debug_BAA_String         
-    call print_string
     TABTO 4, 2
     SET_TXT_COL bright_white
-    ld a,(big_alien_is_active)
+    ld a, (big_alien_is_active)
     call Print_A_Number
-
     ;--------------------------
     ; Player current direction
     ;--------------------------
-    TABTO 0, 3                  
-    ld hl, Debug_PCD_String         
-    call print_string
     TABTO 4, 3
     SET_TXT_COL bright_white
     ld a, (player_dir)
     call Print_A_Number
-
     ;--------------------------
     ; Tile ID under Player
     ;--------------------------
-    TABTO 0, 4               
-    ld hl, Debug_TPO_String         
-    call print_string
     TABTO 4, 4
     SET_TXT_COL bright_white
     ld hl, (player_x)
@@ -414,13 +398,9 @@ Debug_Overlay_Values:
     ld e, a
     call get_tile_at_coords 
     call Print_A_Number
-
     ;------------------------------
     ; Tile ID In Front of Player
     ;------------------------------
-    TABTO 0, 5                  
-    ld hl, Debug_TIP_String         
-    call print_string
     TABTO 4, 5
     SET_TXT_COL bright_white
     ld hl, (player_x)
@@ -466,6 +446,13 @@ Debug_Overlay_Values:
 .dbg_print:
     call get_tile_at_coords
     call Print_A_Number
+    ;--------------------------
+    ; Look Mode
+    ;--------------------------
+    TABTO 4, 6
+    SET_TXT_COL bright_white
+    ld a, (look_shoot_mode)
+    call Print_A_Number
 
     pop ix
     pop hl
@@ -473,3 +460,4 @@ Debug_Overlay_Values:
     pop bc
     pop af
     ret
+

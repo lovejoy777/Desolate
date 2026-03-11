@@ -64,6 +64,14 @@ Check_Action_Triggers:
     ; Lock it now so we only trigger once per press
     ld a, 1
     ld (space_lock), a
+
+    ld a, (look_shoot_mode)
+    cp $00
+    jp z, .look
+    cp $01
+    jp z, .shoot
+
+.look:
     ld a, (ui_win_active)
 
     ; --- Get Current Position ---
@@ -134,20 +142,19 @@ Check_Action_Triggers:
     ld hl, SE131  
 
     PLAY_SOUND 0, 127, 1000, 15
-    PLAY_SOUND 0, 127, 1000, 15
 
-    Select_Sprite_8bit 0
+    Select_Sprite_8bit playerSprite
     Hide_Sprite
-    Select_Sprite_8bit 1
+    Select_Sprite_8bit smAlienSprite
     Hide_Sprite
-    Select_Sprite_8bit 2
+    Select_Sprite_8bit bigAlienSprite
     Hide_Sprite
 
     call Draw_Terminal_Popup
 
     SET_TXT_BG_COL 8
     SET_TXT_COL black
-    ;call Draw_Sm_Popup      ; Draw the 192x48 border
+    ;call Draw_Sm_Popup      ; Draw the 192x48 popup
     ;call Display_Message 
 
     ; --- Restore Screen colours---
@@ -155,8 +162,25 @@ Check_Action_Triggers:
     SET_TXT_COL bright_white        
     ret
 
+.shoot:       
+    ld hl, startLaser
+    ld bc, endLaser - startLaser
+    rst.lil $18
+    ret 
+
+startLaser: 
+    .db 23,0,$85                        ; do sound
+    .db 2,4,-1                          ; channel
+
+    .db 23,0,$85                        ; do sound
+    .db 2,0, 127                        ; channel, volume
+    .dw 125                             ; freq (ignored for samples)
+    .dw 100                            ; duration (ignored for samples)
+endLaser:
+    ret
+
 ;=========================
-; Z Look KEY
+; Z Look Mode KEY
 ;=========================
 .z_key_is_down:
     ld a, (look_lock)        ; Debounce check for Z look key
@@ -165,12 +189,16 @@ Check_Action_Triggers:
 
     ld a, 1
     ld (look_lock), a
+    ld a, 0
+    ld (look_shoot_mode), a
 
-    PLAY_SOUND 0, 127, 500, 10
+    PLAY_SOUND 0, 127, 500, 5
+    call Look_Shoot_Mode
+    
     ret
 
 ;=========================
-; X Shoot KEY
+; X Shoot Mode KEY
 ;=========================
 .x_key_is_down:
     ld a, (shoot_lock)        ; Debounce check for X shoot key
@@ -179,8 +207,11 @@ Check_Action_Triggers:
 
     ld a, 1
     ld (shoot_lock), a
+    ld (look_shoot_mode), a
 
-    PLAY_SOUND 0, 127, 500, 10
+    PLAY_SOUND 0, 127, 500, 5
+    call Look_Shoot_Mode
+
     ret
 
 ;=================================
@@ -191,24 +222,17 @@ Check_Action_Triggers:
     cp $01
     ret nz
 
-
-    ld a, (close_lock)        ; Debounce check for C Close popups key
-    or a
-    ret nz
-
-    ld a, 1
-    ld (close_lock), a
-
+    PLAY_SOUND 0, 127, 500, 5
     ld a, 0
     ld (ui_win_active), a
-    PLAY_SOUND 0, 127, 500, 10
 
-    Select_Sprite_8bit 0
-    Show_Sprite
     CLG
-
     call Draw_Room
     call Draw_Health_Value         ; from main_subs.inc
+    call Look_Shoot_Mode           ; from des_ui_logic.inc
+
+    Select_Sprite_8bit playerSprite
+    Show_Sprite
     
     ret
 
@@ -223,8 +247,7 @@ Check_Action_Triggers:
     ld a, 1
     ld (menu_lock), a
 
-
-    PLAY_SOUND 0, 127, 500, 10
+    PLAY_SOUND 0, 127, 500, 5
     
     ret
 
@@ -232,27 +255,32 @@ Check_Action_Triggers:
 ; I INVENTORY KEY
 ;=========================
 .i_key_is_down:
-    ld a, (inv_lock)        ; Debounce check for inventory key [cite: 117]
+    ld a, (inv_lock)        ; Debounce check for inventory key
     or a
     ret nz
+
     ld a, 1
     ld (inv_lock), a
+
+    ld a, (ui_win_active)    ; if already open then return
+    cp $01
+    ret z
 
     ld a, 1
     ld (ui_win_active), a   ; This freezes the main_loop logic
     
-    PLAY_SOUND 0, 127, 500, 10
+    PLAY_SOUND 0, 127, 500, 5
     
     ; Hide the player
-    Select_Sprite_8bit 0
+    Select_Sprite_8bit playerSprite
     Hide_Sprite
-    Select_Sprite_8bit 1
+    Select_Sprite_8bit smAlienSprite
     Hide_Sprite
-    Select_Sprite_8bit 2
+    Select_Sprite_8bit bigAlienSprite
     Hide_Sprite
 
     ; Draw the UI
-    call Draw_Inv_Popup     ; routine to draw the inventory box
+    call Draw_Inv_Popup
 
     ; print inventory title
     SET_TXT_COL black
@@ -268,6 +296,37 @@ Check_Action_Triggers:
     ; --- Restore Screen colours---
     SET_TXT_BG_COL black
     SET_TXT_COL bright_white 
+    ret
+
+;-----------------------------------------------------------
+; LOOK/SHOOT MODE
+;-----------------------------------------------------------
+Look_Shoot_Mode:
+    ld a, (look_shoot_mode)
+    cp $00
+    jp z, .look_mode
+    cp $01
+    jp z, .shoot_mode
+    ret
+
+.look_mode:
+    Hide_Shoot_Indicator        ; from des_vdp_macros.inc
+    ld de, 50                   ; 50 = left look indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 184, 77           ; from des_vdp_macros.inc
+    ld de, 51                   ; 50 = right look indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 202, 77           ; from des_vdp_macros.inc
+    ret
+
+.shoot_mode:
+    Hide_Look_Indicator           ; from des_vdp_macros.inc
+    ld de, 50                     ; 50 = left shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 204, 77             ; from des_vdp_macros.inc
+    ld de, 51                     ; 50 = right shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 224, 77             ; from des_vdp_macros.inc
     ret
 
     

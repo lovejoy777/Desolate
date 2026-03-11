@@ -54,4 +54,8 @@ Debug_TPO_String:
 ; Tile ID In Front Of Player               
 Debug_TIP_String:                          
     .db "TIP:", 0   
+; Look/Shoot Mode                  
+Debug_LSM_String:                        
+    .db "LSM:", 0   
+
                 

@@ -252,7 +252,7 @@ check_left:
 ;=====================================================
 
 update_animation:
-    Select_Sprite_8bit 0
+    Select_Sprite_8bit playerSprite
     ld a, (is_moving)
     or a
     jp z, force_idle
@@ -398,7 +398,6 @@ send_vdu:
     ld a, h
     rst.lil $10
 
-    Select_Sprite_8bit 0
+    Select_Sprite_8bit playerSprite
     Show_Sprite
-   ; Update_GPU
     ret

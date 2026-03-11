@@ -64,7 +64,6 @@ macro Write_To_Buffer_16bit hreg, lreg
     rst.lil $10
 endmacro
 
-
 macro Create_Bitmap width, height, mode
     ld a, 23
     rst.lil $10
@@ -151,5 +150,148 @@ macro Update_GPU
     rst.lil $10
     ld a, 15           ; Command: update gpu
     rst.lil $10
+endmacro
+
+macro Draw_Tile tile_x, tile_y
+    ld a, 23
+    rst.lil $10
+    ld a, 27
+    rst.lil $10
+    ld a, 3             ; Draw Bitmap
+    rst.lil $10
+    ld hl, tile_x
+    ld a, l
+    rst.lil $10
+    ld a, h
+    rst.lil $10
+    ld hl, tile_y
+    ld a, l
+    rst.lil $10
+    ld a, h
+    rst.lil $10
+endmacro
+
+macro Hide_Shoot_Indicator
+    SET_GCOL_COL grey
+    ;---------------------------------------------------
+    ; draw grey rectangle over shoot (right) indicator.
+    ld a, 25
+    rst.lil $10
+    ld a, 69
+    rst.lil $10
+    ld a, 225
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 85
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 25
+    rst.lil $10
+    ld a, 101
+    rst.lil $10
+    ld a, 232
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 95
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+
+    ;--------------------------------------------------
+    ; draw grey rectangle over shoot (left) indicator.
+    ; top left
+    ld a, 25
+    rst.lil $10
+    ld a, 69
+    rst.lil $10
+    ld a, 203
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 85
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ; bottom right
+    ld a, 25
+    rst.lil $10
+    ld a, 101
+    rst.lil $10
+    ld a, 210
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 95
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+
+    SET_GCOL_COL black          ; reset gcol colour to black.
+
+endmacro
+macro Hide_Look_Indicator
+    SET_GCOL_COL grey           
+    ;-------------------------------------------------
+    ; draw grey rectangle over look (left) indicator.
+    ; top left
+    ld a, 25
+    rst.lil $10
+    ld a, 69
+    rst.lil $10
+    ld a, 182
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 85
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ; bottom right
+    ld a, 25
+    rst.lil $10
+    ld a, 101
+    rst.lil $10
+    ld a, 189
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 95
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+
+    ;--------------------------------------------------
+    ; draw grey rectangle over look (right) indicator.
+    ; top left
+    ld a, 25
+    rst.lil $10
+    ld a, 69
+    rst.lil $10
+    ld a, 203
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 85
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ; bottom right
+    ld a, 25
+    rst.lil $10
+    ld a, 101
+    rst.lil $10
+    ld a, 210
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 95
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+
+    SET_GCOL_COL black            ; reset gcol colour to black.
 endmacro
 

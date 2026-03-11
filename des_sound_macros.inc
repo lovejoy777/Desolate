@@ -8,6 +8,13 @@
 ;   vol:  Volume (0-127)
 ;   freq: Frequency (Hz)
 ;   dur:  Duration (ms)
+
+; Example Basic Sounds
+; PLAY_SOUND 0, 127, 400, 150     ; Mid note
+; PLAY_SOUND 0, 127, 300, 150     ; Lower note
+; PLAY_SOUND 0, 127, 200, 400     ; Long low note
+; PLAY_SOUND 1, 100, 50, 500      ; Add a bit of white noise "crash"
+
 macro PLAY_SOUND chan, vol, freq, dur
     ld a, 23 
     rst.lil $10
