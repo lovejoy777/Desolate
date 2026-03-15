@@ -2,6 +2,33 @@
 ; File: des_main_subs.inc
 ;------------------------------------
 
+;---------------------------------
+; Reset all varibles and buffers
+;---------------------------------
+CleanStart:
+    
+    ; player vars to reset
+    ld a, 0
+    ld (look_shoot_mode), a
+    ld (ui_win_active), a
+    ld (current_room_id), a
+    ld (player_dir), a
+    ld (is_moving), a;
+    ld (anim_frame), a;
+    
+    ; All none zero vars to reset
+    ld hl, room_00
+    ld (current_room_ptr), hl
+    ld a, 79
+    ld (player_x), a
+    ld a, 67
+    ld (player_y), a
+    ld a, 64
+    ld (player_health), a
+
+    ret    
+    
+
 ;-------------------------
 ; initialize the display.
 ;-------------------------
@@ -140,20 +167,17 @@ Draw_Health_Value:
 Display_Message:
     ld b, 23                ; start row for newline text
     push hl                 ; Save string pointer (SE131)
+
     SET_TXT_BG_COL 8
     SET_TXT_COL black
 
-    Select_Sprite_8bit 0
-    Hide_Sprite
-
-    call Draw_Sm_Popup      ; Draw the 192x48 border
-
-    ; Position cursor inside the window for row 1
-    TABTO 9, 22
-
     pop hl                  ; Restore string pointer
     call Print_Desol_String ; Call the printer
-    PLAY_SOUND 0, 127, 1000, 10
+
+    ; --- Restore Screen colours---
+    SET_TXT_BG_COL black
+    SET_TXT_COL bright_white
+
     ret 
 ;--------------------------
 ; Print Desol String
@@ -337,7 +361,6 @@ Debug_Overlay_Titles:
     ld hl, Debug_LSM_String         
     call print_string
 
-
     pop ix
     pop hl
     pop de
@@ -366,7 +389,7 @@ Debug_Overlay_Values:
     ;--------------------------
     TABTO 4, 1
     SET_TXT_COL bright_white
-    ld a, (sm_alien_is_active)
+    ld a, (small_alien_is_active)
     call Print_A_Number
     ;--------------------------
     ; Big alien active

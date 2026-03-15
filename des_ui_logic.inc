@@ -35,6 +35,30 @@ Check_Action_Triggers:
     call Is_Key_Held_Matrix
     jp nz, .m_key_is_down
 
+    ; --- Check "R" Key for Restart ---
+    ld b, KEY_R_BYTE        
+    ld c, KEY_R_BIT         
+    call Is_Key_Held_Matrix
+    jp nz, .r_key_is_down
+
+    ; --- Check "Y" Key for Yes ---
+    ld b, KEY_Y_BYTE        
+    ld c, KEY_Y_BIT         
+    call Is_Key_Held_Matrix
+    jp nz, .y_key_is_down
+
+    ; --- Check "N" Key for No ---
+    ld b, KEY_N_BYTE        
+    ld c, KEY_N_BIT         
+    call Is_Key_Held_Matrix
+    jp nz, .n_key_is_down
+
+    ; --- Check "S" Key for Start ---
+    ld b, KEY_S_BYTE        
+    ld c, KEY_S_BIT         
+    call Is_Key_Held_Matrix
+    jp nz, .s_key_is_down
+
     ; --- Check "I" Key for Inventory ---
     ld b, KEY_I_BYTE        
     ld c, KEY_I_BIT         
@@ -48,6 +72,10 @@ Check_Action_Triggers:
     ld (shoot_lock), a
     ld (close_lock), a
     ld (menu_lock), a
+    ld (restart_lock), a
+    ld (yes_lock), a
+    ld (no_lock), a
+    ld (start_lock), a
     ld (inv_lock), a
     ret
 
@@ -139,7 +167,7 @@ Check_Action_Triggers:
     ; --- SUCCESS: OPEN WINDOW ---
     ld a, 1
     ld (ui_win_active), a        
-    ld hl, SE131  
+   ; ld hl, SE131  ; message from des_strings
 
     PLAY_SOUND 0, 127, 1000, 15
 
@@ -152,9 +180,6 @@ Check_Action_Triggers:
 
     call Draw_Terminal_Popup
 
-    SET_TXT_BG_COL 8
-    SET_TXT_COL black
-    ;call Draw_Sm_Popup      ; Draw the 192x48 popup
     ;call Display_Message 
 
     ; --- Restore Screen colours---
@@ -234,6 +259,7 @@ endLaser:
     Select_Sprite_8bit playerSprite
     Show_Sprite
     
+    
     ret
 
 ;=========================
@@ -248,7 +274,111 @@ endLaser:
     ld (menu_lock), a
 
     PLAY_SOUND 0, 127, 500, 5
+
+    Select_Sprite_8bit playerSprite
+    Hide_Sprite
+    Select_Sprite_8bit smAlienSprite
+    Hide_Sprite
+    Select_Sprite_8bit bigAlienSprite
+    Hide_Sprite
+
+    jp Menu_Screen
     
+    ret
+
+;=========================
+; "R" Restart KEY
+;=========================
+.r_key_is_down:
+    ld a, (restart_lock)        ; Debounce check for inventory key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (restart_lock), a
+
+    ld a, 1
+    ld (restart_win_active), a
+
+    ; --- SUCCESS: OPEN WINDOW ---
+    ld a, 1
+    ld (ui_win_active), a 
+
+    push hl
+    ld hl, restart_string
+
+    PLAY_SOUND 0, 127, 1000, 15
+
+    Select_Sprite_8bit playerSprite
+    Hide_Sprite
+    Select_Sprite_8bit smAlienSprite
+    Hide_Sprite
+    Select_Sprite_8bit bigAlienSprite
+    Hide_Sprite
+    
+    call Draw_Sm_Popup      ; Draw the 192x48 border
+    call Display_Message 
+    pop hl
+
+    ret
+
+.y_key_is_down:
+    ld a, (yes_lock)        ; Debounce check for M Menu key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (yes_lock), a
+
+    ld a, (restart_win_active)
+    cp $01
+    ret nz
+
+    
+    call CleanStart
+    call Trigger_Room_Load
+
+    ld a, 0
+    ld (restart_win_active), a
+    ret
+
+.n_key_is_down:
+    ld a, (ui_win_active)
+    cp $01
+    ret nz
+
+    PLAY_SOUND 0, 127, 500, 5
+    ld a, 0
+    ld (ui_win_active), a
+
+    CLG
+    call Draw_Room
+    call Draw_Health_Value         ; from main_subs.inc
+    call Look_Shoot_Mode           ; from des_ui_logic.inc
+
+    Select_Sprite_8bit playerSprite
+    Show_Sprite
+
+    ld a, 0
+    ld (restart_win_active), a
+    ret
+    
+;=========================
+; S Start Game KEY
+;=========================
+.s_key_is_down:
+    ld a, (start_lock)        ; Debounce check for X shoot key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (start_lock), a
+    
+    
+
+    PLAY_SOUND 0, 127, 500, 5
+    jp Trigger_Room_Load
+
     ret
 
 ;=========================

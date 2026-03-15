@@ -1,5 +1,24 @@
 ; --- From desolstrs.asm and new Agon Strings --- SE131
+controls_string1:
+    db "     Controls", 0
+controls_string2:
+    db "Space = Action", 0
+controls_string3:
+    db "Z = Look Mode", 0
+controls_string4:
+    db "X = Shoot Mode", 0
+controls_string5:
+    db "I = Inventory", 0
+controls_string6:
+    db "C = Close Popups", 0
+controls_string7:
+    db "R = Restart Game", 0
+controls_string8:
+    db "S = Start Game", 0
 
+
+restart_string:
+    db "  Restart New Game?||    Press Y or N", 0
 SE129:
     db "You dont seem to be able", 0
 SE12A:

@@ -46,22 +46,12 @@ draw_col_loop:
     ld a, (hl)                 ; Get Tile ID from ram_buffer
     ld hl, 0                   ; 24-bit register for ADL mode
     ld l, a
-    ld bc, 100                 ; Add 100 for background tile buffers
+    ld bc, 100                 ; Add 100 for background tile buffers Tileset1
     add hl, bc  
     ex de, hl                  ; DE = Final VDP Buffer ID
 
-    ;SELECT_BUFFER_DE
-    ld a, 23
-    rst.lil $10
-    ld a, 27
-    rst.lil $10
-    ld a, 32            ; Command 32: Select Buffer
-    rst.lil $10
-    ld a, e             ; ID Low
-    rst.lil $10
-    ld a, d             ; ID High
-    rst.lil $10   
-
+    SELECT_BUFFER_DE
+    
     ;DRAW_BITMAP_IX_IY 
     ld a, 23
     rst.lil $10

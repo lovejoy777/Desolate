@@ -179,14 +179,17 @@ macro Hide_Shoot_Indicator
     rst.lil $10
     ld a, 69
     rst.lil $10
+
     ld a, 225
     rst.lil $10
     ld a, 0
     rst.lil $10
+
     ld a, 85
     rst.lil $10
     ld a, 0
     rst.lil $10
+
     ld a, 25
     rst.lil $10
     ld a, 101
@@ -203,28 +206,28 @@ macro Hide_Shoot_Indicator
     ;--------------------------------------------------
     ; draw grey rectangle over shoot (left) indicator.
     ; top left
-    ld a, 25
+    ld a, 25      ;plot
     rst.lil $10
-    ld a, 69
+    ld a, 69      ; point in current colour
     rst.lil $10
-    ld a, 203
+    ld a, 203     ; x
     rst.lil $10
     ld a, 0
     rst.lil $10
-    ld a, 85
+    ld a, 85      ; y
     rst.lil $10
     ld a, 0
     rst.lil $10
     ; bottom right
-    ld a, 25
+    ld a, 25      ; plot
     rst.lil $10
-    ld a, 101
+    ld a, 101     ; fill rectangle
     rst.lil $10
-    ld a, 210
+    ld a, 210     ; x
     rst.lil $10
     ld a, 0
     rst.lil $10
-    ld a, 95
+    ld a, 95     ; y
     rst.lil $10
     ld a, 0
     rst.lil $10

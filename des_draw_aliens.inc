@@ -4,7 +4,7 @@
 Draw_Small_Alien:
     Select_Sprite_8bit smAlienSprite
     ; 1. ACTIVE CHECK: Only draw if alien_is_active is 1
-    ld a, (sm_alien_is_active) 
+    ld a, (small_alien_is_active) 
     or a
     jr nz, .draw_small_active       ; IF ACTIVE: Jump OVER the hide logic
 
@@ -15,16 +15,16 @@ Draw_Small_Alien:
     
 .draw_small_active:
     ; --- Animation logic ---
-    ld hl, alien_anim_timer
+    ld hl, small_alien_anim_timer
     inc (hl)
     ld a, (hl)
     cp 5                
-    jr nz, .skip_frame_swap
+    jr nz, .skip_small_frame_swap
     
     ld (hl), 0          
     Load_Next_Frame
 
-.skip_frame_swap:
+.skip_small_frame_swap:
     ; --- Move sprite
     ld a, 23
     rst.lil $10

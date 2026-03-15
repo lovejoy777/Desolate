@@ -7,7 +7,13 @@
     ; Draw the Small Message Popup Window
     ;------------------------------------------------
 Draw_Sm_Popup:
-    Select_Buffer_8bit 80
+    ;Select_Buffer_8bit 80
+    push de
+    ld de, 80
+    SELECT_BUFFER_DE
+    pop de
+    ; Position cursor inside the window for row 1
+    TABTO 9, 22
     ; Draw Buffer 80 at X:64, Y:164.
     ld a, 23
     rst.lil $10
@@ -32,7 +38,12 @@ Draw_Inv_Popup:
     ;-------------------------
     ; Top half
     ;--------------------------
-    Select_Buffer_8bit 81
+    ;Select_Buffer_8bit 81
+    push de
+    ld de, 81
+    SELECT_BUFFER_DE
+    pop de
+
     ; Draw Buffer 81 at X:64, Y:99.
     ld a, 23
     rst.lil $10
@@ -51,7 +62,10 @@ Draw_Inv_Popup:
     ;----------------------------
     ; Bottom half
     ;----------------------------
-    Select_Buffer_8bit 82
+    push de
+    ld de, 82
+    SELECT_BUFFER_DE
+    pop de
     ; Draw Buffer 82 at X:64, Y:155.
     ld a, 23
     rst.lil $10
@@ -73,10 +87,16 @@ Draw_Inv_Popup:
     ; Draw the Terminal Screen Popup Window
     ;------------------------------------------------
 Draw_Terminal_Popup:
+    ; Position cursor inside the window for row 1
+    ;TABTO 11, 13
+    ; Draw Buffer 80 at X:64, Y:164.
     ;-------------------------
     ; Top half
     ;--------------------------
-    Select_Buffer_8bit 83
+    push de
+    ld de, 83
+    SELECT_BUFFER_DE
+    pop de
     ; Draw Buffer 83 at X:64, Y:83.
     ld a, 23
     rst.lil $10
@@ -95,7 +115,10 @@ Draw_Terminal_Popup:
     ;----------------------------
     ; Bottom half
     ;----------------------------
-    Select_Buffer_8bit 84
+    push de
+    ld de, 84
+    SELECT_BUFFER_DE
+    pop de
     ; Draw Buffer 84 at X:64, Y:147.
     ld a, 23
     rst.lil $10
