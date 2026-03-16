@@ -40,19 +40,26 @@
 ; --- Global Variables ---
 ;-------------------------
 debug_delay_counter:    db   60      ; delay counter for debugging
-
 ram_buffer:             ds   4096    ; 4096 bytes
-look_shoot_mode:        db   0       ; Look/Shoot Mode (0=Look, 1=Shoot)
 
+;--------
+;UI vars
+;--------
+look_shoot_mode:        db   0       ; Look/Shoot Mode (0 = Look, 1 = Shoot)
+main_menu_mode:         db   0       ; Look/Shoot Mode (0 = New Game, 1 = Continue Game)
+
+main_menu_is_active:    db   1        ; 1 = Active (Default)
 start_win_active:       db   0       ; start Window Flag
 ui_win_active:          db   0       ; Popup Window Flag
 restart_win_active:     db   0       ; Restart Window Flag
 
-
-; Room vars
+;-------------------
+; Room/Screen vars
+;-------------------
 current_room_ptr:       dl   room_00       ; data block in des_data.inc
 main_menu_ptr:          dl   main_menu     ; data block in des_data.inc
 main_menu_bg_ptr:       dl   main_menu_bg  ; data block in des_data.inc
+
 current_room_id:        db   0
 
 playerSprite:           equ  0
@@ -96,7 +103,6 @@ small_alien_state:      db   0        ; 0=Choosing, 1=Moving, 2=Waiting
 small_alien_move_count: db   0        ; How many steps left to take
 small_alien_wait_timer: db   0        ; How long to stay still
 small_alien_speed:      db   2        ; less is faster
-
 ; --- Big Alien ---
 big_alien_x_mid:        db   8        ; Middle of alien X
 big_alien_y_mid:        db   16       ; Middle of alien Y
@@ -115,16 +121,18 @@ big_alien_speed:        db   2        ; less is faster
 
 alien_random_seed:      db   $A5      ; A starting seed for our random numbers
    
+;-----------------
 ; keyboard locks
+;----------------
+up_lock:                db   0
+down_lock:              db   0
+left_lock:              db   0
+right_lock:             db   0
 space_lock:             db   0
 look_lock:              db   0
 shoot_lock:             db   0
 close_lock:             db   0
 menu_lock:              db   0
-restart_lock:           db   0
-yes_lock:               db   0
-no_lock:                db   0
-start_lock:             db   0
 inv_lock:               db   0
 
 ;----------------
@@ -160,6 +168,11 @@ Menu_Screen:
     call Draw_Main_Menu_BG           ; from des_draw_menu.inc
     call Draw_Main_Menu_BG_Fix       ; from des_draw_menu.inc
     call Draw_Main_Menu              ; from des_draw_menu.inc
+    ;call Draw_Menu_Image             ; from des_draw_menu.inc
+    
+    ;call Check_Action_Triggers       ; from des_ui_logic.inc
+    call Main_Menu_Mode             ; from des_ui_logic.inc
+
     jp Wait_Here
 
 Wait_Here:                              
@@ -183,6 +196,7 @@ Trigger_Room_Load:
     xor a                          ; clear accumulator
     ld (is_moving), a              ; Force the player to stop moving
     ld (move_timeout), a           ; Reset the timer
+    ld (main_menu_is_active), a    ; Set Main Menu Flag to 0
 
     call Decode_Room_Metadata      ; from des_metadata_logic.inc
     call Check_Alien_Presence      ; Checks room metadata and sets sm_alien_is_active & big_alien_is_active
@@ -191,7 +205,7 @@ Trigger_Room_Load:
     call Draw_Health_Value         ; from main_subs.inc
     call Look_Shoot_Mode           ; from des_ui_logic.inc
     
-    ;jp Trigger_Room_Load
+    
     jp main_loop
 
 ;=====================================================================
@@ -232,7 +246,7 @@ main_loop:
     Update_GPU
     
     ; if pop up window is open jump here
-    .skip_gameplay: 
+.skip_gameplay: 
 
 ;----------------------------------------
 ; Debug Print outs top left of screen
@@ -262,33 +276,6 @@ main_loop:
 ;===========================================
 ; END MAIN GAME LOOP
 ;===========================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ;---------------------------------------------------------
@@ -629,20 +616,11 @@ ret
 ; Exit the Game.
 ;----------------
 exit_back_to_mos:
+    CLEAR_ALL_BUFFERS
     SET_MODE 0                    ; set mode 0
     SHOW_CURSOR                   ; show cursor
     SET_TXT_BG_COL black          ; set text background colour to black
     SET_TXT_COL bright_white      ; set text colour to bright white
+    CLG
     CLS
-
-; reset registers
-    pop iy                        
-    pop ix
-    pop de
-    pop bc
-    pop af
-    ld hl, 0
-
-    
-    
     ret

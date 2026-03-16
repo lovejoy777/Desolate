@@ -3,6 +3,33 @@ Check_Action_Triggers:
 ; Check Key presses of keyboard
 ;---------------------------------------------
 ;=========================
+; CURSOR MOVEMENT KEYS
+;=========================
+    ; --- Check UP cursor key ---
+    ld b, KEY_UP_BYTE
+    ld c, KEY_UP_BIT
+    call Is_Key_Held_Matrix
+    jp nz, .up_key_is_down
+
+    ; --- Check DOWN cursor key ---
+    ld b, KEY_DOWN_BYTE
+    ld c, KEY_DOWN_BIT
+    call Is_Key_Held_Matrix
+    jp nz, .down_key_is_down
+
+    ; --- Check LEFT cursor key ---
+    ld b, KEY_LEFT_BYTE
+    ld c, KEY_LEFT_BIT
+    call Is_Key_Held_Matrix
+    jp nz, .left_key_is_down
+
+    ; --- Check RIGHT cursor key ---
+    ld b, KEY_RIGHT_BYTE
+    ld c, KEY_RIGHT_BIT
+    call Is_Key_Held_Matrix
+    jp nz, .right_key_is_down
+
+;=========================
 ; SPACEBAR ACTION KEY
 ;=========================
     ; --- Check Spacebar for Look or Shoot ---
@@ -35,30 +62,6 @@ Check_Action_Triggers:
     call Is_Key_Held_Matrix
     jp nz, .m_key_is_down
 
-    ; --- Check "R" Key for Restart ---
-    ld b, KEY_R_BYTE        
-    ld c, KEY_R_BIT         
-    call Is_Key_Held_Matrix
-    jp nz, .r_key_is_down
-
-    ; --- Check "Y" Key for Yes ---
-    ld b, KEY_Y_BYTE        
-    ld c, KEY_Y_BIT         
-    call Is_Key_Held_Matrix
-    jp nz, .y_key_is_down
-
-    ; --- Check "N" Key for No ---
-    ld b, KEY_N_BYTE        
-    ld c, KEY_N_BIT         
-    call Is_Key_Held_Matrix
-    jp nz, .n_key_is_down
-
-    ; --- Check "S" Key for Start ---
-    ld b, KEY_S_BYTE        
-    ld c, KEY_S_BIT         
-    call Is_Key_Held_Matrix
-    jp nz, .s_key_is_down
-
     ; --- Check "I" Key for Inventory ---
     ld b, KEY_I_BYTE        
     ld c, KEY_I_BIT         
@@ -67,21 +70,103 @@ Check_Action_Triggers:
 
     ; --- Key is NOT held (Released) ---
     xor a
+    ld (up_lock), a
+    ld (down_lock), a
+    ld (left_lock), a
+    ld (right_lock), a
     ld (space_lock), a
     ld (look_lock), a
     ld (shoot_lock), a
     ld (close_lock), a
     ld (menu_lock), a
-    ld (restart_lock), a
-    ld (yes_lock), a
-    ld (no_lock), a
-    ld (start_lock), a
     ld (inv_lock), a
     ret
 
 ;==============================
 ; KEYS PRESSED
 ;==============================
+
+;=========================
+;  Main Menu Mode KEY
+;=========================
+.up_key_is_down:
+    
+    ld a, (up_lock)        ; Debounce check for Z look key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (up_lock), a
+
+    ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
+    cp $01
+    ret nz
+
+    ld a, (main_menu_mode)
+    sub 1
+    ld (main_menu_mode), a
+
+    PLAY_SOUND 0, 127, 500, 5
+    call Main_Menu_Mode
+    
+    ret
+
+.down_key_is_down:
+    
+    ld a, (down_lock)        ; Debounce check for Z look key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (down_lock), a
+
+    ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
+    cp $01
+    ret nz
+
+    ld a, (main_menu_mode)
+    add 1
+    ld (main_menu_mode), a
+
+    PLAY_SOUND 0, 127, 500, 5
+    call Main_Menu_Mode
+    
+    ret
+
+.left_key_is_down:
+    
+    ld a, (left_lock)        ; Debounce check for Z look key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (left_lock), a
+
+    ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
+    cp $01
+    ret nz
+
+    PLAY_SOUND 0, 127, 500, 5
+    
+    ret
+    
+
+.right_key_is_down:
+    
+    ld a, (right_lock)        ; Debounce check for Z look key
+    or a
+    ret nz
+
+    ld a, 1
+    ld (right_lock), a
+
+    ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
+    cp $01
+    ret nz
+
+    PLAY_SOUND 0, 127, 500, 5
+    
+    ret
 
 .space_is_down:
     ; --- Debounce Check ---
@@ -93,6 +178,60 @@ Check_Action_Triggers:
     ld a, 1
     ld (space_lock), a
 
+    ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
+    cp $01
+    jp nz, .end_menu 
+
+    ; main menu
+    ld a, (main_menu_mode)
+    cp $00
+    jp z, .new
+    cp $01
+    jp z, .cont
+    cp $02
+    jp z, .info
+    cp $03
+    jp z, .creds
+    cp $04
+    jp z, .quit
+
+.new:
+    PLAY_SOUND 0, 127, 500, 50
+    ld a, 0
+    ld (main_menu_is_active), a
+    call CleanStart
+    call Trigger_Room_Load
+    ret
+
+.cont:
+    PLAY_SOUND 0, 127, 500, 50
+    ld a, 0
+    ld (main_menu_is_active), a
+    call Trigger_Room_Load
+    ret
+
+.info:
+    ;call CleanStart
+    ; call Trigger_Room_Load
+    PLAY_SOUND 0, 127, 500, 50
+    ret
+
+.creds:
+    PLAY_SOUND 0, 127, 500, 50
+    ;call CleanStart
+    ;call Trigger_Room_Load
+    ret
+
+.quit:
+    PLAY_SOUND 0, 127, 500, 50
+    ld a, 0
+    ld (main_menu_is_active), a
+    call exit_back_to_mos
+    ret
+
+.end_menu:
+
+    ; look/shoot
     ld a, (look_shoot_mode)
     cp $00
     jp z, .look
@@ -272,6 +411,7 @@ endLaser:
 
     ld a, 1
     ld (menu_lock), a
+    ld (main_menu_is_active), a
 
     PLAY_SOUND 0, 127, 500, 5
 
@@ -286,100 +426,11 @@ endLaser:
     
     ret
 
-;=========================
-; "R" Restart KEY
-;=========================
-.r_key_is_down:
-    ld a, (restart_lock)        ; Debounce check for inventory key
-    or a
-    ret nz
 
-    ld a, 1
-    ld (restart_lock), a
 
-    ld a, 1
-    ld (restart_win_active), a
-
-    ; --- SUCCESS: OPEN WINDOW ---
-    ld a, 1
-    ld (ui_win_active), a 
-
-    push hl
-    ld hl, restart_string
-
-    PLAY_SOUND 0, 127, 1000, 15
-
-    Select_Sprite_8bit playerSprite
-    Hide_Sprite
-    Select_Sprite_8bit smAlienSprite
-    Hide_Sprite
-    Select_Sprite_8bit bigAlienSprite
-    Hide_Sprite
-    
-    call Draw_Sm_Popup      ; Draw the 192x48 border
-    call Display_Message 
-    pop hl
-
-    ret
-
-.y_key_is_down:
-    ld a, (yes_lock)        ; Debounce check for M Menu key
-    or a
-    ret nz
-
-    ld a, 1
-    ld (yes_lock), a
-
-    ld a, (restart_win_active)
-    cp $01
-    ret nz
 
     
-    call CleanStart
-    call Trigger_Room_Load
 
-    ld a, 0
-    ld (restart_win_active), a
-    ret
-
-.n_key_is_down:
-    ld a, (ui_win_active)
-    cp $01
-    ret nz
-
-    PLAY_SOUND 0, 127, 500, 5
-    ld a, 0
-    ld (ui_win_active), a
-
-    CLG
-    call Draw_Room
-    call Draw_Health_Value         ; from main_subs.inc
-    call Look_Shoot_Mode           ; from des_ui_logic.inc
-
-    Select_Sprite_8bit playerSprite
-    Show_Sprite
-
-    ld a, 0
-    ld (restart_win_active), a
-    ret
-    
-;=========================
-; S Start Game KEY
-;=========================
-.s_key_is_down:
-    ld a, (start_lock)        ; Debounce check for X shoot key
-    or a
-    ret nz
-
-    ld a, 1
-    ld (start_lock), a
-    
-    
-
-    PLAY_SOUND 0, 127, 500, 5
-    jp Trigger_Room_Load
-
-    ret
 
 ;=========================
 ; I INVENTORY KEY
@@ -427,7 +478,7 @@ endLaser:
     SET_TXT_BG_COL black
     SET_TXT_COL bright_white 
     ret
-
+ 
 ;-----------------------------------------------------------
 ; LOOK/SHOOT MODE
 ;-----------------------------------------------------------
@@ -441,22 +492,88 @@ Look_Shoot_Mode:
 
 .look_mode:
     Hide_Shoot_Indicator        ; from des_vdp_macros.inc
-    ld de, 50                   ; 50 = left look indicator
+    ld de, 486                   ; 50 = left look indicator
     SELECT_BUFFER_DE
     Draw_Tile 184, 77           ; from des_vdp_macros.inc
-    ld de, 51                   ; 50 = right look indicator
+    ld de, 487                   ; 50 = right look indicator
     SELECT_BUFFER_DE
     Draw_Tile 202, 77           ; from des_vdp_macros.inc
     ret
 
 .shoot_mode:
     Hide_Look_Indicator           ; from des_vdp_macros.inc
-    ld de, 50                     ; 50 = left shoot indicator
+    ld de, 486                     ; 50 = left shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 204, 77             ; from des_vdp_macros.inc
-    ld de, 51                     ; 50 = right shoot indicator
+    ld de, 487                     ; 50 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 224, 77             ; from des_vdp_macros.inc
     ret
 
-    
+;-----------------------------------------------------------
+; Main Menu MODE
+;-----------------------------------------------------------
+Main_Menu_Mode:
+    ld a, (main_menu_mode)
+    cp $00
+    jp z, .mm_new_mode
+    cp $01
+    jp z, .mm_cont_mode
+    cp $02
+    jp z, .mm_info_mode
+    cp $03
+    jp z, .mm_creds_mode
+    cp $04
+    jp z, .mm_quit_mode
+    ret
+
+.mm_new_mode:
+    Hide_MM_Indicators        ; from des_vdp_macros.inc
+    ld de, 488                   ; 50 = left look indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 73, 143           ; from des_vdp_macros.inc
+    ld de, 489                   ; 50 = right look indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 143, 143           ; from des_vdp_macros.inc
+    ret
+
+.mm_cont_mode:
+    Hide_MM_Indicators          ; from des_vdp_macros.inc
+    ld de, 488                     ; 50 = left shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 73, 155            ; from des_vdp_macros.inc
+    ld de, 489                     ; 50 = right shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 143, 155             ; from des_vdp_macros.inc
+    ret
+
+.mm_info_mode:
+    Hide_MM_Indicators           ; from des_vdp_macros.inc
+    ld de, 488                     ; 50 = left shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 73, 167            ; from des_vdp_macros.inc
+    ld de, 489                     ; 50 = right shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 143, 167             ; from des_vdp_macros.inc
+    ret
+
+.mm_creds_mode:
+    Hide_MM_Indicators           ; from des_vdp_macros.inc
+    ld de, 488                     ; 50 = left shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 73, 179            ; from des_vdp_macros.inc
+    ld de, 489                     ; 50 = right shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 143, 179             ; from des_vdp_macros.inc
+    ret
+
+.mm_quit_mode:
+    Hide_MM_Indicators          ; from des_vdp_macros.inc
+    ld de, 488                     ; 50 = left shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 73, 191            ; from des_vdp_macros.inc
+    ld de, 489                     ; 50 = right shoot indicator
+    SELECT_BUFFER_DE
+    Draw_Tile 143, 191             ; from des_vdp_macros.inc
+    ret
+

@@ -21,14 +21,6 @@ KEY_M_BYTE:     EQU $0C    ; Menu
 KEY_M_BIT:      EQU 5
 KEY_I_BYTE:     EQU $04    ; Inventory
 KEY_I_BIT:      EQU 5
-KEY_R_BYTE:     EQU $06    ; Restart
-KEY_R_BIT:      EQU 3
-KEY_Y_BYTE:     EQU $08    ; Yes
-KEY_Y_BIT:      EQU 4
-KEY_N_BYTE:     EQU $0A    ; No
-KEY_N_BIT:      EQU 5
-KEY_S_BYTE:     EQU $0A    ; Start
-KEY_S_BIT:      EQU 1
 KEY_ENTER_BYTE: EQU $09    ; Enter
 KEY_ENTER_BIT:  EQU 1
 KEY_ESC_BYTE:   EQU $0E    ; Quit to Mos

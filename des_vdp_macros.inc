@@ -171,6 +171,78 @@ macro Draw_Tile tile_x, tile_y
     rst.lil $10
 endmacro
 
+macro Hide_MM_Indicators
+    SET_GCOL_COL grey
+    ;--------------------------------------------------
+    ; Rect 1 (Menu area Left)
+    ;--------------------------------------------------
+    ; draw grey rectangle to mask bg overlap pixels.
+    ; top left of rect
+    ld a, 25      ; plot
+    rst.lil $10
+    ld a, 69      ; point in current colour
+    rst.lil $10
+    ; coords
+    ld a, 70       ; x
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 140      ; y
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+
+    ; bottom right of rect
+    ld a, 25      ; plot
+    rst.lil $10
+    ld a, 101     ; fill rectangle
+    rst.lil $10
+    ; coords
+    ld a, 82     ; x
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 204     ; y
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+
+    ;--------------------------------------------------
+    ; Rect 2 (Menu area Right)
+    ;--------------------------------------------------
+    ; draw grey rectangle to mask bg overlap pixels.
+    ; top left of rect
+    ld a, 25      ; plot
+    rst.lil $10
+    ld a, 69      ; point in current colour
+    rst.lil $10
+    ; coords
+    ld a, 140       ; x
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 140      ; y
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+
+    ; bottom right of rect
+    ld a, 25      ; plot
+    rst.lil $10
+    ld a, 101     ; fill rectangle
+    rst.lil $10
+    ; coords
+    ld a, 154    ; x
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, 204     ; y
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+
+endmacro
+
 macro Hide_Shoot_Indicator
     SET_GCOL_COL grey
     ;---------------------------------------------------
@@ -298,3 +370,45 @@ macro Hide_Look_Indicator
     SET_GCOL_COL black            ; reset gcol colour to black.
 endmacro
 
+macro MAKEBUFFEREDBITMAP id, width, height, data, colourCode
+
+	; create buffer
+
+	.db 	23,0,$A0 							; write block
+	.dw 	64000 + id 							; ID (word)
+	.db 	3	 								; 'create' command
+	.dw 	width *  height / 8 				; data size = length 320 x 64 / 8 bits as b/w
+
+	; clear in case VDP already has one
+
+	.db 	23,0,$A0 							; write block
+	.dw 	64000 + id 							; ID (word)
+	.db 	2	 								; 'create' command
+
+	; write data to the buffer
+
+	.db 	23,0,$A0 							; write block
+	.dw 	64000 + id 							; ID (word)
+	.db 	0	 								; 'write' command
+
+	.dw 	width *  height / 8 				; data size = length 320 x 64 / 8 bits as b/w
+			
+	incbin data
+
+	; convert the buffer to a single colour bitmap
+
+	.db 	18,0 								; select colour to use
+	.db 	colourCode							; 1 of 64 possible colours from palette
+
+	; convert buffer block to bitmap with ID
+
+	.db 	23,27,$20 							; select buffer bitmap to use
+	.dw 	64000 + id 							; ID (word)
+
+	; create a bitmap from that ID
+
+	.db 	23,27,$21 							; create bitmap from buffer
+	.dw 	width, height				 		; width, height (both words)
+	.db 	2 		
+
+endmacro

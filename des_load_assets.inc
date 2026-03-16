@@ -5,6 +5,7 @@
 Load_All_Assets:
 
     call Load_Banner_Asset
+    ;call Load_Main_Menu_Asset
     call Load_Player_Assets
     call Load_Small_Alien_Asset
     call Load_Big_Alien_Asset
@@ -44,22 +45,34 @@ Load_Terminal_window:
 ;------------------------
 ; Main Menu Asset
 ;------------------------
-; Main Menu Screen Loader
-Load_Main_Menu:
-    Select_Buffer_8bit 40
-    Write_To_Buffer_8bit 192, 128
-    ; Stream the Pixels
-    ld hl, Main_Menu_Pixels
-    ld bc, 3072 ;3072       ; 192px * 128px / 8 = 3072 bytes
-.stream_m:
-    ld a, (hl)
-    rst.lil $10
-    inc hl
-    dec bc
-    ld a, b
-    or c
-    jr nz, .stream_m
+; Main Menu Screen Loader. using mono pbm file
+Load_Main_Menu_Asset:
+    ld hl, loadGraphics				; start of data to send
+	ld bc, endLoadGraphics - loadGraphics		; length of data to send
+	rst.lil $18					; send data
+
+	; take a break to catch up in 2 batches
+
+
+	ld hl, loadGraphics				; start of data to send
+	ld bc, endLoadGraphics - loadGraphics		; length of data to send
+	rst.lil $18					; send data
     ret
+
+loadGraphics:	
+	;.db     23, 0, $C0, 0                   	; set screen to non-scaled
+	;.db 	23,7,0,3,1  				; scrolling off
+	;.db 	23,27,16	  			; clear all sprites
+
+	; clear all buffers
+	;.db 23, 0, $A0
+	;.dw -1
+	;.db 2
+
+	; id, width, height, data, colourCode
+	MAKEBUFFEREDBITMAP 40, 192, 128, "menus/menu2.pbm", 2 
+
+endLoadGraphics:
 
 ;------------------------
 ; Banner Asset buffer 30
@@ -154,11 +167,18 @@ Load_Tileset2_Tiles:
 ;--------------------------------------------------------------------------------------
 ; Tileset 4 Assets (14) 16x16 tiles. same as Tileset3 but shoot/look indicators edited
 ;--------------------------------------------------------------------------------------
+; Buffer Ids
+;------------------------------------------------
+; 486 = look/shoot left indicator
+; 487 = look/shoot right indicator
+; 488 = menu left indicator
+; 489 = menu right indicator
+;------------------------------------------------
 ; Tileset 4 Loader
 Load_Tileset4_Tiles:
     ld ix, Tileset4            ; Point to the original data blocks
-    ld de, 470                 ; Start at Buffer 470 - 483
-    ld b, 14                   ; Total tiles ( from des_tiles.inc)
+    ld de, 470                 ; Start at Buffer 470 - 489
+    ld b, 20                   ; Total tiles ( from des_tiles.inc)
 .tileset4_loop:
     push bc
     push de 
