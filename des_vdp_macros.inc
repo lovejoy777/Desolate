@@ -177,7 +177,7 @@ macro Hide_MM_Indicators
     ; Rect 1 (Menu area Left)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-    ; top left of rect
+    ; top left of rect 1
     ld a, 25      ; plot
     rst.lil $10
     ld a, 69      ; point in current colour
@@ -192,7 +192,7 @@ macro Hide_MM_Indicators
     ld a, 0
     rst.lil $10
 
-    ; bottom right of rect
+    ; bottom right of rect 1
     ld a, 25      ; plot
     rst.lil $10
     ld a, 101     ; fill rectangle
@@ -202,7 +202,7 @@ macro Hide_MM_Indicators
     rst.lil $10
     ld a, 0
     rst.lil $10
-    ld a, 204     ; y
+    ld a, 202     ; y
     rst.lil $10
     ld a, 0
     rst.lil $10
@@ -211,7 +211,7 @@ macro Hide_MM_Indicators
     ; Rect 2 (Menu area Right)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-    ; top left of rect
+    ; top left of rect 2
     ld a, 25      ; plot
     rst.lil $10
     ld a, 69      ; point in current colour
@@ -226,17 +226,17 @@ macro Hide_MM_Indicators
     ld a, 0
     rst.lil $10
 
-    ; bottom right of rect
+    ; bottom right of rect 2
     ld a, 25      ; plot
     rst.lil $10
     ld a, 101     ; fill rectangle
     rst.lil $10
     ; coords
-    ld a, 154    ; x
+    ld a, 152    ; x
     rst.lil $10
     ld a, 0
     rst.lil $10
-    ld a, 204     ; y
+    ld a, 202     ; y
     rst.lil $10
     ld a, 0
     rst.lil $10
@@ -369,6 +369,8 @@ macro Hide_Look_Indicator
 
     SET_GCOL_COL black            ; reset gcol colour to black.
 endmacro
+
+
 
 macro MAKEBUFFEREDBITMAP id, width, height, data, colourCode
 

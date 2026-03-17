@@ -140,6 +140,41 @@ macro CLEAR_ALL_BUFFERS
     rst.lil $10
 endmacro
 
+
+;-----------------------------------
+; draw filled colour rectangle.
+;-----------------------------------
+macro Draw_Filled_Rect x1, y1, x2, y2, bgcol
+    SET_GCOL_COL bgcol  ; set rec colour
+    ; top left
+    ld a, 25
+    rst.lil $10
+    ld a, 69
+    rst.lil $10
+    ld a, x1         ; start x
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, y1         ; start y
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ; bottom right
+    ld a, 25
+    rst.lil $10
+    ld a, 101
+    rst.lil $10
+    ld a, x2
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, y2
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    SET_GCOL_COL black            ; reset gcol colour to black.
+endmacro
+
 ; -----------------------------------------------------------------------------
 ; COLOUR CONSTANTS
 ; -----------------------------------------------------------------------------

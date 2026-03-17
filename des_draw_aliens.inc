@@ -35,7 +35,7 @@ Draw_Small_Alien:
 
     ; Send X (2 bytes)
     ld hl, (small_alien_x)
-    ld bc, 64           ; X Screen Offset
+    ld bc, (game_screen_offset_x)           ; X Screen Offset
     add hl, bc
     ld a, l             ; Send Low Byte (e.g., 64)
     rst.lil $10
@@ -44,7 +44,7 @@ Draw_Small_Alien:
 
     ; Send Y (2 bytes)
     ld hl, (small_alien_y)
-    ld bc, 83           ; Y Screen Offset
+    ld bc, (game_screen_offset_y)           ; Y Screen Offset
     add hl, bc
     ld a, l             ; Send Low Byte (e.g., 83)
     rst.lil $10
@@ -90,7 +90,7 @@ Draw_Big_Alien:
 
     ; ; Send X (2 bytes)
     ld hl, (big_alien_x)
-    ld bc, 64           ; X screen offset
+    ld bc, (game_screen_offset_x)           ; X screen offset
     add hl, bc
     ld a, l             ; Send Low Byte (e.g., 83)
     rst.lil $10
@@ -99,7 +99,7 @@ Draw_Big_Alien:
 
     ; ; Send Y (2 bytes)
     ld hl, (big_alien_y)
-    ld bc, 83           ; Y screen offset
+    ld bc, (game_screen_offset_y)           ; Y screen offset
     add hl, bc
     ld a, l             ; Send Low Byte (e.g., 83)
     rst.lil $10

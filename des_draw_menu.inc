@@ -1,9 +1,16 @@
+;--------------------------
+; Draw Main Menu Screen BG 
+;--------------------------
+; Draw 96 bytes full (12x8) 16x16 tiles from Tileset1 
+
+
 Draw_Main_Menu_BG:
     push ix
     push iy
+
     ld hl, (main_menu_bg_ptr)
     ld de, ram_buffer          
-    ld b, 96            ; 96 bytes
+    ld b, 96            ; 96 total bytes
 decode_mmbg:
     ld a, (hl)            
     cp $FF              ; repeat flag
@@ -30,12 +37,12 @@ literal_byte_mmbg:
 
 drawing_start_mmbg:
     ld hl, ram_buffer
-    ld iy, 83                  
-    ld b, 8                    
+    ld iy, (game_screen_offset_y)    ; y            
+    ld b, 8      ; 8 tiles             
 row_loop_mmbg:
     push bc
-    ld ix, 64                      
-    ld b, 12                   
+    ld ix, (game_screen_offset_x)    ; x                  
+    ld b, 12     ; 12 tiles            
 draw_col_loop_mmbg:
     push bc
     push hl
@@ -47,7 +54,7 @@ draw_col_loop_mmbg:
     ex de, hl                  ; DE = Final VDP Buffer ID
 
     SELECT_BUFFER_DE
-    
+
     ;DRAW_BITMAP_IX_IY 
     ld a, 23
     rst.lil $10
@@ -58,6 +65,7 @@ draw_col_loop_mmbg:
     
     push ix
     pop hl      ; Move IX to HL to send
+
     ld a, l
     rst.lil $10 ; X Low
     ld a, h
@@ -65,6 +73,7 @@ draw_col_loop_mmbg:
     
     push iy
     pop hl      ; Move IY to HL to send
+
     ld a, l
     rst.lil $10 ; Y Low
     ld a, h
@@ -83,17 +92,22 @@ draw_col_loop_mmbg:
     add iy, de
     pop bc
     djnz row_loop_mmbg
+
     pop iy
     pop ix
 
     ret
 
-;-------------------
-; Draw Menu Screen 
-;-------------------
+;-----------------------
+; Draw Main Menu Screen 
+;-----------------------
 Draw_Main_Menu:
+
+    call Draw_Main_Menu_BG_Fix
+
     push ix
     push iy
+
     ld hl, (main_menu_ptr)
     ld de, ram_buffer          
     ld b, 96            ; 96 bytes (12x8)
@@ -107,11 +121,11 @@ literal_byte_mm:
 
 drawing_start_mm:
     ld hl, ram_buffer
-    ld iy, 83                  ; x coords                  
+    ld iy, (game_screen_offset_y)                  ; y coords                  
     ld b, 8                    
 row_loop_mm:
     push bc
-    ld ix, 64                  ; y coords    
+    ld ix, (game_screen_offset_x)                  ; x coords    
     ld b, 12                   
 draw_col_loop_mm:
     push bc
@@ -135,6 +149,7 @@ draw_col_loop_mm:
     
     push ix
     pop hl      ; Move IX to HL to send
+
     ld a, l
     rst.lil $10 ; X Low
     ld a, h
@@ -142,6 +157,7 @@ draw_col_loop_mm:
     
     push iy
     pop hl      ; Move IY to HL to send
+
     ld a, l
     rst.lil $10 ; Y Low
     ld a, h
@@ -160,232 +176,71 @@ draw_col_loop_mm:
     add iy, de
     pop bc
     djnz row_loop_mm
+
     pop iy
     pop ix
 
     ret
 
 Draw_Main_Menu_BG_Fix:
-    SET_GCOL_COL grey  
     ;--------------------------------------------------
     ; Rect 1 (Banner area) 
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
     ; top left of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 69      ; point in current colour
-    rst.lil $10
-    ld a, 64    ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 93      ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ; bottom right of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 101     ; fill rectangle
-    rst.lil $10
-    ld a, 254     ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 118     ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
+
+    ; Draw_Rect x1, y1, x2, y2, bgcol
+    Draw_Filled_Rect 64, 93, 254, 118, grey
+    
 
     ;--------------------------------------------------
     ; Rect 2 (Banner area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-    ; top left of rect
-    ;SET_GCOL_COL bright_white
-
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 69      ; point in current colour
-    rst.lil $10
-    ld a, 226    ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 89      ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ; bottom right of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 101     ; fill rectangle
-    rst.lil $10
-    ld a, 252     ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 92    ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
+    
+    ; Draw_Rect x1, y1, x2, y2, bgcol
+    Draw_Filled_Rect 226,89, 252, 92, grey
+    
 
     ;--------------------------------------------------
     ; Rect 3 (Menu area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-    ; top left of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 69      ; point in current colour
-    rst.lil $10
-    ld a, 70    ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 126      ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ; bottom right of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 101     ; fill rectangle
-    rst.lil $10
-    ld a, 154     ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 204     ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
+    
+    ; Draw_Rect x1, y1, x2, y2, bgcol
+    Draw_Filled_Rect 70, 126, 154, 204, grey
+
 
     ;--------------------------------------------------
     ; Rect 4 (Face 1 area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-    ; top left of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 69      ; point in current colour
-    rst.lil $10
-    ld a, 216    ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 146      ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ; bottom right of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 101     ; fill rectangle
-    rst.lil $10
-    ld a, 246     ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 174    ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
+
+    ; Draw_Rect x1, y1, x2, y2, bgcol
+    Draw_Filled_Rect 69, 146, 246, 174, grey
+
 
     ;--------------------------------------------------
     ; Rect 5 (Face 2 area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-    ; top left of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 69      ; point in current colour
-    rst.lil $10
-    ld a, 226    ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 174      ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ; bottom right of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 101     ; fill rectangle
-    rst.lil $10
-    ld a, 246     ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 184    ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
+
+    ; Draw_Rect x1, y1, x2, y2, bgcol
+    Draw_Filled_Rect 226, 174, 246, 184, grey
+
+
 
     ;--------------------------------------------------
     ; Rect 6 (Face 3 area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-    ; top left of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 69      ; point in current colour
-    rst.lil $10
-    ld a, 236    ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 184      ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ; bottom right of rect
-    ld a, 25      ; plot
-    rst.lil $10
-    ld a, 101     ; fill rectangle
-    rst.lil $10
-    ld a, 252     ; x
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 194     ; y
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
+
+    ; Draw_Rect x1, y1, x2, y2, bgcol
+    Draw_Filled_Rect 69, 184, 252, 194, grey
+
+    
 
     ; reset gcol colour to black.
     SET_GCOL_COL black          
     ret
 
-Draw_Menu_Image:
-    ; Select Buffer 40.
-    ; select and draw the title top
-	ld a,63
-	ld (bitmap_x),a
-    ld a,83
-	ld (bitmap_y),a 
-	ld a,40
-	ld (which_bitmap),a 
-	ld a,250
-	ld (which_bitmap + 1),a
-
-    ; draw bitmap
-    push hl
-	push bc
-	ld hl, draw_bmStart
-	ld bc, draw_bmEnd - draw_bmStart
-	rst.lil $18
-	pop bc
-	pop hl
-	ret 
-
-draw_bmStart:
-    		.db 23, 27, $20		 	; select bitmap (16 bit id)
-which_bitmap:	.dw 0			 	; bitmap number 40
-
-		.db 25, $ED	         	    ; plot bitmap at x,y
-bitmap_x:	.dw 0	      	        ; to x pos (a word not a byte) 63
-bitmap_y:	.dw 0		         	; to y pos (a word not a byte) 83
-draw_bmEnd:

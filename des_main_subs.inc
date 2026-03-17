@@ -48,13 +48,13 @@ Init_Display:
 Set_Graphics_VP:
     ld a, 24           ; vdu 24,x1;y1;x2;y2; set graphics viewport
     rst.lil $10        ; send command to VDU
-    ld hl, 64          ; left (X1)
+    ld hl, (game_screen_offset_x)          ; left (X1)
     call vdu_write_word
     ld hl, 210         ; bottom (Y1)
     call vdu_write_word
-    ld hl, 255         ; right (X2)
+    ld hl, 254         ; right (X2)
     call vdu_write_word
-    ld hl, 83          ; top (Y2)
+    ld hl, (game_screen_offset_y)          ; top (Y2)
     call vdu_write_word
     ret
 
@@ -221,6 +221,7 @@ print_string:
     rst.lil $10
     inc hl
     jr print_string
+    
 
 ;------------------------------------------------------
 ; Helper to send 16-bit words to VDU.
@@ -483,4 +484,3 @@ Debug_Overlay_Values:
     pop bc
     pop af
     ret
-

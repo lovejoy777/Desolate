@@ -5,7 +5,6 @@
 Load_All_Assets:
 
     call Load_Banner_Asset
-    ;call Load_Main_Menu_Asset
     call Load_Player_Assets
     call Load_Small_Alien_Asset
     call Load_Big_Alien_Asset
@@ -17,12 +16,7 @@ Load_All_Assets:
     ; Load UI Tiles from Tileset4/des_data.inc
     call Load_Tileset4_Tiles
 
-    
     Activate_amount_sprites 3         ; 0=player, 1=small alien, 2=big alien
-
-    call Load_Inventoy_window
-    call Load_Terminal_window
-    call Load_Small_Popup_Asset
 
     ;-----------
     ; SFX
@@ -31,68 +25,28 @@ Load_All_Assets:
     
     ret
 
-Load_Inventoy_window:
-    call Load_Invtop_Popup_Asset
-    call Load_Invbot_Popup_Asset
-    ret
-
-Load_Terminal_window:
-    call Load_Termtop_Popup_Asset
-    call Load_Termbot_Popup_Asset
-    ret
-    
-
 ;------------------------
 ; Main Menu Asset
 ;------------------------
 ; Main Menu Screen Loader. using mono pbm file
-Load_Main_Menu_Asset:
+Load_Banner_Asset:
     ld hl, loadGraphics				; start of data to send
 	ld bc, endLoadGraphics - loadGraphics		; length of data to send
 	rst.lil $18					; send data
 
 	; take a break to catch up in 2 batches
 
-
 	ld hl, loadGraphics				; start of data to send
 	ld bc, endLoadGraphics - loadGraphics		; length of data to send
 	rst.lil $18					; send data
+    SET_GCOL_COL black
     ret
 
 loadGraphics:	
-	;.db     23, 0, $C0, 0                   	; set screen to non-scaled
-	;.db 	23,7,0,3,1  				; scrolling off
-	;.db 	23,27,16	  			; clear all sprites
-
-	; clear all buffers
-	;.db 23, 0, $A0
-	;.dw -1
-	;.db 2
-
 	; id, width, height, data, colourCode
-	MAKEBUFFEREDBITMAP 40, 192, 128, "menus/menu2.pbm", 2 
-
+	MAKEBUFFEREDBITMAP 30, 192, 48, "menus/banner_02.pbm", 0 
+    
 endLoadGraphics:
-
-;------------------------
-; Banner Asset buffer 30
-;------------------------
-; Desolate Banner Loader
-Load_Banner_Asset:
-    Select_Buffer_8bit 30
-    Write_To_Buffer_8bit 192, 48
-    ; Stream the Pixels
-    ld hl, Banner_Pixels
-    ld bc, 36864        ; 192 * 48 * 4 bytes (rgba)
-.stream_b:
-    ld a, (hl)
-    rst.lil $10
-    inc hl
-    dec bc
-    ld a, b
-    or c
-    jr nz, .stream_b
-    ret
 
 ;---------------------------------------------------
 ; Room Tile Assets, (122) 12x8 Grid of 16x16 tiles.
@@ -167,13 +121,7 @@ Load_Tileset2_Tiles:
 ;--------------------------------------------------------------------------------------
 ; Tileset 4 Assets (14) 16x16 tiles. same as Tileset3 but shoot/look indicators edited
 ;--------------------------------------------------------------------------------------
-; Buffer Ids
-;------------------------------------------------
-; 486 = look/shoot left indicator
-; 487 = look/shoot right indicator
-; 488 = menu left indicator
-; 489 = menu right indicator
-;------------------------------------------------
+
 ; Tileset 4 Loader
 Load_Tileset4_Tiles:
     ld ix, Tileset4            ; Point to the original data blocks
@@ -314,127 +262,6 @@ Load_Big_Alien_Asset:
     jp .ba_loop
     ret
 
-;------------------------------------------------------------
-; Small Pop up window 192x48 (12x3 tiles)
-;--------------------------------------------------------------
-Load_Small_Popup_Asset:
-    push de
-    ld de, 80
-    SELECT_BUFFER_DE
-    pop de
-
-    Write_To_Buffer_8bit 192, 48
-    ld hl, Small_Popup_Pixels
-    ld bc, 36864        ; 192 * 48 * 4 bytes = 36864 bytes
-.stream_sp:
-    ld a, (hl)
-    rst.lil $10
-    inc hl
-    dec bc
-    ld a, b
-    or c
-    jr nz, .stream_sp
-    ret
-
-;-----------------------------------------------------------------
-; Inventory and information Pop up window 192x56 x 2 (12x4 tiles)
-;-----------------------------------------------------------------
-; Top half
-Load_Invtop_Popup_Asset:
-    ;Select_Buffer_8bit 81
-    push de
-    ld de, 81
-    SELECT_BUFFER_DE
-    pop de
-
-    Write_To_Buffer_8bit 192, 56
-    ld hl, Invtop_Popup_Pixels
-    ld bc, 43008        ; 192 * 56 * 4 bytes, top half of the window
-.stream_itp:
-    ld a, (hl)
-    rst.lil $10
-    inc hl
-    dec bc
-    ld a, b
-    or c
-    jr nz, .stream_itp
-    ret
-; Bottom half
-Load_Invbot_Popup_Asset:
-    push de
-    ld de, 82
-    SELECT_BUFFER_DE
-    pop de
-
-    Write_To_Buffer_8bit 192, 56
-    ld hl, Invbot_Popup_Pixels
-    ld bc, 43008        ; 192 * 56 * 4 bytes, bottom half of the window
-.stream_ibp:
-    ld a, (hl)
-    rst.lil $10
-    inc hl
-    dec bc
-    ld a, b
-    or c
-    jr nz, .stream_ibp
-    ret
-
-;-----------------------------------------------------------------
-; Terminal Screen and  Pop up window 192x56 x 2 (12x6 tiles)
-;-----------------------------------------------------------------
-; Top half
-Load_Termtop_Popup_Asset:
-    push de
-    ld de, 83
-    SELECT_BUFFER_DE
-    pop de
-
-    Write_To_Buffer_8bit 192, 64  
-    ld hl, Termtop_Popup_Pixels
-    ld bc, 49152        ; 192 * 64 * 4 bytes, top half of the window
-.stream_ttp:
-    ld a, (hl)
-    rst.lil $10
-    inc hl
-    dec bc
-    ld a, b
-    or c
-    jr nz, .stream_ttp
-    ret
-; Bottom half
-Load_Termbot_Popup_Asset:
-    push de
-    ld de, 84
-    SELECT_BUFFER_DE
-    pop de
-
-    Write_To_Buffer_8bit 192, 64
-    ld hl, Termbot_Popup_Pixels
-    ld bc, 49152        ; 192 * 64 * 4 bytes, bottom half of the window
-.stream_tbp:
-    ld a, (hl)
-    rst.lil $10
-    inc hl
-    dec bc
-    ld a, b
-    or c
-    jr nz, .stream_tbp
-    ret
-
-; --- Main Menu Screen Data ---
-Main_Menu_Pixels: incbin "popups/main_menu.data"
-; --- Banner Data ---
-Banner_Pixels: incbin "sprites/banner_cyan.data"
-;---- Small Message Popup Window
-Small_Popup_Pixels: incbin "popups/sm_popup_gs.data"
-;---- Inventory and Info Message Popup Window top half
-Invtop_Popup_Pixels: incbin "popups/invtop_popup_gs.data"
-;---- Inventory and Info Message Popup Window bottom half
-Invbot_Popup_Pixels: incbin "popups/invbot_popup_gs.data"
-;---- Terminal Screen  Popup Window top half
-Termtop_Popup_Pixels: incbin "popups/termtop_popup_gs.data"
-;---- Terminal Screen Popup Window bottom half
-Termbot_Popup_Pixels: incbin "popups/termbot_popup_gs.data"
 
 ; --- Player animation List and data---
 Player_Frame_List:

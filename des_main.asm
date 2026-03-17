@@ -42,6 +42,10 @@
 debug_delay_counter:    db   60      ; delay counter for debugging
 ram_buffer:             ds   4096    ; 4096 bytes
 
+game_screen_offset_x:   dw   63
+game_screen_offset_y:   dw   83
+
+
 ;--------
 ;UI vars
 ;--------
@@ -56,9 +60,14 @@ restart_win_active:     db   0       ; Restart Window Flag
 ;-------------------
 ; Room/Screen vars
 ;-------------------
-current_room_ptr:       dl   room_00       ; data block in des_data.inc
-main_menu_ptr:          dl   main_menu     ; data block in des_data.inc
-main_menu_bg_ptr:       dl   main_menu_bg  ; data block in des_data.inc
+current_room_ptr:       dl   room_00          ; data block in des_data.inc
+;Banner_ptr:             dl   banner_01        ; data block in des_data.inc
+main_menu_ptr:          dl   main_menu        ; data block in des_data.inc
+main_menu_bg_ptr:       dl   main_menu_bg     ; data block in des_data.inc
+inventory_popup_ptr:    dl   inventory_popup  ; data block in des_data.inc
+data_cart_popup_ptr:    dl   data_cart_popup  ; data block in des_data.inc
+door_lock_popup_ptr:    dl   door_lock_popup  ; data block in des_data.inc
+small_popup_ptr:        dl   small_popup      ; data block in des_data.inc
 
 current_room_id:        db   0
 
@@ -156,7 +165,8 @@ start_here:
     SET_SOUND_WAVEFORM 0, 0    ; Channel 0: Square wave for hits
     SET_SOUND_WAVEFORM 1, 4    ; Channel 1: Noise for death crash
 
-    call Draw_Banner           ; from des_draw_banner.inc
+   ; call Draw_Banner_BG
+    call Draw_Banner_Image           ; from des_draw_banner.inc
     call Set_Graphics_VP
 
     call Debug_Overlay_Titles  ; Temp debug overlay, top left
@@ -166,11 +176,8 @@ start_here:
 Menu_Screen:
     CLG
     call Draw_Main_Menu_BG           ; from des_draw_menu.inc
-    call Draw_Main_Menu_BG_Fix       ; from des_draw_menu.inc
     call Draw_Main_Menu              ; from des_draw_menu.inc
-    ;call Draw_Menu_Image             ; from des_draw_menu.inc
     
-    ;call Check_Action_Triggers       ; from des_ui_logic.inc
     call Main_Menu_Mode             ; from des_ui_logic.inc
 
     jp Wait_Here
@@ -379,6 +386,8 @@ Take_Damage:
     jp z, .kb_right                 ; if equal, go to .kb_right
     jp .apply_damage                ; Apply damage
 
+    ret
+
 .kb_up:
     ld hl, (player_y)
     ld bc, 8
@@ -453,6 +462,7 @@ Take_Damage:
     ld a, (cooldown_time)           ; Reset cooldown (0.5s at 30fps)
     ld (damage_cooldown), a         ; Save new cooldown
     call Draw_Health_Value          ; Update HUD
+
     ret
 
 .is_dead:
@@ -467,7 +477,8 @@ Take_Damage:
     ld a, 26                     ; reset viewports
     rst.lil $10                  ; Send to vdp
 
-    call Draw_Banner             ; Draw banner
+    ;call Draw_Banner_BG
+    call Draw_Banner_Image       ; from des_draw_banner.inc
     ; --- Draw Text ---
     call Draw_Dead               ; Draw dead text
 
@@ -500,6 +511,7 @@ Draw_Dead:
     call print_string            ; print dead string 2
 
     SET_TXT_COL bright_white ; reset text colour to white
+
     ret
 
 ;---------------------------------------------
@@ -519,13 +531,14 @@ Check_Alien_Presence:
     add hl, de
     ld a, (hl)       ; Offset $2E
     cp $01                ; Small Alien?
-    jr z, .init_small
+    jr z, .init_small_alien
     cp $02                ; Big Alien?
-    jr z, .init_big
+    jr z, .init_big_alien
     pop hl
+
     ret                   ; No alien or $61
 
-.init_small:
+.init_small_alien:
     ld a, 1
     ld (small_alien_is_active), a
     pop hl
@@ -553,9 +566,10 @@ Check_Alien_Presence:
     add hl, hl    ; *8
     add hl, hl    ; *16
     ld (small_alien_y), hl
+
     ret
 
-.init_big:
+.init_big_alien:
     ld a, 1
     ld (big_alien_is_active), a
     pop hl
@@ -583,6 +597,7 @@ Check_Alien_Presence:
     add hl, hl    ; *8
     add hl, hl    ; *16
     ld (big_alien_y), hl
+
     ret
 
 ;------------------------------------
@@ -610,6 +625,7 @@ ld (big_alien_x_mid), a
 ld a, (big_alien_y)
 add a, 16
 ld (big_alien_y_mid), a
+
 ret
 
 ;----------------
@@ -623,4 +639,17 @@ exit_back_to_mos:
     SET_TXT_COL bright_white      ; set text colour to bright white
     CLG
     CLS
+
+; reset registers
+    pop iy                        
+    pop ix
+    pop de
+    pop bc
+    pop af
+    ld hl, 0
+    RST 00h         ; Call reset 0, returns to command prompt
+
     ret
+    
+
+    

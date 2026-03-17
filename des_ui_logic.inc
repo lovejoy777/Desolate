@@ -145,7 +145,7 @@ Check_Action_Triggers:
     ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
     cp $01
     ret nz
-
+    call Draw_Small_Popup
     PLAY_SOUND 0, 127, 500, 5
     
     ret
@@ -212,13 +212,14 @@ Check_Action_Triggers:
 
 .info:
     ;call CleanStart
-    ; call Trigger_Room_Load
+    ;call Draw_Door_Lock_Popup_BG
+    call Draw_Door_Lock_Popup
     PLAY_SOUND 0, 127, 500, 50
     ret
 
 .creds:
     PLAY_SOUND 0, 127, 500, 50
-    ;call CleanStart
+    call Draw_Small_Popup
     ;call Trigger_Room_Load
     ret
 
@@ -317,7 +318,9 @@ Check_Action_Triggers:
     Select_Sprite_8bit bigAlienSprite
     Hide_Sprite
 
-    call Draw_Terminal_Popup
+    ;call Draw_Data_Cart_Popup_BG
+    call Draw_Data_Cart_Popup
+    ;call Draw_Terminal_Popup
 
     ;call Display_Message 
 
@@ -426,12 +429,6 @@ endLaser:
     
     ret
 
-
-
-
-    
-
-
 ;=========================
 ; I INVENTORY KEY
 ;=========================
@@ -461,11 +458,12 @@ endLaser:
     Hide_Sprite
 
     ; Draw the UI
-    call Draw_Inv_Popup
+    ;call Draw_Inventory_Popup_BG
+    call Draw_Inventory_Popup
 
     ; print inventory title
     SET_TXT_COL black
-    SET_TXT_BG_COL dark_grey
+    SET_TXT_BG_COL grey
     TABTO 15, 13
     ld hl, Inv_Title_String
     call print_string
@@ -576,4 +574,3 @@ Main_Menu_Mode:
     SELECT_BUFFER_DE
     Draw_Tile 143, 191             ; from des_vdp_macros.inc
     ret
-

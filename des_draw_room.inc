@@ -34,11 +34,11 @@ literal_byte:
 
 drawing_start:
     ld hl, ram_buffer
-    ld iy, 83                  
+    ld iy, (game_screen_offset_y)                  
     ld b, 8                    
 row_loop:
     push bc
-    ld ix, 64                      
+    ld ix, (game_screen_offset_x)                      
     ld b, 12                   
 draw_col_loop:
     push bc

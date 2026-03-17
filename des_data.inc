@@ -892,27 +892,33 @@ Metadata_Pointer_Table:
 
 ; Encoded screen for Small message popup, in Tileset #2
 LEB27:
-Small_Popup:
+small_popup:
   DEFB $FF,$3C,$01,$26,$FF,$0A,$2A,$27
   DEFB $2D,$FF,$0A,$00,$2C,$28,$FF,$0A
   DEFB $2B,$29
+
+
 ; Encoded screen for Inventory/Info popup, in Tileset #2
 LF329:
-Inventory_Popup:
+inventory_popup:
   DEFB $FF,$0C,$01,$26,$FF,$0A,$2A,$27
   DEFB $2D,$FF,$0A,$00,$2C,$2D,$FF,$0A
   DEFB $00,$2C,$2D,$FF,$0A,$00,$2C,$2D
   DEFB $FF,$0A,$00,$2C,$2D,$FF,$0A,$00
   DEFB $2C,$28,$FF,$0A,$2B,$29
+
+
 LF42F:
-Data_Cart_Popup:
+data_cart_popup:
 ; Encoded screen: Data cartridge reader screen, in Tileset #2
   DEFB $03,$FF,$09,$04,$15,$05,$07,$11,$FF,$08,$0F,$12,$0B,$07,$0D,$FF
   DEFB $08,$00,$0E,$06,$07,$0D,$FF,$08,$00,$0E,$06,$07,$0D,$FF,$08,$00
   DEFB $0E,$06,$07,$13,$FF,$08,$10,$14,$06,$07,$00,$0C,$00,$FF,$04,$16
   DEFB $00,$0C,$00,$06,$09,$FF,$0A,$08,$0A
+
+
 LF468:
-Door_Lock_Popup:
+door_lock_popup:
 ; Encoded screen: Door Lock panel popup, in Tileset #2
   DEFB $03,$FF,$05,$04,$17,$FF,$05,$01,$07,$FF,$05,$00,$06,$FF,$05,$01
   DEFB $07,$00,$FF,$04,$0F,$06,$03,$04,$04,$15,$05,$07,$FF,$05,$00,$06
@@ -924,7 +930,7 @@ Door_Lock_Popup:
 
 
 
-; Main menu screen, 96 tiles in Tileset #2
+; Main menu screen, 96  in Tileset #2
 LF4B5:
 main_menu:
   DEFB $2E,$2F,$30,$31,$32,$33,$34,$35,$35,$36,$37,$38,$39,$3A,$3B,$3C
