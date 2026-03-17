@@ -144,6 +144,7 @@ Find_And_Load_Room:
 .no_exit:
     pop af
     ret
+
 ;-----------------------------------------------------------
 ; Set_Player_Spawn_Coords
 ; Sets X/Y based on which side of the screen we entered from
@@ -181,4 +182,5 @@ Set_Player_Spawn_Coords:
     ld (player_x), hl
     ld hl, 48             ; Y center
     ld (player_y), hl
+    
     ret

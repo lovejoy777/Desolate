@@ -4,11 +4,13 @@
 ; =============================================================================
 Load_All_Assets:
 
-    call Load_Banner_Asset
+    ; Load Sprites
     call Load_Player_Assets
     call Load_Small_Alien_Asset
     call Load_Big_Alien_Asset
 
+    ; Load banner from pbm image
+    call Load_Banner_Asset
     ; Load Room Tiles from Tileset1/des_data.inc
     call Load_Tileset1_Tiles
     ; Load Menu Tiles from Tileset2/des_data.inc
@@ -16,7 +18,8 @@ Load_All_Assets:
     ; Load UI Tiles from Tileset4/des_data.inc
     call Load_Tileset4_Tiles
 
-    Activate_amount_sprites 3         ; 0=player, 1=small alien, 2=big alien
+    ; 0=player, 1=small alien, 2=big alien
+    Activate_amount_sprites 3         
 
     ;-----------
     ; SFX
@@ -25,31 +28,9 @@ Load_All_Assets:
     
     ret
 
-;------------------------
-; Main Menu Asset
-;------------------------
-; Main Menu Screen Loader. using mono pbm file
-Load_Banner_Asset:
-    ld hl, loadGraphics				; start of data to send
-	ld bc, endLoadGraphics - loadGraphics		; length of data to send
-	rst.lil $18					; send data
-
-	; take a break to catch up in 2 batches
-
-	ld hl, loadGraphics				; start of data to send
-	ld bc, endLoadGraphics - loadGraphics		; length of data to send
-	rst.lil $18					; send data
-    SET_GCOL_COL black
-    ret
-
-loadGraphics:	
-	; id, width, height, data, colourCode
-	MAKEBUFFEREDBITMAP 30, 192, 48, "menus/banner_02.pbm", 0 
-    
-endLoadGraphics:
-
 ;---------------------------------------------------
 ; Room Tile Assets, (122) 12x8 Grid of 16x16 tiles.
+; Load Rooms from des_data Tileset1
 ; Buffers: 100-221
 ;---------------------------------------------------
 ; Tileset1 Loader
@@ -79,11 +60,12 @@ Load_Tileset1_Tiles:
     pop bc
     
     djnz .tile_loop
+
     ret
 
 ;------------------------------------------------------------------------------
-; Room Tile Assets, (122) 12x8 Grid of 16x16 tiles.
-; Load Menu_ :  (126 tiles)(Masked) as VDU Bitmaps
+; Menu Tile Assets, (126) 12x8 Grid of 16x16 tiles.
+; Load Menu_ :  from des_data Tileset2
 ; Buffers ID 300-425
 ;------------------------------------------------------------------------------
 Load_Tileset2_Tiles:
@@ -116,6 +98,7 @@ Load_Tileset2_Tiles:
     ld a, b
     or c
     jr nz, .tile_loop1
+
     ret
 
 ;--------------------------------------------------------------------------------------
@@ -149,7 +132,31 @@ Load_Tileset4_Tiles:
     pop bc
     
     djnz .tileset4_loop
+
     ret
+
+;------------------------
+; Banner Asset
+;------------------------
+; Banner Loader. using mono pbm file
+Load_Banner_Asset:
+    ld hl, loadGraphics				            ; start of data to send
+	ld bc, endLoadGraphics - loadGraphics		; length of data to send
+	rst.lil $18					                ; send data
+
+	; take a break to catch up in 2 batches
+
+	ld hl, loadGraphics				            ; start of data to send
+	ld bc, endLoadGraphics - loadGraphics		; length of data to send
+	rst.lil $18					                ; send data
+    SET_GCOL_COL black
+    ret
+
+loadGraphics:	
+	; id, width, height, data, colourCode
+	MAKEBUFFEREDBITMAP 30, 192, 48, "menus/banner_02.pbm", 0 
+    
+endLoadGraphics:
 
 ;--------------------------------
 ; Player Assets, Sprite 0
@@ -187,6 +194,7 @@ Load_Player_Assets:
     inc ix
     inc ix
     jp .p_loop
+
     ret
 
 ;---------------------------------
@@ -223,6 +231,7 @@ Load_Small_Alien_Asset:
     inc ix
     inc ix
     jp .sa_loop
+
     ret
 
 ;---------------------------------
@@ -260,8 +269,8 @@ Load_Big_Alien_Asset:
     inc ix
     inc ix
     jp .ba_loop
-    ret
 
+    ret
 
 ; --- Player animation List and data---
 Player_Frame_List:

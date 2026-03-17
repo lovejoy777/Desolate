@@ -80,6 +80,7 @@ Check_Action_Triggers:
     ld (close_lock), a
     ld (menu_lock), a
     ld (inv_lock), a
+
     ret
 
 ;==============================
@@ -90,7 +91,6 @@ Check_Action_Triggers:
 ;  Main Menu Mode KEY
 ;=========================
 .up_key_is_down:
-    
     ld a, (up_lock)        ; Debounce check for Z look key
     or a
     ret nz
@@ -103,16 +103,26 @@ Check_Action_Triggers:
     ret nz
 
     ld a, (main_menu_mode)
+    cp $00
+    jp z, .go_to_4
+
     sub 1
     ld (main_menu_mode), a
-
     PLAY_SOUND 0, 127, 500, 5
     call Main_Menu_Mode
-    
+
+.go_to_4_end:
+
     ret
 
+.go_to_4:
+    ld a, $04
+    ld (main_menu_mode), a
+    PLAY_SOUND 0, 127, 500, 5
+    call Main_Menu_Mode
+    jp .go_to_4_end
+
 .down_key_is_down:
-    
     ld a, (down_lock)        ; Debounce check for Z look key
     or a
     ret nz
@@ -125,16 +135,26 @@ Check_Action_Triggers:
     ret nz
 
     ld a, (main_menu_mode)
+    cp $04
+    jp z, .go_to_0
+
     add 1
     ld (main_menu_mode), a
-
     PLAY_SOUND 0, 127, 500, 5
     call Main_Menu_Mode
-    
+
+.go_to_0_end:
+
     ret
 
+.go_to_0:
+    ld a, $00
+    ld (main_menu_mode), a
+    PLAY_SOUND 0, 127, 500, 5
+    call Main_Menu_Mode
+    jp .go_to_0_end
+
 .left_key_is_down:
-    
     ld a, (left_lock)        ; Debounce check for Z look key
     or a
     ret nz
@@ -152,7 +172,6 @@ Check_Action_Triggers:
     
 
 .right_key_is_down:
-    
     ld a, (right_lock)        ; Debounce check for Z look key
     or a
     ret nz
@@ -201,6 +220,7 @@ Check_Action_Triggers:
     ld (main_menu_is_active), a
     call CleanStart
     call Trigger_Room_Load
+
     ret
 
 .cont:
@@ -208,6 +228,7 @@ Check_Action_Triggers:
     ld a, 0
     ld (main_menu_is_active), a
     call Trigger_Room_Load
+
     ret
 
 .info:
@@ -215,12 +236,13 @@ Check_Action_Triggers:
     ;call Draw_Door_Lock_Popup_BG
     call Draw_Door_Lock_Popup
     PLAY_SOUND 0, 127, 500, 50
+
     ret
 
 .creds:
     PLAY_SOUND 0, 127, 500, 50
     call Draw_Small_Popup
-    ;call Trigger_Room_Load
+    
     ret
 
 .quit:
@@ -228,10 +250,10 @@ Check_Action_Triggers:
     ld a, 0
     ld (main_menu_is_active), a
     call exit_back_to_mos
+
     ret
 
 .end_menu:
-
     ; look/shoot
     ld a, (look_shoot_mode)
     cp $00
@@ -264,6 +286,7 @@ Check_Action_Triggers:
     jr z, .look_right
     cp 3                ; LEFT
     jr z, .look_left
+
     ret
 
 .look_down:
@@ -287,7 +310,7 @@ Check_Action_Triggers:
     ld l, a
     
 .do_tile_check:
-    ;PLAY_SOUND 0, 127, 1000, 30
+
     call get_tile_at_coords
     
     ; Compare against your Terminal Tile IDs (26 decimal)
@@ -318,21 +341,20 @@ Check_Action_Triggers:
     Select_Sprite_8bit bigAlienSprite
     Hide_Sprite
 
-    ;call Draw_Data_Cart_Popup_BG
     call Draw_Data_Cart_Popup
-    ;call Draw_Terminal_Popup
-
     ;call Display_Message 
 
     ; --- Restore Screen colours---
     SET_TXT_BG_COL black
-    SET_TXT_COL bright_white        
+    SET_TXT_COL bright_white
+
     ret
 
 .shoot:       
     ld hl, startLaser
     ld bc, endLaser - startLaser
     rst.lil $18
+
     ret 
 
 startLaser: 
@@ -344,6 +366,7 @@ startLaser:
     .dw 125                             ; freq (ignored for samples)
     .dw 100                            ; duration (ignored for samples)
 endLaser:
+
     ret
 
 ;=========================
@@ -401,7 +424,6 @@ endLaser:
     Select_Sprite_8bit playerSprite
     Show_Sprite
     
-    
     ret
 
 ;=========================
@@ -458,7 +480,6 @@ endLaser:
     Hide_Sprite
 
     ; Draw the UI
-    ;call Draw_Inventory_Popup_BG
     call Draw_Inventory_Popup
 
     ; print inventory title
@@ -475,12 +496,15 @@ endLaser:
     ; --- Restore Screen colours---
     SET_TXT_BG_COL black
     SET_TXT_COL bright_white 
+
     ret
  
 ;-----------------------------------------------------------
 ; LOOK/SHOOT MODE
 ;-----------------------------------------------------------
 Look_Shoot_Mode:
+
+
     ld a, (look_shoot_mode)
     cp $00
     jp z, .look_mode
@@ -489,29 +513,43 @@ Look_Shoot_Mode:
     ret
 
 .look_mode:
-    Hide_Shoot_Indicator        ; from des_vdp_macros.inc
+    ; Hide Shoot Indicators
+    ; left
+    Draw_Filled_Rect 225, 85, 232, 95, grey
+    ; right
+    Draw_Filled_Rect 203, 85, 210, 95, grey
+
+  ;  Hide_Shoot_Indicator        ; from des_vdp_macros.inc
     ld de, 486                   ; 50 = left look indicator
     SELECT_BUFFER_DE
     Draw_Tile 184, 77           ; from des_vdp_macros.inc
     ld de, 487                   ; 50 = right look indicator
     SELECT_BUFFER_DE
     Draw_Tile 202, 77           ; from des_vdp_macros.inc
+
     ret
 
 .shoot_mode:
-    Hide_Look_Indicator           ; from des_vdp_macros.inc
+    ; Hide Look Indicators
+    ; left
+    Draw_Filled_Rect 182, 85, 189, 95, grey
+    ; right
+    Draw_Filled_Rect 203, 85, 210, 95, grey
+
     ld de, 486                     ; 50 = left shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 204, 77             ; from des_vdp_macros.inc
     ld de, 487                     ; 50 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 224, 77             ; from des_vdp_macros.inc
+
     ret
 
 ;-----------------------------------------------------------
 ; Main Menu MODE
 ;-----------------------------------------------------------
 Main_Menu_Mode:
+
     ld a, (main_menu_mode)
     cp $00
     jp z, .mm_new_mode
@@ -523,54 +561,80 @@ Main_Menu_Mode:
     jp z, .mm_creds_mode
     cp $04
     jp z, .mm_quit_mode
+   
     ret
 
 .mm_new_mode:
-    Hide_MM_Indicators        ; from des_vdp_macros.inc
+    ; Hide Indicators Left
+    Draw_Filled_Rect 70, 140, 82, 202, grey
+    ; Hide Indicators Right
+    Draw_Filled_Rect 140, 140, 152, 202, grey
+
     ld de, 488                   ; 50 = left look indicator
     SELECT_BUFFER_DE
     Draw_Tile 73, 143           ; from des_vdp_macros.inc
     ld de, 489                   ; 50 = right look indicator
     SELECT_BUFFER_DE
-    Draw_Tile 143, 143           ; from des_vdp_macros.inc
+    Draw_Tile 143, 143           ; from des_vdp_macros.
+    
     ret
 
 .mm_cont_mode:
-    Hide_MM_Indicators          ; from des_vdp_macros.inc
+    ; Hide Indicators Left
+    Draw_Filled_Rect 70, 140, 82, 202, grey
+    ; Hide Indicators Right
+    Draw_Filled_Rect 140, 140, 152, 202, grey
+
     ld de, 488                     ; 50 = left shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 73, 155            ; from des_vdp_macros.inc
     ld de, 489                     ; 50 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 143, 155             ; from des_vdp_macros.inc
+
     ret
 
 .mm_info_mode:
-    Hide_MM_Indicators           ; from des_vdp_macros.inc
+    ; Hide Indicators Left
+    Draw_Filled_Rect 70, 140, 82, 202, grey
+    ; Hide Indicators Right
+    Draw_Filled_Rect 140, 140, 152, 202, grey
+
     ld de, 488                     ; 50 = left shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 73, 167            ; from des_vdp_macros.inc
     ld de, 489                     ; 50 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 143, 167             ; from des_vdp_macros.inc
+
     ret
 
 .mm_creds_mode:
-    Hide_MM_Indicators           ; from des_vdp_macros.inc
+    ; Hide Indicators Left
+    Draw_Filled_Rect 70, 140, 82, 202, grey
+    ; Hide Indicators Right
+    Draw_Filled_Rect 140, 140, 152, 202, grey
+
     ld de, 488                     ; 50 = left shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 73, 179            ; from des_vdp_macros.inc
     ld de, 489                     ; 50 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 143, 179             ; from des_vdp_macros.inc
+
     ret
 
 .mm_quit_mode:
-    Hide_MM_Indicators          ; from des_vdp_macros.inc
+    ; Hide Indicators Left
+    Draw_Filled_Rect 70, 140, 82, 202, grey
+    ; Hide Indicators Right
+    Draw_Filled_Rect 140, 140, 152, 202, grey
+
     ld de, 488                     ; 50 = left shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 73, 191            ; from des_vdp_macros.inc
     ld de, 489                     ; 50 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 143, 191             ; from des_vdp_macros.inc
+    
     ret

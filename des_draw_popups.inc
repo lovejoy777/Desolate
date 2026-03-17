@@ -9,7 +9,7 @@
 Draw_Small_Popup:
     
     ; Draw_Rect x1, y1, x2, y2, bgcol
-    ; Draw_Filled_Rect 63, 20, 254, 67, grey
+    Draw_Filled_Rect 67, 103, 252, 202, grey
 
     push ix
     push iy
@@ -110,7 +110,7 @@ draw_col_loop_smp:
 Draw_Inventory_Popup:
     
     ; Draw_Rect x1, y1, x2, y2, bgcol
-    Draw_Filled_Rect 69, 103, 248, 202, grey
+    Draw_Filled_Rect 69, 103, 252, 202, grey
 
     push ix
     push iy
@@ -317,7 +317,7 @@ Draw_Door_Lock_Popup:
     ; Left Panel
     Draw_Filled_Rect 65, 83, 170, 202, grey
     ; Right Panel
-    Draw_Filled_Rect 179, 113, 250, 208, grey
+    Draw_Filled_Rect 179, 120, 250, 202, grey
 
     push ix
     push iy

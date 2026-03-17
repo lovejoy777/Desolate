@@ -45,12 +45,11 @@ ram_buffer:             ds   4096    ; 4096 bytes
 game_screen_offset_x:   dw   63
 game_screen_offset_y:   dw   83
 
-
 ;--------
 ;UI vars
 ;--------
 look_shoot_mode:        db   0       ; Look/Shoot Mode (0 = Look, 1 = Shoot)
-main_menu_mode:         db   0       ; Look/Shoot Mode (0 = New Game, 1 = Continue Game)
+main_menu_mode:         db   0       ; Look/Shoot Mode (0 = New Game, 1 = Continue Game, 2 = info, 3 = credits, 4 = quit)
 
 main_menu_is_active:    db   1        ; 1 = Active (Default)
 start_win_active:       db   0       ; start Window Flag
@@ -60,8 +59,8 @@ restart_win_active:     db   0       ; Restart Window Flag
 ;-------------------
 ; Room/Screen vars
 ;-------------------
+
 current_room_ptr:       dl   room_00          ; data block in des_data.inc
-;Banner_ptr:             dl   banner_01        ; data block in des_data.inc
 main_menu_ptr:          dl   main_menu        ; data block in des_data.inc
 main_menu_bg_ptr:       dl   main_menu_bg     ; data block in des_data.inc
 inventory_popup_ptr:    dl   inventory_popup  ; data block in des_data.inc

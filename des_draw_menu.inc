@@ -2,8 +2,6 @@
 ; Draw Main Menu Screen BG 
 ;--------------------------
 ; Draw 96 bytes full (12x8) 16x16 tiles from Tileset1 
-
-
 Draw_Main_Menu_BG:
     push ix
     push iy
@@ -55,7 +53,6 @@ draw_col_loop_mmbg:
 
     SELECT_BUFFER_DE
 
-    ;DRAW_BITMAP_IX_IY 
     ld a, 23
     rst.lil $10
     ld a, 27
@@ -139,7 +136,6 @@ draw_col_loop_mm:
 
     SELECT_BUFFER_DE
 
-    ;DRAW_BITMAP_IX_IY 
     ld a, 23
     rst.lil $10
     ld a, 27
@@ -188,59 +184,41 @@ Draw_Main_Menu_BG_Fix:
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
     ; top left of rect
-
     ; Draw_Rect x1, y1, x2, y2, bgcol
     Draw_Filled_Rect 64, 93, 254, 118, grey
-    
-
     ;--------------------------------------------------
     ; Rect 2 (Banner area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-    
     ; Draw_Rect x1, y1, x2, y2, bgcol
     Draw_Filled_Rect 226,89, 252, 92, grey
-    
-
     ;--------------------------------------------------
     ; Rect 3 (Menu area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-    
     ; Draw_Rect x1, y1, x2, y2, bgcol
     Draw_Filled_Rect 70, 126, 154, 204, grey
-
-
     ;--------------------------------------------------
     ; Rect 4 (Face 1 area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-
     ; Draw_Rect x1, y1, x2, y2, bgcol
     Draw_Filled_Rect 69, 146, 246, 174, grey
-
-
     ;--------------------------------------------------
     ; Rect 5 (Face 2 area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-
     ; Draw_Rect x1, y1, x2, y2, bgcol
     Draw_Filled_Rect 226, 174, 246, 184, grey
-
-
-
     ;--------------------------------------------------
     ; Rect 6 (Face 3 area)
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
-
     ; Draw_Rect x1, y1, x2, y2, bgcol
     Draw_Filled_Rect 69, 184, 252, 194, grey
 
-    
-
     ; reset gcol colour to black.
-    SET_GCOL_COL black          
+    SET_GCOL_COL black      
+
     ret
 
