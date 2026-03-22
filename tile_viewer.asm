@@ -1,9 +1,9 @@
 ; =============================================================================
-; FILE: sprite_viewer.asm
-; DESCRIPTION: Renders Desolate Sprites.
+; FILE: tile_viewer.asm
+; DESCRIPTION: Renders Desolate Room Tiles.
 ;
 ; CRITICAL LOGIC:
-; Renders all 36 sprites using desolutil.asm/ Sprites: data block.
+; Renders all 122 tiles using desolutil.asm/ Tileset1: data.
 ; Complete with paging, 70 bitmaps per page, use space-bar to go to the next page.
 ; =============================================================================
 
@@ -49,43 +49,17 @@ main_loop:
     ld (cursor_y), hl
 
     ; -------------------------------------------------------------------------
-    ; PART 1: SPRITES Tileset3(36 items)
+    ; PART 1: TILESET1 (122 items)
     ; -------------------------------------------------------------------------
-    ld ix, Tileset3
-    ld b, 36                    ; 36 sprites from desoltils/Sprites:
-loop_sprites:
+    ld ix, Tileset1
+    ld b, 122                     ; 122 tiles from desoltils/Tileset1:
+loop_tiles:
     push bc
-
-    ld a, 23
-    rst.lil $10
-    ld a, 27
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, (current_id)
-    rst.lil $10
-    
-    ld a, 23
-    rst.lil $10
-    ld a, 27
-    rst.lil $10
-    ld a, 1
-    rst.lil $10
-    ld a, 16
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 16
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    
-    ;call define_sprite_bitmap    ; Setup Header
-    call send_sprite_pixels      ; Send Data (Masked logic)
+    call define_tile_bitmap      ; Setup Header
+    call send_tile_pixels        ; Send Data (Unmasked logic)
     call handle_item_display     ; Draw and Page Check
-    
     pop bc
-    djnz loop_sprites
+    djnz loop_tiles
 
     ; Wait for Key 32 (space), after all tiles have been rendered before looping back to page 0.
     call wait_for_down_key
@@ -129,7 +103,7 @@ wait_for_down_key:
     jr nz, wait_for_down_key
     ret
     
-define_sprite_bitmap:
+define_tile_bitmap:
     ld a, 23
     rst.lil $10
     ld a, 27
@@ -213,19 +187,17 @@ draw_next_item:
     ld (cursor_y), hl
     ret
 
-send_sprite_pixels:
+send_tile_pixels:
     ld c, 16
-.spr_row:
-    inc ix
+.tile_row:
     ld a, (ix+0)
     inc ix
     call expand_byte
-    inc ix
     ld a, (ix+0)
     inc ix
     call expand_byte
     dec c
-    jr nz, .spr_row
+    jr nz, .tile_row
     ret
 
 expand_byte:

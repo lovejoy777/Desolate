@@ -35,113 +35,152 @@
     .include "des_update_aliens.inc"
     .include "des_draw_aliens.inc"
     .include "des_draw_popups.inc"
+
+    .include "des_shooting.inc"
     
 ;-------------------------
 ; --- Global Variables ---
 ;-------------------------
-debug_delay_counter:    db   60      ; delay counter for debugging
-ram_buffer:             ds   4096    ; 4096 bytes
 
-game_screen_offset_x:   dw   63
-game_screen_offset_y:   dw   83
+debug_delay_counter:    db    60      ; delay counter for debugging
+game_screen_offset_x:   dw    63
+game_screen_offset_y:   dw    83
 
 ;--------
 ;UI vars
 ;--------
-look_shoot_mode:        db   0       ; Look/Shoot Mode (0 = Look, 1 = Shoot)
-main_menu_mode:         db   0       ; Look/Shoot Mode (0 = New Game, 1 = Continue Game, 2 = info, 3 = credits, 4 = quit)
+look_shoot_mode:        db    0       ; Look/Shoot Mode (0 = Look, 1 = Shoot)
+main_menu_mode:         db    0       ; Look/Shoot Mode (0 = New Game, 1 = Continue Game, 2 = info, 3 = credits, 4 = quit)
 
-main_menu_is_active:    db   1        ; 1 = Active (Default)
-start_win_active:       db   0       ; start Window Flag
-ui_win_active:          db   0       ; Popup Window Flag
-restart_win_active:     db   0       ; Restart Window Flag
+main_menu_is_active:    db    1       ; 1 = Active (Default)
+start_win_active:       db    0       ; start Window Flag
+ui_win_active:          db    0       ; Popup Window Flag
+restart_win_active:     db    0       ; Restart Window Flag
 
 ;-------------------
 ; Room/Screen vars
 ;-------------------
 
-current_room_ptr:       dl   room_00          ; data block in des_data.inc
-main_menu_ptr:          dl   main_menu        ; data block in des_data.inc
-main_menu_bg_ptr:       dl   main_menu_bg     ; data block in des_data.inc
-inventory_popup_ptr:    dl   inventory_popup  ; data block in des_data.inc
-data_cart_popup_ptr:    dl   data_cart_popup  ; data block in des_data.inc
-door_lock_popup_ptr:    dl   door_lock_popup  ; data block in des_data.inc
-small_popup_ptr:        dl   small_popup      ; data block in des_data.inc
+; pointers for tilesets data blocks
+current_room_ptr:       dl    room_00          ; data block in des_data.inc
+main_menu_ptr:          dl    main_menu        ; data block in des_data.inc
+main_menu_bg_ptr:       dl    main_menu_bg     ; data block in des_data.inc
+inventory_popup_ptr:    dl    inventory_popup  ; data block in des_data.inc
+data_cart_popup_ptr:    dl    data_cart_popup  ; data block in des_data.inc
+door_lock_popup_ptr:    dl    door_lock_popup  ; data block in des_data.inc
+small_popup_ptr:        dl    small_popup      ; data block in des_data.inc Decode_Room_Metadata
 
-current_room_id:        db   0
+current_room_id:        db    0
+current_room_metadata:  ds    49             ; 49 byte buffer
+Alien_Kill_Table:       ds    80      ; Allocate 80 bytes
 
-playerSprite:           equ  0
-smAlienSprite:          equ  1
-bigAlienSprite:         equ  2
+;---------
+; sprites
+;---------
+playerSprite:           equ   0
+smAlienSprite:          equ   1
+bigAlienSprite:         equ   2
+bulletSprite:           equ   3
 
 ;---------------
 ; Player Vars
 ;---------------
-player_x_mid:           db   16      ; Middle of player X
-player_y_mid:           db   16      ; Middle of player Y
-player_x:               dw   79      ; start x 
-player_y:               dw   67      ; start y
-player_dir:             db   0       ; 0 = down/south
-is_moving:              db   0       ; 0 = not moving
-move_timeout:           db   0       ; timer for movement
-anim_frame:             db   0       ; frame 0 = looking down
-anim_delay:             db   0       ; delay between frames
-player_health:          db   64      ; Start health (64)
-last_health:            db   0       ; Used to track changes
-damage_cooldown:        db   0       ; cooldown after taking damage
-damage_taken:           db   2       ; amount of damage to take
-cooldown_time:          db   20      ; time to wait before taking damage again
-knock_back_px:          db   8       ; amount of knock back in pixels
+player_x_mid:           db    16      ; Middle of player X
+player_y_mid:           db    16      ; Middle of player Y
+player_x:               dw    79      ; start x 
+player_y:               dw    67      ; start y
+player_dir:             db    0       ; 0 = down/south
+is_moving:              db    0       ; 0 = not moving
+move_timeout:           db    0       ; timer for movement
+anim_frame:             db    0       ; frame 0 = looking down
+anim_delay:             db    0       ; delay between frames
+player_health:          db    64      ; Start health (64)
+last_health:            db    0       ; Used to track changes
+damage_cooldown:        db    0       ; cooldown after taking damage
+damage_taken:           db    2       ; amount of damage to take
+cooldown_time:          db    20      ; time to wait before taking damage again
+knock_back_px:          db    8       ; amount of knock back in pixels
 
 ;----------------
 ; Aliens Vars
 ;----------------
-; --- Small_alien ---
-small_alien_x_mid:      db   8        ; Middle of alien X
-small_alien_y_mid:      db   8        ; Middle of alien Y
-small_alien_x:          dw   0        ; Current X
-small_alien_y:          dw   0        ; Current Y
-small_alien_spawn_x:    dw   0        ; Default Spawn X
-small_alien_spawn_y:    dw   0        ; Default Spawn Y
-small_alien_is_active:  db   0        ; 1 = Visible, 0 = Hidden
-small_alien_dir:        db   0        ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
-small_alien_anim_timer: db   0        ; Animation timer
-small_alien_move_timer: db   0        ; Movement timer
-small_alien_state:      db   0        ; 0=Choosing, 1=Moving, 2=Waiting
-small_alien_move_count: db   0        ; How many steps left to take
-small_alien_wait_timer: db   0        ; How long to stay still
-small_alien_speed:      db   2        ; less is faster
-; --- Big Alien ---
-big_alien_x_mid:        db   8        ; Middle of alien X
-big_alien_y_mid:        db   16       ; Middle of alien Y
-big_alien_x:            dw   0        ; Current X
-big_alien_y:            dw   0        ; Current Y
-big_alien_spawn_x:      dw   0        ; Default Spawn X
-big_alien_spawn_y:      dw   0        ; Default Spawn Y
-big_alien_is_active:    db   0        ; 1 = Visible, 0 = 
-big_alien_dir:          db   0        ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
-big_alien_anim_timer:   db   0        ; Animation timer
-big_alien_move_timer:   db   0        ; Movement timer
-big_alien_state:        db   0        ; 0=Choosing, 1=Moving, 2=Waiting
-big_alien_move_count:   db   0        ; How many steps left to take
-big_alien_wait_timer:   db   0        ; How long to stay still
-big_alien_speed:        db   2        ; less is faster
+alien_random_seed:      db    $A5      ; A starting seed for our random numbers
+alien_is_alive:         db    0
 
-alien_random_seed:      db   $A5      ; A starting seed for our random numbers
-   
+; Alien Type Constants
+alien_type_small:       equ   $01
+small_alien_start_hp:   equ   3
+alien_type_big:         equ   $02
+big_alien_start_hp:     equ   10
+
+; --- Small_alien ---
+small_alien_hp:         db    0
+small_alien_x_mid:      db    8        ; Middle of alien X
+small_alien_y_mid:      db    8        ; Middle of alien Y
+small_alien_x:          dw    0        ; Current X
+small_alien_y:          dw    0        ; Current Y
+small_alien_spawn_x:    dw    0        ; Default Spawn X
+small_alien_spawn_y:    dw    0        ; Default Spawn Y
+small_alien_is_active:  db    0        ; 1 = Visible, 0 = Hidden
+small_alien_dir:        db    0        ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
+small_alien_anim_timer: db    0        ; Animation timer
+small_alien_move_timer: db    0        ; Movement timer
+small_alien_state:      db    0        ; 0=Choosing, 1=Moving, 2=Waiting
+small_alien_move_count: db    0        ; How many steps left to take
+small_alien_wait_timer: db    0        ; How long to stay still
+small_alien_speed:      db    2        ; less is faster
+; --- Big Alien ---
+big_alien_hp:           db    0
+big_alien_x_mid:        db    8        ; Middle of alien X
+big_alien_y_mid:        db    16       ; Middle of alien Y
+big_alien_x:            dw    0        ; Current X
+big_alien_y:            dw    0        ; Current Y
+big_alien_spawn_x:      dw    0        ; Default Spawn X
+big_alien_spawn_y:      dw    0        ; Default Spawn Y
+big_alien_is_active:    db    0        ; 1 = Visible, 0 = 
+big_alien_dir:          db    0        ; 0 = down/south, 1 = up/north, 2 = left, 3 = right
+big_alien_anim_timer:   db    0        ; Animation timer
+big_alien_move_timer:   db    0        ; Movement timer
+big_alien_state:        db    0        ; 0=Choosing, 1=Moving, 2=Waiting
+big_alien_move_count:   db    0        ; How many steps left to take
+big_alien_wait_timer:   db    0        ; How long to stay still
+big_alien_speed:        db    2        ; less is faster
+
 ;-----------------
 ; keyboard locks
 ;----------------
-up_lock:                db   0
-down_lock:              db   0
-left_lock:              db   0
-right_lock:             db   0
-space_lock:             db   0
-look_lock:              db   0
-shoot_lock:             db   0
-close_lock:             db   0
-menu_lock:              db   0
-inv_lock:               db   0
+up_lock:                db    0
+down_lock:              db    0
+left_lock:              db    0
+right_lock:             db    0
+space_lock:             db    0
+look_lock:              db    0
+shoot_lock:             db    0
+close_lock:             db    0
+menu_lock:              db    0
+inv_lock:               db    0
+
+;-----------------
+; Shooting
+;-----------------
+shoot_is_active:        db    1       ; 1 = Active (have gun)
+
+bullet_is_active:       db    0
+bullet_frame:           db    0
+bullet_direction:       db    0
+bullet_spawn_x:         dw    0
+bullet_spawn_y:         dw    0
+bullet_x:               dw    0
+bullet_y:               dw    0
+bullet_tip_x:           dw    0
+bullet_tip_y:           dw    0
+bullet_speed:           db    2
+bullet_offset_x:        dw    0
+bullet_offset_y:        dw    0
+bullet_offset_left:     db    0
+bullet_offset_right:    db    0
+
+ram_buffer:             ds    4096    ; 4096 bytes
 
 ;----------------
 ; Start Here
@@ -209,7 +248,7 @@ Trigger_Room_Load:
     
     call Draw_Room                 ; from des_draw_room.inc
     call Draw_Health_Value         ; from main_subs.inc
-    call Look_Shoot_Mode           ; from des_ui_logic.inc
+    call Look_Shoot_Mode           ; from des_ui_logic.inc 
     
     
     jp main_loop
@@ -236,6 +275,8 @@ main_loop:
 
     ; Handle Player Movement and Animation
     call Movement_anim                ; from player_control.inc
+    ;
+    call Update_Bullet      ; Handle bullet movement and collisions
     ; Move the small alien
     call Update_Small_Alien                         
     ; Move the big alien
@@ -245,6 +286,7 @@ main_loop:
     call Collision_Detection
     call Draw_Small_Alien            ; from des_draw_aliens.inc
     call Draw_Big_Alien              ; from des_draw_aliens.inc
+    
     
     ; --- Update all active sprites in the GPU ---
     ; Now that all sprites have sent their new coordinates to the VDP,
@@ -523,6 +565,16 @@ Check_Alien_Presence:
     ld (small_alien_is_active), a
     ld (big_alien_is_active), a
 
+    ; --- 2. Check Global Persistence Table ---
+    ld a, (current_room_id)
+    ld hl, Alien_Kill_Table
+    ld d, 0
+    ld e, a
+    add hl, de
+    ld a, (hl)
+    cp 0
+    ret z     ; If 0, alien is permanently dead
+
     ld hl, current_room_metadata
     push hl
     ; Check Alien Type (Byte 46)
@@ -530,9 +582,9 @@ Check_Alien_Presence:
     add hl, de
     ld a, (hl)       ; Offset $2E
     cp $01                ; Small Alien?
-    jr z, .init_small_alien
+    jp z, .init_small_alien
     cp $02                ; Big Alien?
-    jr z, .init_big_alien
+    jp z, .init_big_alien
     pop hl
 
     ret                   ; No alien or $61

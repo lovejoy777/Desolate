@@ -199,7 +199,7 @@ Check_Action_Triggers:
 
     ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
     cp $01
-    jp nz, .end_menu 
+    jp nz, .skip_menu 
 
     ; main menu
     ld a, (main_menu_mode)
@@ -232,8 +232,6 @@ Check_Action_Triggers:
     ret
 
 .info:
-    ;call CleanStart
-    ;call Draw_Door_Lock_Popup_BG
     call Draw_Door_Lock_Popup
     PLAY_SOUND 0, 127, 500, 50
 
@@ -253,7 +251,8 @@ Check_Action_Triggers:
 
     ret
 
-.end_menu:
+.skip_menu:
+
     ; look/shoot
     ld a, (look_shoot_mode)
     cp $00
@@ -350,24 +349,11 @@ Check_Action_Triggers:
 
     ret
 
-.shoot:       
-    ld hl, startLaser
-    ld bc, endLaser - startLaser
-    rst.lil $18
+.shoot:    
+    call Shoot
 
     ret 
 
-startLaser: 
-    .db 23,0,$85                        ; do sound
-    .db 2,4,-1                          ; channel
-
-    .db 23,0,$85                        ; do sound
-    .db 2,0, 127                        ; channel, volume
-    .dw 125                             ; freq (ignored for samples)
-    .dw 100                            ; duration (ignored for samples)
-endLaser:
-
-    ret
 
 ;=========================
 ; Z Look Mode KEY
@@ -504,11 +490,10 @@ endLaser:
 ;-----------------------------------------------------------
 Look_Shoot_Mode:
 
-
     ld a, (look_shoot_mode)
-    cp $00
+    cp 0
     jp z, .look_mode
-    cp $01
+    cp 1
     jp z, .shoot_mode
     ret
 
@@ -630,7 +615,7 @@ Main_Menu_Mode:
     ; Hide Indicators Right
     Draw_Filled_Rect 140, 140, 152, 202, grey
 
-    ld de, 488                     ; 50 = left shoot indicator
+    ld de, 488                     ; 50 = left shoot indicator 
     SELECT_BUFFER_DE
     Draw_Tile 73, 191            ; from des_vdp_macros.inc
     ld de, 489                     ; 50 = right shoot indicator

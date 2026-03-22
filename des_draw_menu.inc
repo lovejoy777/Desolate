@@ -8,6 +8,7 @@ Draw_Main_Menu_BG:
 
     ld hl, (main_menu_bg_ptr)
     ld de, ram_buffer          
+    ld bc, 0
     ld b, 96            ; 96 total bytes
 decode_mmbg:
     ld a, (hl)            
@@ -35,7 +36,8 @@ literal_byte_mmbg:
 
 drawing_start_mmbg:
     ld hl, ram_buffer
-    ld iy, (game_screen_offset_y)    ; y            
+    ld iy, (game_screen_offset_y)    ; y  
+    ld bc, 0          
     ld b, 8      ; 8 tiles             
 row_loop_mmbg:
     push bc
@@ -46,6 +48,7 @@ draw_col_loop_mmbg:
     push hl
     ld a, (hl)                 ; Get Tile ID from ram_buffer
     ld hl, 0                   ; 24-bit register for ADL mode
+    ld bc, 0
     ld l, a
     ld bc, 100                 ; Add 100 for background tile buffers Tileset1
     add hl, bc  
@@ -105,6 +108,9 @@ Draw_Main_Menu:
     push ix
     push iy
 
+    ld hl, 0
+    ld bc, 0
+    ld de, 0
     ld hl, (main_menu_ptr)
     ld de, ram_buffer          
     ld b, 96            ; 96 bytes (12x8)
@@ -118,17 +124,20 @@ literal_byte_mm:
 
 drawing_start_mm:
     ld hl, ram_buffer
-    ld iy, (game_screen_offset_y)                  ; y coords                  
+    ld iy, (game_screen_offset_y)                  ; y coords  
+    ld bc, 0                
     ld b, 8                    
 row_loop_mm:
     push bc
-    ld ix, (game_screen_offset_x)                  ; x coords    
+    ld ix, (game_screen_offset_x)                  ; x coords 
+    ld bc, 0   
     ld b, 12                   
 draw_col_loop_mm:
     push bc
     push hl
     ld a, (hl)                 ; Get Tile ID from ram_buffer
     ld hl, 0                   ; 24-bit register for ADL mode
+    ld bc, 0
     ld l, a
     ld bc, 300                 ; Add 300 for menu tile buffers tileset2
     add hl, bc  
@@ -203,7 +212,7 @@ Draw_Main_Menu_BG_Fix:
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
     ; Draw_Rect x1, y1, x2, y2, bgcol
-    Draw_Filled_Rect 69, 146, 246, 174, grey
+    Draw_Filled_Rect 216, 146, 246, 174, grey
     ;--------------------------------------------------
     ; Rect 5 (Face 2 area)
     ;--------------------------------------------------
@@ -215,10 +224,7 @@ Draw_Main_Menu_BG_Fix:
     ;--------------------------------------------------
     ; draw grey rectangle to mask bg overlap pixels.
     ; Draw_Rect x1, y1, x2, y2, bgcol
-    Draw_Filled_Rect 69, 184, 252, 194, grey
-
-    ; reset gcol colour to black.
-    SET_GCOL_COL black      
+    Draw_Filled_Rect 235, 184, 252, 194, grey 
 
     ret
 

@@ -6,7 +6,19 @@
 ; Reset all varibles and buffers
 ;---------------------------------
 CleanStart:
-    
+    ; reset the alien kill table, all alive
+    ld hl, Alien_Kill_Table
+    ld bc, 80                ; Number of rooms to clear small_alien_hp
+    ld a, 3                  ; 1-3 = Alive, 0 = Dead
+.init_kill_table:
+    ld (hl), a
+    inc hl
+    dec bc
+    ld a, b
+    or c
+    ld a, 3                  ; restore a for the next loop
+    jr nz, .init_kill_table
+
     ; player vars to reset
     ld a, 0
     ld (look_shoot_mode), a
@@ -109,39 +121,17 @@ is_a_wall:
 ; Display HUD
 ;---------------------------------------------------------
 Draw_Health_Value:
-     
-    SET_GCOL_COL grey           ; set gcol colour to grey for the clearing the health value.
-    ; draw grey rectangle over current health value.
-    ld a, 25
-    rst.lil $10
-    ld a, 69
-    rst.lil $10
-    ld a, 106
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 86
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 25
-    rst.lil $10
-    ld a, 101
-    rst.lil $10
-    ld a, 130
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
-    ld a, 95
-    rst.lil $10
-    ld a, 0
-    rst.lil $10
+    ;--------------------------------------------------
+    ; Rect 1 (Health Value area) 
+    ;--------------------------------------------------
+    ; draw grey rectangle to mask old Health Value.
+    ; Draw_Rect x1, y1, x2, y2, bgcol
+    Draw_Filled_Rect 106, 86, 130, 95, grey
 
-    SET_GCOL_COL black          ; reset gcol colour to black.
-
+    ; Plot for Text
     ld a, 25
     rst.lil $10
-    ld a, 4                     ; vdu 25,4,x;y; plot move command.
+    ld a, 4                     ; Command: Plot.
     rst.lil $10
     ld a, 106
     rst.lil $10
@@ -362,6 +352,20 @@ Debug_Overlay_Titles:
     ld hl, Debug_LSM_String         
     call print_string
 
+    ;-----------------------------------
+    ; Small Alien HP
+    ;-----------------------------------
+    TABTO 0, 7                  
+    ld hl, Debug_SHP_String         
+    call print_string
+
+    ;-----------------------------------
+    ; Big Alien HP
+    ;-----------------------------------
+    TABTO 0, 8                  
+    ld hl, Debug_BHP_String         
+    call print_string
+
     pop ix
     pop hl
     pop de
@@ -372,11 +376,6 @@ Debug_Overlay_Titles:
 ; Debug_Overlay Values:
 ;---------------------------------------------------------
 Debug_Overlay_Values:
-    push af
-    push bc
-    push de
-    push hl
-    push ix
 
     ;--------------------------
     ; Current Room Number
@@ -437,7 +436,7 @@ Debug_Overlay_Values:
     add a, 24
     ld e, a
     ld a, (player_dir)
-    ; Branching for look-ahead from the new center base
+    ; Branching for look-ahead from the new center base Decode_Room_Metadata
     cp 0                ; Down
     jr z, .dbg_down
     cp 1                ; Up
@@ -470,6 +469,7 @@ Debug_Overlay_Values:
 .dbg_print:
     call get_tile_at_coords
     call Print_A_Number
+
     ;--------------------------
     ; Look Mode
     ;--------------------------
@@ -478,9 +478,20 @@ Debug_Overlay_Values:
     ld a, (look_shoot_mode)
     call Print_A_Number
 
-    pop ix
-    pop hl
-    pop de
-    pop bc
-    pop af
+    ;--------------------------
+    ; Small alien HP
+    ;--------------------------
+    TABTO 4, 7
+    SET_TXT_COL bright_white
+    ld a, (small_alien_hp)
+    call Print_A_Number
+
+    ;--------------------------
+    ; Big alien health
+    ;--------------------------
+    TABTO 4, 8
+    SET_TXT_COL bright_white
+    ld a, (big_alien_hp)
+    call Print_A_Number
+
     ret

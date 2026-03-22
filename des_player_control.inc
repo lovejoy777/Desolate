@@ -102,7 +102,7 @@ check_down:
     ld bc, 30             
     add hl, bc
     push hl
-    pop de                 ; DE = Y + 30
+    pop de                 ; DE = Y + 30 
     ld hl, 0
     ld a, (player_x)
     ld l, a
@@ -225,7 +225,7 @@ check_left:
     add hl, bc
     push hl
     pop de                 ; DE = Y + 24
-    pop hl                 ; HL = X + 2
+    pop hl                 ; HL = X + 8
 
     call get_tile_at_coords
     cp $2E                 ; west door tile id
@@ -367,7 +367,7 @@ send_vdu:
     rst.lil $10
     ld a, 27
     rst.lil $10
-    ld a, 21       ; swap frame
+    ld a, 21       ; Command: swap frame
     rst.lil $10
     ld a, b
     rst.lil $10
@@ -377,27 +377,26 @@ send_vdu:
     rst.lil $10
     ld a, 27
     rst.lil $10
-    ld a, 13          ; Move sprite
+    ld a, 13          ; Command: Move sprite
     rst.lil $10
 
-    ; load X for VDP Sprite Position
+    ; load X for Sprite Position
     ld hl, (player_x)
-    ld bc, 64         ; Screen X offset for game screen
+    ld bc, (game_screen_offset_x)
     add hl, bc
     ld a, l
     rst.lil $10       
     ld a, h
     rst.lil $10
 
-    ; load Y for VDP Sprite Position
+    ; load Y for Sprite Position
     ld hl, (player_y)
-    ld bc, 83          ; Screen Y offset for game screen
+    ld bc, (game_screen_offset_y)
     add hl, bc
     ld a, l
     rst.lil $10        
     ld a, h
     rst.lil $10
 
-    Select_Sprite_8bit playerSprite
     Show_Sprite
     ret

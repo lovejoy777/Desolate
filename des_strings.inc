@@ -76,5 +76,9 @@ Debug_TIP_String:
 ; Look/Shoot Mode                  
 Debug_LSM_String:                        
     .db "LSM:", 0   
-
-                
+; Small Alien HP                  
+Debug_SHP_String:                        
+    .db "SHP:", 0   
+; Big Alien HP                  
+Debug_BHP_String:                        
+    .db "BHP:", 0        

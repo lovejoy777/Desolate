@@ -36,7 +36,7 @@ Is_Key_Held_Matrix:
     push bc
     
     ld a, $1E
-    rst.lil $08             ; IX = Pointer to keyboard matrix
+    rst.lil $08             ; IX = Pointer to keyboard matrix Decode_Room_Metadata
     
     push ix
     pop hl                  ; HL = Start of matrix

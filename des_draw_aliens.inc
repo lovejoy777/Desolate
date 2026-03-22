@@ -3,7 +3,7 @@
 ;=============================================
 Draw_Small_Alien:
     Select_Sprite_8bit smAlienSprite
-    ; 1. ACTIVE CHECK: Only draw if alien_is_active is 1
+    ; 1. ACTIVE CHECK: Only draw if small alien_is_active is 1
     ld a, (small_alien_is_active) 
     or a
     jr nz, .draw_small_active       ; IF ACTIVE: Jump OVER the hide logic
@@ -11,7 +11,7 @@ Draw_Small_Alien:
 .hide_small_alien:
     ; IF NOT ACTIVE: Hide the sprite and exit
     Hide_Sprite
-    ret                       ; Return here so we don't draw anything
+    ret                       
     
 .draw_small_active:
     ; --- Animation logic ---
@@ -35,20 +35,20 @@ Draw_Small_Alien:
 
     ; Send X (2 bytes)
     ld hl, (small_alien_x)
-    ld bc, (game_screen_offset_x)           ; X Screen Offset
+    ld bc, (game_screen_offset_x)
     add hl, bc
-    ld a, l             ; Send Low Byte (e.g., 64)
+    ld a, l             ; Send Low Byte
     rst.lil $10
-    ld a, h             ; Send High Byte (e.g., 0)
+    ld a, h             ; Send High Byte
     rst.lil $10
 
     ; Send Y (2 bytes)
     ld hl, (small_alien_y)
-    ld bc, (game_screen_offset_y)           ; Y Screen Offset
+    ld bc, (game_screen_offset_y)
     add hl, bc
-    ld a, l             ; Send Low Byte (e.g., 83)
+    ld a, l             ; Send Low Byte
     rst.lil $10
-    ld a, h             ; Send High Byte (e.g., 0)
+    ld a, h             ; Send High Byte
     rst.lil $10
 
     Show_Sprite
@@ -59,7 +59,7 @@ Draw_Small_Alien:
 ;=============================================
 Draw_Big_Alien:
     Select_Sprite_8bit bigAlienSprite
-    ; 1. ACTIVE CHECK: Only draw if alien_is_active is 1
+    ; 1. ACTIVE CHECK: Only draw if big alien_is_active is 1
     ld a, (big_alien_is_active) 
     or a
     jr nz, .draw_big_active       ; If 0, hide it
@@ -90,20 +90,20 @@ Draw_Big_Alien:
 
     ; ; Send X (2 bytes)
     ld hl, (big_alien_x)
-    ld bc, (game_screen_offset_x)           ; X screen offset
+    ld bc, (game_screen_offset_x)
     add hl, bc
-    ld a, l             ; Send Low Byte (e.g., 83)
+    ld a, l             ; Send Low Byte
     rst.lil $10
-    ld a, h             ; Send High Byte (e.g., 0)
+    ld a, h             ; Send High Byte
     rst.lil $10
 
     ; ; Send Y (2 bytes)
     ld hl, (big_alien_y)
-    ld bc, (game_screen_offset_y)           ; Y screen offset
+    ld bc, (game_screen_offset_y) 
     add hl, bc
-    ld a, l             ; Send Low Byte (e.g., 83)
+    ld a, l             ; Send Low Byte
     rst.lil $10
-    ld a, h             ; Send High Byte (e.g., 0)
+    ld a, h             ; Send High Byte
     rst.lil $10
 
     Show_Sprite

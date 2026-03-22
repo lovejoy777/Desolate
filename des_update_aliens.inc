@@ -58,6 +58,7 @@ Update_Small_Alien:
 .small_move_s:
     ; --- Step 1: Check_down) ---
     ld hl, 0
+    ld bc, 0
     ld a, (small_alien_x)
     ld l, a
     ld bc, 8              ; Alien is 16x16, so +8 is the middle
@@ -65,6 +66,7 @@ Update_Small_Alien:
     push hl               ; Save X for the call
 
     ld hl, 0
+    ld bc, 0
     ld a, (small_alien_y)
     ld l, a
     ld bc, 16             ; Check 0 pixel below the feet (16)
@@ -86,6 +88,7 @@ Update_Small_Alien:
 .small_move_n:
     ; --- Step 1: Check (Exactly like Player's check_up) ---
     ld hl, 0
+    ld bc, 0
     ld a, (small_alien_x)
     ld l, a
     ld bc, 8
@@ -93,6 +96,7 @@ Update_Small_Alien:
     push hl
 
     ld hl, 0
+    ld bc, 0
     ld a, (small_alien_y)
     ld l, a
     ld bc, 0             ; Check 0 pixel above the head
@@ -114,6 +118,7 @@ Update_Small_Alien:
 .small_move_e:
     ; --- Step 1: Check (Exactly like Player's check_right) ---
     ld hl, 0
+    ld bc, 0
     ld a, (small_alien_x)
     ld l, a
     ld bc, 16             ; Check 0 pixel past right side (16) small_alien_spawn_x
@@ -121,6 +126,7 @@ Update_Small_Alien:
     push hl               ; Save New X
 
     ld hl, 0
+    ld bc, 0
     ld a, (small_alien_y)
     ld l, a
     ld bc, 8              ; Middle of alien Y
@@ -142,6 +148,7 @@ Update_Small_Alien:
 .small_move_w:
     ; --- Step 1: Check (Exactly like Player's check_left) ---
     ld hl, 0
+    ld bc, 0
     ld a, (small_alien_x)
     ld l, a
     ld bc, 0             ; Check 0 pixel past left side
@@ -149,6 +156,7 @@ Update_Small_Alien:
     push hl               ; Save New X
 
     ld hl, 0
+    ld bc, 0
     ld a, (small_alien_y)
     ld l, a
     ld bc, 8              ; Middle of alien Y
@@ -247,8 +255,9 @@ Update_Big_Alien:
     ret
 
 .big_move_s:
-    ; --- Step 1: Check (Exactly like Player's check_down) ---
+    ; --- Step 1: Check (Exactly like Player's check_down) --- 
     ld hl, 0
+    ld bc, 0
     ld a, (big_alien_x)
     ld l, a
     ld bc, 8              ; Alien is 16x32, so +8 is the x middle
@@ -256,6 +265,7 @@ Update_Big_Alien:
     push hl               ; Save X for the call
 
     ld hl, 0
+    ld bc, 0
     ld a, (big_alien_y)
     ld l, a
     ld bc, 32             ; Check 0 pixel below the feet (32)
@@ -275,8 +285,9 @@ Update_Big_Alien:
     ret
 
 .big_move_n:
-    ; --- Step 1: Check (Exactly like Player's check_up) ---
+    ; --- Step 1: Check (Exactly like Player's check_up) --- 
     ld hl, 0
+    ld bc, 0
     ld a, (big_alien_x)
     ld l, a
     ld bc, 8
@@ -284,9 +295,10 @@ Update_Big_Alien:
     push hl
 
     ld hl, 0
+    ld bc, 0
     ld a, (big_alien_y)
     ld l, a
-    ld bc, 0             ; Check 0 pixel above the head
+    ld bc, 0             ; Check 0 pixel above the head 
     add hl, bc
     push hl
     pop de                ; DE = Y - 1
@@ -303,8 +315,9 @@ Update_Big_Alien:
     ret
 
 .big_move_e:
-    ; --- Step 1: Check (Exactly like Player's check_right) ---
+    ; --- Step 1: Check (Exactly like Player's check_right) --- 
     ld hl, 0
+    ld bc, 0
     ld a, (big_alien_x)
     ld l, a
     ld bc, 16             ; Check right side (16)
@@ -312,6 +325,7 @@ Update_Big_Alien:
     push hl               ; Save New X
 
     ld hl, 0
+    ld bc, 0
     ld a, (big_alien_y)
     ld l, a
     ld bc, 16              ; Middle of big alien Y
@@ -333,6 +347,7 @@ Update_Big_Alien:
 .big_move_w:
     ; --- Step 1: Check (Exactly like Player's check_left) ---
     ld hl, 0
+    ld bc, 0
     ld a, (big_alien_x)
     ld l, a
     ld bc, 0             ; Check 0 pixel past left side
@@ -340,6 +355,7 @@ Update_Big_Alien:
     push hl               ; Save New X
 
     ld hl, 0
+    ld bc, 0
     ld a, (big_alien_y)
     ld l, a
     ld bc, 16

@@ -56,7 +56,7 @@ macro Write_To_Buffer_16bit hreg, lreg
     rst.lil $10
     ld a, hreg             ; Bitmap ID High (from DE register)
     rst.lil $10
-    ld a, 0                ; Command 2 0: Write to buffer
+    ld a, 0                ; Command 1 0: Write to buffer
     rst.lil $10
     ld a, 32               ; Length hi
     rst.lil $10
@@ -102,6 +102,19 @@ macro Add_Frame_To_Sprite bid
     ld a, 6            ; Command: Add frame to sprite
     rst.lil $10
     ld a, bid            ; Bitmap id, Default frame
+    rst.lil $10
+endmacro
+
+macro Add_Frame_To_Sprite_DE
+    ld a, 23
+    rst.lil $10
+    ld a, 27
+    rst.lil $10
+    ld a, 38            ; Command: Add frame to sprite 16bit
+    rst.lil $10
+    ld a, e            ; Bitmap id, Default frame E
+    rst.lil $10
+    ld a, d            ; Bitmap id, Default frame
     rst.lil $10
 endmacro
 
@@ -178,7 +191,7 @@ macro MAKEBUFFEREDBITMAP id, width, height, data, colourCode
 	.db 	23,0,$A0 							; write block
 	.dw 	64000 + id 							; ID (word)
 	.db 	3	 								; 'create' command
-	.dw 	width *  height / 8 				; data size = length 320 x 64 / 8 bits as b/w
+	.dw 	width *  height / 8 				; data size = length 320 x 64 / 8 bits as b/w Decode_Room_Metadata
 
 	; clear in case VDP already has one
 

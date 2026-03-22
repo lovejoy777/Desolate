@@ -8,9 +8,9 @@ Draw_Banner_Image:
     Draw_Filled_Rect 63, 20, 254, 67, grey
     ; Select Buffer 30.
     ; select and draw the title top
-	ld a,63
+	ld a, (game_screen_offset_x)
 	ld (bitmap_x),a
-    ld a,20
+    ld a,20                 ; y coords
 	ld (bitmap_y),a 
 	ld a,30                 ; bitmap/buffer id
 	ld (which_bitmap),a 
