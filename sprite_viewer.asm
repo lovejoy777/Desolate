@@ -51,8 +51,8 @@ main_loop:
     ; -------------------------------------------------------------------------
     ; PART 1: SPRITES Tileset3(36 items)
     ; -------------------------------------------------------------------------
-    ld ix, Tileset3
-    ld b, 36                    ; 36 sprites from desoltils/Sprites:
+    ld ix, Tileset2
+    ld b, 126                    ; 36 sprites from desoltils/Sprites:
 loop_sprites:
     push bc
 

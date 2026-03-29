@@ -212,7 +212,7 @@ draw_col_loop_ipu:
 Draw_Data_Cart_Popup:
 
     ; Draw_Rect x1, y1, x2, y2, bgcol
-    Draw_Filled_Rect 69, 73, 244, 202, grey
+    Draw_Filled_Rect 65, 76, 252, 202, grey
     
     push ix
     push iy

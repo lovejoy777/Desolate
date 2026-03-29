@@ -140,6 +140,22 @@ macro CLEAR_ALL_BUFFERS
     rst.lil $10
 endmacro
 
+; Plot for Text
+macro Plot_For_Text plot_x, plot_y
+    ld a, 25
+    rst.lil $10
+    ld a, 4                     ; Command: Plot.
+    rst.lil $10
+    ld a, plot_x
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+    ld a, plot_y
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+endmacro
+
 
 ;-----------------------------------
 ; draw filled colour rectangle.

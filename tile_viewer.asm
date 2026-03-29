@@ -52,7 +52,8 @@ main_loop:
     ; PART 1: TILESET1 (122 items)
     ; -------------------------------------------------------------------------
     ld ix, Tileset1
-    ld b, 122                     ; 122 tiles from desoltils/Tileset1:
+    ld b, 122
+                         ; 122 tiles from desoltils/Tileset1:
 loop_tiles:
     push bc
     call define_tile_bitmap      ; Setup Header

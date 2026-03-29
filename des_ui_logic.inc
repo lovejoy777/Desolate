@@ -91,7 +91,7 @@ Check_Action_Triggers:
 ;  Main Menu Mode KEY
 ;=========================
 .up_key_is_down:
-    ld a, (up_lock)        ; Debounce check for Z look key
+    ld a, (up_lock)        ; Debounce check for up cursor key
     or a
     ret nz
 
@@ -108,7 +108,7 @@ Check_Action_Triggers:
 
     sub 1
     ld (main_menu_mode), a
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
     call Main_Menu_Mode
 
 .go_to_4_end:
@@ -118,12 +118,12 @@ Check_Action_Triggers:
 .go_to_4:
     ld a, $04
     ld (main_menu_mode), a
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
     call Main_Menu_Mode
     jp .go_to_4_end
 
 .down_key_is_down:
-    ld a, (down_lock)        ; Debounce check for Z look key
+    ld a, (down_lock)        ; Debounce check for down cursor key
     or a
     ret nz
 
@@ -140,7 +140,7 @@ Check_Action_Triggers:
 
     add 1
     ld (main_menu_mode), a
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
     call Main_Menu_Mode
 
 .go_to_0_end:
@@ -150,12 +150,12 @@ Check_Action_Triggers:
 .go_to_0:
     ld a, $00
     ld (main_menu_mode), a
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
     call Main_Menu_Mode
     jp .go_to_0_end
 
 .left_key_is_down:
-    ld a, (left_lock)        ; Debounce check for Z look key
+    ld a, (left_lock)        ; Debounce check for left cursor key
     or a
     ret nz
 
@@ -165,14 +165,14 @@ Check_Action_Triggers:
     ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
     cp $01
     ret nz
-    call Draw_Small_Popup
-    PLAY_SOUND 0, 127, 500, 5
+    ;call Draw_Small_Popup
+    PLAY_SOUND 0, 20, 500, 5
     
     ret
     
 
 .right_key_is_down:
-    ld a, (right_lock)        ; Debounce check for Z look key
+    ld a, (right_lock)        ; Debounce check for right cursor key
     or a
     ret nz
 
@@ -183,7 +183,7 @@ Check_Action_Triggers:
     cp $01
     ret nz
 
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
     
     ret
 
@@ -201,6 +201,9 @@ Check_Action_Triggers:
     cp $01
     jp nz, .skip_menu 
 
+    ld a, 1
+    ld (ui_win_active), a
+
     ; main menu
     ld a, (main_menu_mode)
     cp $00
@@ -215,36 +218,108 @@ Check_Action_Triggers:
     jp z, .quit
 
 .new:
-    PLAY_SOUND 0, 127, 500, 50
-    ld a, 0
-    ld (main_menu_is_active), a
-    call CleanStart
-    call Trigger_Room_Load
+    PLAY_SOUND 0, 20, 500, 50
+   
+    call story_mode
+
+    ld a, (story_page)
+    ld b, a
+    inc b
+    ld a, b
+    ld (story_page), a
 
     ret
 
 .cont:
-    PLAY_SOUND 0, 127, 500, 50
+    PLAY_SOUND 0, 20, 500, 50
     ld a, 0
     ld (main_menu_is_active), a
+    ld (ui_win_active), a
     call Trigger_Room_Load
 
     ret
 
 .info:
-    call Draw_Door_Lock_Popup
-    PLAY_SOUND 0, 127, 500, 50
+    PLAY_SOUND 0, 20, 500, 50
+    
+    call Draw_Data_Cart_Popup
+    TEXT_AT_GRAPHICS_CURSOR
+
+    ld a, $01
+    ld (info_mode_is_active), a
+
+    ld hl, SE0A5 
+    ld b, 118
+    ld c, 106
+    call print_frac_string
+
+    ld hl, SE0A7 
+    ld b, 78
+    ld c, 118
+    call print_frac_string
+
+    SET_GCOL_BG_COL grey
+    SET_GCOL_COL black
 
     ret
 
+
 .creds:
-    PLAY_SOUND 0, 127, 500, 50
-    call Draw_Small_Popup
+    PLAY_SOUND 0, 20, 500, 50
+
+    ld a, $01
+    ld (credits_mode_is_active), a
+
+    call Reset_VP
+    ld a, bright_cyan
+    ld (banner_colour), a
+    call Draw_Banner_Image     ; from des_draw_banner.inc
+    call Set_Game_VP
+
+    TEXT_AT_GRAPHICS_CURSOR     ; set text at graphics cursor.
+    SET_GCOL_BG_COL black
+    SET_GCOL_COL bright_cyan
+
+    CLG
+    ; MaxCoderz Presents
+    ld hl, SE09D 
+    ld b, 92
+    ld c, 106
+    call print_frac_string
+    ; Original author 
+    ld hl, SE09F 
+    ld b, 104
+    ld c, 120
+    call print_frac_string
+    ; ported to the
+    ld hl, SCR40 
+    ld b, 108
+    ld c, 148
+    call print_frac_string
+    ; Agon Light 2
+    ld hl, SCR41 
+    ld b, 112
+    ld c, 160
+    call print_frac_string
+    ; by lovejoy777
+    ld hl, SCR42 
+    ld b, 108
+    ld c, 174
+    call print_frac_string
+    ; 2026 +
+    ld hl, SCR43 
+    ld b, 136
+    ld c, 188
+    call print_frac_string
     
+    SET_GCOL_BG_COL grey
+    SET_GCOL_COL black
+
+
     ret
 
 .quit:
-    PLAY_SOUND 0, 127, 500, 50
+    PLAY_SOUND 0, 20, 500, 50
     ld a, 0
     ld (main_menu_is_active), a
     call exit_back_to_mos
@@ -262,6 +337,9 @@ Check_Action_Triggers:
 
 .look:
     ld a, (ui_win_active)
+    cp $01
+    ret z
+
 
     ; --- Get Current Position ---
     ld hl, (player_x)
@@ -331,7 +409,7 @@ Check_Action_Triggers:
     ld (ui_win_active), a        
    ; ld hl, SE131  ; message from des_strings
 
-    PLAY_SOUND 0, 127, 1000, 15
+    PLAY_SOUND 0, 20, 1000, 15
 
     Select_Sprite_8bit playerSprite
     Hide_Sprite
@@ -349,7 +427,11 @@ Check_Action_Triggers:
 
     ret
 
-.shoot:    
+.shoot:
+    ld a, (ui_win_active)
+    cp $01
+    ret z
+
     call Shoot
 
     ret 
@@ -359,6 +441,10 @@ Check_Action_Triggers:
 ; Z Look Mode KEY
 ;=========================
 .z_key_is_down:
+    ld a, (ui_win_active)
+    cp $01
+    ret z
+
     ld a, (look_lock)        ; Debounce check for Z look key
     or a
     ret nz
@@ -368,7 +454,7 @@ Check_Action_Triggers:
     ld a, 0
     ld (look_shoot_mode), a
 
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
     call Look_Shoot_Mode
     
     ret
@@ -377,6 +463,10 @@ Check_Action_Triggers:
 ; X Shoot Mode KEY
 ;=========================
 .x_key_is_down:
+    ld a, (ui_win_active)
+    cp $01
+    ret z
+    
     ld a, (shoot_lock)        ; Debounce check for X shoot key
     or a
     ret nz
@@ -385,7 +475,7 @@ Check_Action_Triggers:
     ld (shoot_lock), a
     ld (look_shoot_mode), a
 
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
     call Look_Shoot_Mode
 
     ret
@@ -398,9 +488,16 @@ Check_Action_Triggers:
     cp $01
     ret nz
 
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
+
     ld a, 0
     ld (ui_win_active), a
+
+    ld a, (main_menu_is_active)
+    cp $01
+    jp z, back_to_main_menu
+
+.continue_game:
 
     CLG
     call Draw_Room
@@ -409,7 +506,11 @@ Check_Action_Triggers:
 
     Select_Sprite_8bit playerSprite
     Show_Sprite
-    
+
+    ret
+
+back_to_main_menu:
+    call Menu_Screen
     ret
 
 ;=========================
@@ -420,11 +521,16 @@ Check_Action_Triggers:
     or a
     ret nz
 
+    ; Check if player is alive
+    ld a, (player_is_alive) 
+    cp $01
+    jp nz, .player_is_dead
+
     ld a, 1
     ld (menu_lock), a
     ld (main_menu_is_active), a
 
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
 
     Select_Sprite_8bit playerSprite
     Hide_Sprite
@@ -433,8 +539,39 @@ Check_Action_Triggers:
     Select_Sprite_8bit bigAlienSprite
     Hide_Sprite
 
+    ld a, $00
+    ld (info_mode_is_active), a
+    ld (credits_mode_is_active), a
+
     jp Menu_Screen
     
+    ret
+
+.player_is_dead:
+    ; "m" key while player is dead.
+    ld a, 1
+    ld (main_menu_is_active), a
+    ld (ui_win_active), a
+    ld (player_is_alive), a
+
+    ld a, (menu_lock)        ; Debounce check for M Menu key
+    or a
+    ret nz
+
+    call Reset_VP
+    ld a, grey
+    ld (banner_colour), a
+    call Draw_Banner_Image      ; from des_draw_banner.inc
+    call Set_Game_VP
+
+    SET_GCOL_BG_COL grey        ; set the gfx bg 
+    SET_GCOL_COL black          ; set gfx col
+    
+    CLG
+
+    call CleanStart
+    jp Menu_Screen
+
     ret
 
 ;=========================
@@ -455,9 +592,9 @@ Check_Action_Triggers:
     ld a, 1
     ld (ui_win_active), a   ; This freezes the main_loop logic
     
-    PLAY_SOUND 0, 127, 500, 5
+    PLAY_SOUND 0, 20, 500, 5
     
-    ; Hide the player
+    ; Hide the player and aliens
     Select_Sprite_8bit playerSprite
     Hide_Sprite
     Select_Sprite_8bit smAlienSprite
@@ -471,9 +608,11 @@ Check_Action_Triggers:
     ; print inventory title
     SET_TXT_COL black
     SET_TXT_BG_COL grey
-    TABTO 15, 13
+
+    TABTO 14, 13
     ld hl, Inv_Title_String
     call print_string
+
     TABTO 16, 24
     ld hl, Inv_Item_String
     call print_string
@@ -498,6 +637,7 @@ Look_Shoot_Mode:
     ret
 
 .look_mode:
+    ; buffers 486-487, Tileset4
     ; Hide Shoot Indicators
     ; left
     Draw_Filled_Rect 225, 85, 232, 95, grey
@@ -505,28 +645,29 @@ Look_Shoot_Mode:
     Draw_Filled_Rect 203, 85, 210, 95, grey
 
   ;  Hide_Shoot_Indicator        ; from des_vdp_macros.inc
-    ld de, 486                   ; 50 = left look indicator
+    ld de, 486                   ; 486 = left look indicator
     SELECT_BUFFER_DE
-    Draw_Tile 184, 77           ; from des_vdp_macros.inc
-    ld de, 487                   ; 50 = right look indicator
+    Draw_Tile 184, 77            ; from des_vdp_macros.inc
+    ld de, 487                   ; 487 = right look indicator
     SELECT_BUFFER_DE
-    Draw_Tile 202, 77           ; from des_vdp_macros.inc
+    Draw_Tile 202, 77            ; from des_vdp_macros.inc
 
     ret
 
 .shoot_mode:
+    ; buffers 486-487, Tileset4
     ; Hide Look Indicators
     ; left
     Draw_Filled_Rect 182, 85, 189, 95, grey
     ; right
     Draw_Filled_Rect 203, 85, 210, 95, grey
 
-    ld de, 486                     ; 50 = left shoot indicator
+    ld de, 486                     ; 486 = left shoot indicator
     SELECT_BUFFER_DE
-    Draw_Tile 204, 77             ; from des_vdp_macros.inc
-    ld de, 487                     ; 50 = right shoot indicator
+    Draw_Tile 204, 77              ; from des_vdp_macros.inc
+    ld de, 487                     ; 487 = right shoot indicator
     SELECT_BUFFER_DE
-    Draw_Tile 224, 77             ; from des_vdp_macros.inc
+    Draw_Tile 224, 77              ; from des_vdp_macros.inc
 
     ret
 
@@ -550,76 +691,82 @@ Main_Menu_Mode:
     ret
 
 .mm_new_mode:
+    ; buffers 488-489, Tileset4
     ; Hide Indicators Left
     Draw_Filled_Rect 70, 140, 82, 202, grey
     ; Hide Indicators Right
     Draw_Filled_Rect 140, 140, 152, 202, grey
 
-    ld de, 488                   ; 50 = left look indicator
+    ld de, 488                   ; 488 = left look indicator
     SELECT_BUFFER_DE
-    Draw_Tile 73, 143           ; from des_vdp_macros.inc
-    ld de, 489                   ; 50 = right look indicator
+    Draw_Tile 73, 143            ; from des_vdp_macros.inc
+    ld de, 489                   ; 489 = right look indicator
     SELECT_BUFFER_DE
     Draw_Tile 143, 143           ; from des_vdp_macros.
     
     ret
 
 .mm_cont_mode:
+    ; buffers 488-489, Tileset4
     ; Hide Indicators Left
     Draw_Filled_Rect 70, 140, 82, 202, grey
     ; Hide Indicators Right
     Draw_Filled_Rect 140, 140, 152, 202, grey
 
-    ld de, 488                     ; 50 = left shoot indicator
+    ld de, 488                     ; 488 = left shoot indicator
     SELECT_BUFFER_DE
-    Draw_Tile 73, 155            ; from des_vdp_macros.inc
-    ld de, 489                     ; 50 = right shoot indicator
+    Draw_Tile 73, 155              ; from des_vdp_macros.inc
+    ld de, 489                     ; 489 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 143, 155             ; from des_vdp_macros.inc
 
     ret
 
 .mm_info_mode:
+    ; buffers 488-489, Tileset4
     ; Hide Indicators Left
     Draw_Filled_Rect 70, 140, 82, 202, grey
     ; Hide Indicators Right
     Draw_Filled_Rect 140, 140, 152, 202, grey
 
-    ld de, 488                     ; 50 = left shoot indicator
+    ld de, 488                     ; 488 = left shoot indicator
     SELECT_BUFFER_DE
-    Draw_Tile 73, 167            ; from des_vdp_macros.inc
-    ld de, 489                     ; 50 = right shoot indicator
+    Draw_Tile 73, 167              ; from des_vdp_macros.inc
+    ld de, 489                     ; 489 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 143, 167             ; from des_vdp_macros.inc
 
     ret
 
 .mm_creds_mode:
+    ; buffers 488-489, Tileset4
     ; Hide Indicators Left
     Draw_Filled_Rect 70, 140, 82, 202, grey
     ; Hide Indicators Right
     Draw_Filled_Rect 140, 140, 152, 202, grey
 
-    ld de, 488                     ; 50 = left shoot indicator
+    ld de, 488                     ; 488 = left shoot indicator
     SELECT_BUFFER_DE
-    Draw_Tile 73, 179            ; from des_vdp_macros.inc
-    ld de, 489                     ; 50 = right shoot indicator
+    Draw_Tile 73, 179              ; from des_vdp_macros.inc
+    ld de, 489                     ; 489 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 143, 179             ; from des_vdp_macros.inc
 
     ret
 
 .mm_quit_mode:
+    ; buffers 488-489, Tileset4
     ; Hide Indicators Left
     Draw_Filled_Rect 70, 140, 82, 202, grey
     ; Hide Indicators Right
     Draw_Filled_Rect 140, 140, 152, 202, grey
 
-    ld de, 488                     ; 50 = left shoot indicator 
+    ld de, 488                     ; 488 = left shoot indicator 
     SELECT_BUFFER_DE
-    Draw_Tile 73, 191            ; from des_vdp_macros.inc
-    ld de, 489                     ; 50 = right shoot indicator
+    Draw_Tile 73, 191              ; from des_vdp_macros.inc
+    ld de, 489                     ; 489 = right shoot indicator
     SELECT_BUFFER_DE
     Draw_Tile 143, 191             ; from des_vdp_macros.inc
     
     ret
+

@@ -1,7 +1,7 @@
 Upload_Desol_Font:
-    ld hl, FontProto
-    ld b, 91               ; Load up to 'z'
-    ld c, 32               ; Starting at Space
+    ld hl, ZX_Palm
+    ld b, 95               ; Load up to '©'
+    ld c, 32               ; Starting at 'Space'
 .char_loop:
     push bc
     push hl

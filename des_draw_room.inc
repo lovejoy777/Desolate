@@ -2,6 +2,29 @@
 ; File: des_draw_room.inc
 ; Logic: decompress and draw room tiles
 ;------------------------------------
+;--------------------------
+; Trigger a Room Reload.
+;--------------------------
+Trigger_Room_Load:
+    CLG                            ; clear graphics in the game screen.
+    xor a                          ; clear accumulator
+    ld (is_moving), a              ; Force the player to stop moving
+    ld (move_timeout), a           ; Reset the timer
+    ld (main_menu_is_active), a    ; Set Main Menu Flag to 0
+
+    call Decode_Room_Metadata      ; from des_metadata_logic.inc
+    call Check_Alien_Presence      ; Checks room metadata and sets sm_alien_is_active & big_alien_is_active
+    
+    call Draw_Room                 ; from des_draw_room.inc
+    call Draw_Health_Value         ; from main_subs.inc
+    call Look_Shoot_Mode           ; from des_ui_logic.inc 
+    
+    
+    jp main_loop
+
+;--------------
+; Draw Room
+;--------------
 Draw_Room:
     push ix
     push iy
@@ -160,14 +183,14 @@ Set_Player_Spawn_Coords:
     jr z, .spawn_east
 
 .spawn_north:
-    ld hl, 79             ; X center
-    ld (player_x), hl
+    ;ld hl, 79             ; X center
+    ;ld (player_x), hl
     ld hl, 34             ; Y top
     ld (player_y), hl
     ret
 .spawn_south:
-    ld hl, 79             ; X center
-    ld (player_x), hl
+    ;ld hl, 79             ; X center
+   ; ld (player_x), hl
     ld hl, 82             ; Y bottom
     ld (player_y), hl
     ret

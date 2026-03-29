@@ -34,7 +34,7 @@ Load_All_Assets:
 ; Load Rooms from des_data Tileset1 (no mask)
 ; Buffers: 100-221
 ;---------------------------------------------------
-; Tileset1 Loader
+; Tileset1 Loader, buffers 100-221
 Load_Tileset1_Tiles:
     ld ix, Tileset1            ; Point to the original data blocks
     ld de, 100                 ; Start Buffer 100 - 221
@@ -48,7 +48,7 @@ Load_Tileset1_Tiles:
 ; Load Menu_ :  from des_data Tileset2 (masked)
 ; Buffers ID 300-425
 ;------------------------------------------------------------------------------
-; Tileset2 Loader
+; Tileset2 Loader, buffers 300-425
 Load_Tileset2_Tiles:
     ld ix, Tileset2            ; Point to the original data blocks
     ld de, 300                 ; Start Buffer 300 - 425
@@ -62,7 +62,7 @@ Load_Tileset2_Tiles:
 ; Load Sprites :  from des_data Tileset3 (masked)
 ; Buffers ID 430-465
 ;------------------------------------------------------------------------------
-; Tileset3 Loader
+; Tileset3 Loader, buffers 430-465
 Load_Tileset3_Tiles:
     ld ix, Tileset3            ; Point to the data blocks
     ld de, 430                 ; Start Buffer 430 - 465
@@ -72,15 +72,15 @@ Load_Tileset3_Tiles:
     ret
 
 ;------------------------------------------------------------------------------
-; Inventory/UI Assets, (20) of 16x16 pixels.
+; Inventory/UI Assets, (21) of 16x16 pixels.
 ; Load Sprites :  from des_data Tileset3 (no masked)
 ; Buffers ID 470-499
 ;------------------------------------------------------------------------------
-; Tileset 4 Loader
+; Tileset 4 Loader, buffers 470-489
 Load_Tileset4_Tiles:
     ld ix, Tileset4            ; Point to the original data blocks
-    ld de, 470                 ; Start at Buffer 470 - 489
-    ld b, 20                   ; Total tiles ( from des_tiles.inc)
+    ld de, 470                 ; Start at Buffer 470 - 490
+    ld b, 21                   ; Total tiles ( from des_tiles.inc)
     jp tile_loop_nomask
 
     ret
@@ -147,7 +147,7 @@ tile_loop_masked:
 ;------------------------
 ; Banner Asset
 ;------------------------
-; Banner Loader. using mono pbm file
+; Banner Loader. using mono pbm file, buffer 30
 Load_Banner_Asset:
     ld hl, loadGraphics				            ; start of data to send
 	ld bc, endLoadGraphics - loadGraphics		; length of data to send
@@ -163,7 +163,7 @@ Load_Banner_Asset:
     ret
 
 loadGraphics:	
-	;                  id, width, height,    data,            colourCode
+	;                  id, width, height,    data,        colourCode
 	MAKEBUFFEREDBITMAP 30, 192, 48, "menus/banner_02.pbm", 0 
     
 endLoadGraphics:
@@ -171,7 +171,7 @@ endLoadGraphics:
 ;------------------------------------------
 ; Player Assets, Sprite 0, RGBA8888 format
 ;------------------------------------------
-; Player Loader buffers 0 - 11
+; Player Loader, buffers 0-11
 Load_Player_Assets:
     ld ix, Player_Frame_List
     ld d, 0
@@ -210,7 +210,7 @@ Load_Player_Assets:
 ;-----------------------------------------------
 ; Small Alien Assets, Sprite 1, RGBA8888 format
 ;-----------------------------------------------
-; Alien Loader buffer
+; Small Alien Loader, buffers 50 & 51
 Load_Small_Alien_Assets:
     ld ix, Small_Alien_Frame_List
     ld d, 50
@@ -247,7 +247,7 @@ Load_Small_Alien_Assets:
 ;---------------------------------
 ; Big Alien Assets, Sprite 2, 
 ;---------------------------------
-; Big Alien Loader
+; Big Alien Loader, buffers 52 & 53
 Load_Big_Alien_Assets:
     ld ix, big_Alien_Frame_List
     ld d, 52
@@ -285,54 +285,37 @@ Load_Big_Alien_Assets:
 ;---------------------------------
 ; Bullet Assets, Sprite 3
 ;---------------------------------
-; Bullet Loader, using mono pbm file
+; Bullet Loader, using mono pbm file, buffers 40-41
 Load_Bullet_Assets:
     Select_Sprite_8bit bulletSprite
-
+    ; North/South Bullet
     ld hl, loadBullet1				            ; start of data to send
 	ld bc, endLoadBullet1 - loadBullet1		    ; length of data to send
 	rst.lil $18	
     Add_Frame_To_Sprite	40	
-    		                ; send data
+    ; East/West Bullet
     ld hl, loadBullet2				            ; start of data to send
 	ld bc, endLoadBullet2 - loadBullet2		    ; length of data to send
 	rst.lil $18
     Add_Frame_To_Sprite 41
-    					                        
-    ld hl, loadBullet3				            ; start of data to send
-	ld bc, endLoadBullet3 - loadBullet3		    ; length of data to send
-	rst.lil $18					                
-    Add_Frame_To_Sprite 42
-
-    ld hl, loadBullet4			                ; start of data to send
-	ld bc, endLoadBullet4 - loadBullet4		    ; length of data to send
-	rst.lil $18					                
-    Add_Frame_To_Sprite 43
-
+    					              
     Hide_Sprite
 
     ret
 
 ; ---- Bullet .pbm mono images ----
-                     ; id,  w,  h,  data,                  colourCode
+                     ; id,  w,  h,  data,                 colourCode
 loadBullet1:	
-	MAKEBUFFEREDBITMAP 40, 16, 16, "sprites_mono/029.pbm", 8 
+	MAKEBUFFEREDBITMAP 40, 16, 16, "sprites_mono/029.pbm", black 
 endLoadBullet1:
 
 loadBullet2:	
-	MAKEBUFFEREDBITMAP 41, 16, 16, "sprites_mono/030.pbm", 8 
+	MAKEBUFFEREDBITMAP 41, 16, 16, "sprites_mono/030.pbm", black 
 endLoadBullet2:
 
-loadBullet3:	
-	MAKEBUFFEREDBITMAP 42, 16, 16, "sprites_mono/031.pbm", 8 
-endLoadBullet3:
-
-loadBullet4:	
-	MAKEBUFFEREDBITMAP 43, 16, 16, "sprites_mono/032.pbm", 8 
-endLoadBullet4:
 
 
-; --- Player animation List and data---
+; --- Player Frame List ---
 Player_Frame_List:
     .dl f36, f37, f38, f39, f40, f41, f42, f43, f44, f45, f46, f47
     .db $FF
@@ -349,29 +332,26 @@ f45: incbin "32x32_gs_sprites/045.data"    ; Frame 9  west  facing
 f46: incbin "32x32_gs_sprites/046.data"    ; Frame 10 west  facing
 f47: incbin "32x32_gs_sprites/047.data"    ; Frame 11 west  facing
 
-; --- Small Alien animation List and data---
+; --- Small Alien Frame List ---
 Small_Alien_Frame_List:
     .dl f50, f51
     .db $FF
 f50: incbin "sprites/023.data"    ; Frame 1
 f51: incbin "sprites/033.data"    ; Frame 2
 
-; --- Big Alien Data List ---
-; --- Update the Big Alien animation List and data ---
+; --- Big Alien Frane List ---
 big_Alien_Frame_List:
     .dl ba52, ba53
     .db $FF
 ba52: incbin "sprites/038.data"   ; Frame 1
 ba53: incbin "sprites/039.data"   ; Frame 2
 
-; Bullet_frame list
+; Bullet Frame List
 Bullet_Frame_List:
-    .dl bul40, bul41, bul42, bul43
+    .dl bul40, bul41
     .db $FF
-bul40: incbin "sprites/029.data"    ; Frame s
-bul41: incbin "sprites/030.data"    ; Frame n
-bul42: incbin "sprites/031.data"    ; Frame w
-bul43: incbin "sprites/032.data"    ; Frame e
+bul40: incbin "sprites/029.data"    ; Frame n/s
+bul41: incbin "sprites/030.data"    ; Frame e/w
 
 ;----------------
 ; Sound SFX
@@ -388,3 +368,6 @@ laserStr:
     .dl     3848                        ; length in bytes (LONG)
     incbin "sounds/laser.raw"           ; raw file path
 endLaserStr:
+
+
+

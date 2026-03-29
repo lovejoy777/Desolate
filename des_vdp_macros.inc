@@ -184,6 +184,24 @@ macro Draw_Tile tile_x, tile_y
     rst.lil $10
 endmacro
 
+macro plot_text_pos pxx, pxy
+    ; Plot for Text
+    ld a, 25
+    rst.lil $10
+    ld a, 4                     ; Command: Plot.
+    rst.lil $10
+
+    ld a, pxx                   ; x
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+
+    ld a, pxy                   ; y
+    rst.lil $10
+    ld a, 0
+    rst.lil $10
+endmacro
+
 macro MAKEBUFFEREDBITMAP id, width, height, data, colourCode
 
 	; create buffer
@@ -226,3 +244,5 @@ macro MAKEBUFFEREDBITMAP id, width, height, data, colourCode
 	.db 	2 		
 
 endmacro
+
+

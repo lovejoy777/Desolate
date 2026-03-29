@@ -396,3 +396,99 @@ Update_Big_Alien:
     ld (big_alien_state), a   ; Back to choosing a new direction
     ret
 
+;---------------------------------------------
+; Check Alien Presence (Using Metadata 43-47)
+; 43: X Tile, 44: Y Tile, 46: Type (1=Sm, 2=Bg)
+;---------------------------------------------
+Check_Alien_Presence:
+    ; Default both to inactive
+    xor a
+    ld (small_alien_is_active), a
+    ld (big_alien_is_active), a
+
+    ; --- 2. Check Global Persistence Table ---
+    ld a, (current_room_id)
+    ld hl, Alien_Kill_Table
+    ld d, 0
+    ld e, a
+    add hl, de
+    ld a, (hl)
+    cp 0
+    ret z     ; If 0, alien is permanently dead
+
+    ld hl, current_room_metadata
+    push hl
+    ; Check Alien Type (Byte 46)
+    ld de, $2E
+    add hl, de
+    ld a, (hl)       ; Offset $2E
+    cp $01                ; Small Alien?
+    jp z, .init_small_alien
+    cp $02                ; Big Alien?
+    jp z, .init_big_alien
+    pop hl
+
+    ret                   ; No alien or $61
+
+.init_small_alien:
+    ld a, 1
+    ld (small_alien_is_active), a
+    pop hl
+    push hl
+    ; Get X Tile (Byte 43-2B), multiply by 16 for Pixels
+    ld de, $2B
+    add hl, de
+    ld a, (hl)
+    ld l, a
+    ld h, 0
+    add hl, hl    ; *2
+    add hl, hl    ; *4
+    add hl, hl    ; *8
+    add hl, hl    ; *16
+    ld (small_alien_x), hl
+    pop hl
+    ; Get Y Tile (Byte 45-2D), multiply by 16 for Pixels
+    ld de, $2D
+    add hl, de
+    ld a, (hl)
+    ld l, a
+    ld h, 0
+    add hl, hl    ; *2
+    add hl, hl    ; *4
+    add hl, hl    ; *8
+    add hl, hl    ; *16
+    ld (small_alien_y), hl
+
+    ret
+
+.init_big_alien:
+    ld a, 1
+    ld (big_alien_is_active), a
+    pop hl
+    push hl
+    ; Get X Tile (Byte 43-2B), multiply by 16 for Pixels
+    ld de, $2B
+    add hl, de
+    ld a, (hl)
+    ld l, a
+    ld h, 0
+    add hl, hl    ; *2
+    add hl, hl    ; *4
+    add hl, hl    ; *8
+    add hl, hl    ; *16
+    ld (big_alien_x), hl
+    pop hl
+    ; Get Y Tile (Byte 45-2D), multiply by 16 for Pixels
+    ld de, $2D
+    add hl, de
+    ld a, (hl)
+    ld l, a
+    ld h, 0
+    add hl, hl    ; *2
+    add hl, hl    ; *4
+    add hl, hl    ; *8
+    add hl, hl    ; *16
+    ld (big_alien_y), hl
+
+    ret
+

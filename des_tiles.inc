@@ -455,7 +455,7 @@ Tileset3:
   DB $FC,$02,$3F,$80,$FC,$02,$3F,$80,$FC,$01,$3F,$40,$FC,$01,$3F,$40,$FC,$02,$3F,$80,$FC,$02,$3F,$80,$FC,$01,$3F,$40,$FC,$01,$3F,$40
 
 
-; Tileset3 altered (18 tiles) for Agon port
+; Tileset3 altered (21 tiles) for Agon port
 ; 0 = left look/shoot indicator
 ; 1 = right look/shoot indicator
 Tileset4:
@@ -479,6 +479,8 @@ Tileset4:
   DB $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$06,$00,$0E,$00,$1E,$00,$1E,$00,$0E,$00,$06,$00
   DB $C0,$00,$E0,$00,$F0,$00,$F8,$00,$FC,$00,$FC,$00,$F8,$00,$F0,$00,$E0,$00,$C0,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
   DB $03,$00,$07,$00,$0F,$00,$1F,$00,$3F,$00,$3F,$00,$1F,$00,$0F,$00,$07,$00,$03,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+  ; arrow
+  DB $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$E7,$FF,$E7,$FF,$E7,$FF,$E7,$FF,$E7,$FF,$00,$FF,$81,$FF,$C3,$FF,$E7
 
 ;
 ; Tiles inventory items, 14 tiles 16x16, originally Tileset 3.

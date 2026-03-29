@@ -101,8 +101,10 @@ check_down:
     ld h, a
     ld bc, 30             
     add hl, bc
+
     push hl
     pop de                 ; DE = Y + 30 
+
     ld hl, 0
     ld a, (player_x)
     ld l, a
@@ -400,3 +402,194 @@ send_vdu:
 
     Show_Sprite
     ret
+
+;---------------------------------------------------------
+; Check_Collision
+; Checks if Player hitboxes overlap with active aliens
+;---------------------------------------------------------
+Collision_Detection:
+
+; --- Check Small Alien First ---
+    ld a, (small_alien_is_active)
+    or a
+    jr z, .check_big
+
+    ; X-Axis Distance Check (Small Alien)
+    ld a, (player_x_mid)
+    ld b, a
+    ld a, (small_alien_x_mid)
+    sub b
+    jp p, .skip_neg_x1
+    neg
+.skip_neg_x1:
+    cp 14
+    jr nc, .check_big
+
+    ; Y-Axis Distance Check (Small Alien)
+    ld a, (player_y_mid)
+    ld b, a
+    ld a, (small_alien_y_mid)
+    sub b
+    jp p, .skip_neg_y1
+    neg
+.skip_neg_y1:
+    cp 22
+    jr nc, .check_big
+
+    jp Take_Damage
+
+.check_big:
+    ; --- Check Big Alien ---
+    ld a, (big_alien_is_active)
+    or a
+    ret z
+
+    ; X-Axis Distance Check (Big Alien)
+    ld a, (player_x_mid)
+    ld b, a
+    ld a, (big_alien_x_mid)
+    sub b
+    jp p, .skip_neg_x2
+    neg
+.skip_neg_x2:
+    cp 14
+    ret nc
+
+    ; Y-Axis Distance Check (Big Alien)
+    ld a, (player_y_mid)
+    ld b, a
+    ld a, (big_alien_y_mid)
+    sub b
+    jp p, .skip_neg_y2
+    neg
+.skip_neg_y2:
+    cp 30
+    ret nc
+
+    jp Take_Damage
+
+;---------------------------------------
+; TAKE DAMAGE
+;---------------------------------------
+Take_Damage:
+    ; --- 1. Cooldown Check ---
+    ld a, (damage_cooldown)         ; get damage cooldown
+    cp 0                            ; if a is not 0, exit
+    ret nz                          ; Exit if we are still in cooldown
+
+    ; --- Play Damage Sound ---
+    ; Channel 0, Volume 127, 150Hz, 100ms
+    PLAY_SOUND 0, 20, 75, 100
+    
+    call Draw_Health_Value          ; from main_subs.inc
+
+    ; --- 2. Check for Death ---
+    ld a, (damage_taken)
+    ld b, a
+    ld a, (player_health)           ; get player health
+    
+    sub b                           ; Subtract the damage first
+    jp z, .is_dead                  ; If result is 0, player is dead
+    jp c, .is_dead                  ; If result is negative (Carry), they are dead
+    ld (player_health), a           ; Otherwise, save the new health
+
+    ; --- 3. Apply Physical Knockback --- Dir S(0)N(1)E(2)W(3),
+    ld a, (player_dir)              ; Get current facing direction
+    cp 0                            ; compare with 0
+    jp z, .kb_up                    ; if equal, go to .kb_up
+    cp 1                            ; compare with 1
+    jp z, .kb_down                  ; if equal, go to .kb_down
+    cp 2                            ; compare with 2
+    jp z, .kb_left                  ; if equal, go to .kb_left
+    cp 3                            ; compare with 3
+    jp z, .kb_right                 ; if equal, go to .kb_right
+    jp .apply_damage                ; Apply damage
+
+    ret
+
+.kb_up:
+    ld hl, (player_y)
+    ld bc, 8
+    sbc hl, bc              ; Subtract from Y
+
+    ; To stop getting stuck, check the Top edge of the player
+    push hl                 ; Save potential New Y
+    ld bc, 14               ; check Top pixel
+    add hl, bc
+    ex de, hl               ; DE = Y coordinate for check
+    ld hl, (player_x)       ; HL = X coordinate for check
+
+    call get_tile_at_coords
+    pop hl                  ; Restore potential New Y
+    cp $01                  ; Only move if it's Floor
+    jp nz, .apply_damage 
+    ld (player_y), hl       ; Save new Y
+    jp .apply_damage
+
+.kb_down:
+    ld hl, (player_y)
+    ld bc, 8
+    add hl, bc               
+    
+    ; To stop getting stuck, check the BOTTOM edge of the player
+    push hl                 ; Save potential New Y
+    ld bc, 14               ; check bottom pixel
+    add hl, bc
+    ex de, hl               ; DE = Y coordinate for check
+    ld hl, (player_x)       ; HL = X coordinate for check
+
+    call get_tile_at_coords
+    pop hl                  ; Restore potential New Y
+    cp $01
+    jp nz, .apply_damage 
+    ld (player_y), hl       ; Save new Y
+    jp .apply_damage
+
+.kb_left:
+    ld hl, (player_x)
+    ld bc, 8
+    sbc hl, bc              ; Subtract from X
+
+    call get_tile_at_coords
+    cp $01
+    jp nz, .apply_damage
+    ld (player_x), hl       ; Save new X
+    jp .apply_damage
+
+.kb_right:
+    ld hl, (player_x)
+    ld bc, 8
+    add hl, bc               
+    
+    ; To stop getting stuck, check the RIGHT edge of the player
+    push hl                 ; Save potential New X
+    ld bc, 8                ; Sprite is 16 wide, check right pixel
+    add hl, bc              ; HL = New X + 15
+    ld de, (player_y)       ; DE = Y coordinate for check
+
+    call get_tile_at_coords
+    pop hl                  ; Restore potential New X
+    cp $01
+    jp nz, .apply_damage 
+    ld (player_x), hl       ; Save new X 
+
+
+.apply_damage:
+    ; --- 4. Process Health Reduction ---
+    ld a, (player_health)           ; Get current health
+    ld (player_health), a           ; Save new health
+    ld a, (cooldown_time)           ; Reset cooldown (0.5s at 30fps)
+    ld (damage_cooldown), a         ; Save new cooldown
+    call Draw_Health_Value          ; Update HUD
+
+    ret
+
+.is_dead:
+    ; --- Trigger Death Sound Sequence ---
+    PLAY_SOUND 0, 127, 400, 150     ; Mid note
+    PLAY_SOUND 0, 127, 300, 150     ; Lower note
+    PLAY_SOUND 0, 127, 200, 400     ; Long low note
+    PLAY_SOUND 1, 100, 50, 500      ; Add a bit of white noise "crash"
+
+    ;call Draw_Banner_BG
+    call Game_Over
