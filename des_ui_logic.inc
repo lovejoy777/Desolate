@@ -30,7 +30,7 @@ Check_Action_Triggers:
     jp nz, .right_key_is_down
 
 ;=========================
-; SPACEBAR ACTION KEY
+; ACTION KEYS
 ;=========================
     ; --- Check Spacebar for Look or Shoot ---
     ld b, KEY_SPACE_BYTE
@@ -108,7 +108,7 @@ Check_Action_Triggers:
 
     sub 1
     ld (main_menu_mode), a
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
     call Main_Menu_Mode
 
 .go_to_4_end:
@@ -118,7 +118,7 @@ Check_Action_Triggers:
 .go_to_4:
     ld a, $04
     ld (main_menu_mode), a
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
     call Main_Menu_Mode
     jp .go_to_4_end
 
@@ -140,7 +140,7 @@ Check_Action_Triggers:
 
     add 1
     ld (main_menu_mode), a
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
     call Main_Menu_Mode
 
 .go_to_0_end:
@@ -150,7 +150,7 @@ Check_Action_Triggers:
 .go_to_0:
     ld a, $00
     ld (main_menu_mode), a
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
     call Main_Menu_Mode
     jp .go_to_0_end
 
@@ -166,7 +166,7 @@ Check_Action_Triggers:
     cp $01
     ret nz
     ;call Draw_Small_Popup
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
     
     ret
     
@@ -183,7 +183,7 @@ Check_Action_Triggers:
     cp $01
     ret nz
 
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
     
     ret
 
@@ -218,7 +218,7 @@ Check_Action_Triggers:
     jp z, .quit
 
 .new:
-    PLAY_SOUND 0, 20, 500, 50
+    call playFootsteps
    
     call story_mode
 
@@ -231,7 +231,7 @@ Check_Action_Triggers:
     ret
 
 .cont:
-    PLAY_SOUND 0, 20, 500, 50
+    call playFootsteps
     ld a, 0
     ld (main_menu_is_active), a
     ld (ui_win_active), a
@@ -240,19 +240,19 @@ Check_Action_Triggers:
     ret
 
 .info:
-    PLAY_SOUND 0, 20, 500, 50
-    
+    call playFootsteps
     call Draw_Data_Cart_Popup
     TEXT_AT_GRAPHICS_CURSOR
 
     ld a, $01
     ld (info_mode_is_active), a
 
+    ; -Controls- (title)
     ld hl, SE0A5 
-    ld b, 118
-    ld c, 106
+    ld b, 112    ; x
+    ld c, 106    ; y
     call print_frac_string
-
+    ; keyboard controls
     ld hl, SE0A7 
     ld b, 78
     ld c, 118
@@ -265,7 +265,7 @@ Check_Action_Triggers:
 
 
 .creds:
-    PLAY_SOUND 0, 20, 500, 50
+    call playFootsteps
 
     ld a, $01
     ld (credits_mode_is_active), a
@@ -409,7 +409,8 @@ Check_Action_Triggers:
     ld (ui_win_active), a        
    ; ld hl, SE131  ; message from des_strings
 
-    PLAY_SOUND 0, 20, 1000, 15
+    call sound_play_bump
+    
 
     Select_Sprite_8bit playerSprite
     Hide_Sprite
@@ -454,7 +455,7 @@ Check_Action_Triggers:
     ld a, 0
     ld (look_shoot_mode), a
 
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
     call Look_Shoot_Mode
     
     ret
@@ -475,7 +476,7 @@ Check_Action_Triggers:
     ld (shoot_lock), a
     ld (look_shoot_mode), a
 
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
     call Look_Shoot_Mode
 
     ret
@@ -488,7 +489,7 @@ Check_Action_Triggers:
     cp $01
     ret nz
 
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
 
     ld a, 0
     ld (ui_win_active), a
@@ -506,6 +507,9 @@ Check_Action_Triggers:
 
     Select_Sprite_8bit playerSprite
     Show_Sprite
+
+    ld a, 1
+    ld (debug_is_active), a
 
     ret
 
@@ -530,7 +534,7 @@ back_to_main_menu:
     ld (menu_lock), a
     ld (main_menu_is_active), a
 
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
 
     Select_Sprite_8bit playerSprite
     Hide_Sprite
@@ -592,7 +596,7 @@ back_to_main_menu:
     ld a, 1
     ld (ui_win_active), a   ; This freezes the main_loop logic
     
-    PLAY_SOUND 0, 20, 500, 5
+    call playFootsteps
     
     ; Hide the player and aliens
     Select_Sprite_8bit playerSprite
@@ -602,25 +606,33 @@ back_to_main_menu:
     Select_Sprite_8bit bigAlienSprite
     Hide_Sprite
 
+    ld a, 0
+    ld (debug_is_active), a
+
     ; Draw the UI
     call Draw_Inventory_Popup
 
-    ; print inventory title
-    SET_TXT_COL black
-    SET_TXT_BG_COL grey
+    TEXT_AT_GRAPHICS_CURSOR     ; set text at graphics cursor.
+   ; SET_GCOL_BG_COL black
+   ; SET_GCOL_COL bright_cyan
 
-    TABTO 14, 13
-    ld hl, Inv_Title_String
-    call print_string
+    ; - Inventory -
+    ld hl, SE0BB 
+    ld bc, 0
+    ld b, 106
+    ld c, 106
+    call print_frac_string
 
-    TABTO 16, 24
-    ld hl, Inv_Item_String
-    call print_string
     ; call Display_Inv_Items; (Optional: call the item list here)
+    ; --- No Item ---
+    ld hl, SE0DB 
+    ld bc, 0
+    ld b, 88
+    ld c, 192
+    call print_frac_string
 
-    ; --- Restore Screen colours---
-    SET_TXT_BG_COL black
-    SET_TXT_COL bright_white 
+    TEXT_AT_TEXT_CURSOR
+
 
     ret
  

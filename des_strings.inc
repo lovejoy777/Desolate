@@ -157,7 +157,7 @@ SE097: .db "This is ludicrous!|65 credits for",$02,"a proton|bar? How are we|mea
 SE09B: .db $10,"No Data Cartridge|",$1F,$04,"Selected",0
 SE09D: .db "MaxCoderz Presents",0
 SE09F: .db "a tr1p1ea game",0
-SE0A1: .db "Items Found (/24) :|Enemies Killed     :|Player Deaths      :|Awards               :||Press 'm' for menu",0
+SE0A1: .db "Items Found (/24)|Enemies Killed|Player Deaths|Awards||Press 'm' for menu",0
 SE0A3: .db "OverWrite Current Game?|Enter - Yes :: G - No",0
 SE0A5: .db "- Controls -",0
 SE0A7: .db "Arrows: Movement|Space: Look/shoot|I: Inventory|Z/X: Look/shoot mode|"
@@ -189,7 +189,7 @@ SE0D3: .db "You dont have a|",$1E,"Weapon to equip!",0
 SE0D5: .db "It is not wise to proceed|",$19,"without a weapon.",0
 SE0D7: .db "You cant enter that sector|",$09,"Life-Support is offline.",0
 SE0D9: .db "You cant enter until the|AirLock is re-pressurised",0
-SE0DB: .db $0D,"---- N o",$06,"I t e m ----",0
+SE0DB: .db "---- N o  I t e m ----", 0
 SE0DD: .db $05,"Door Locked",0
 SE0DF: .db "INVALID",$02,"CODE",0
 SE0E1: .db $0E,"Accepted!",0

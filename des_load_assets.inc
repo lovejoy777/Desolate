@@ -24,8 +24,10 @@ Load_All_Assets:
     ; 0=player, 1=small alien, 2=big alien, 3=bullet 
     Activate_amount_sprites 4         
 
-    ; SFX: Laser
+    ; Load SFX: Laser, blip
     call loadLaser
+    call loadFootsteps
+    call loadDoor
     
     ret
 
@@ -354,7 +356,7 @@ bul40: incbin "sprites/029.data"    ; Frame n/s
 bul41: incbin "sprites/030.data"    ; Frame e/w
 
 ;----------------
-; Sound SFX
+; Load Sound FX
 ;----------------
 loadLaser:                              ; for loading shoot sfx (laser)
     ld hl, laserStr                     ; start of data to send
@@ -362,12 +364,40 @@ loadLaser:                              ; for loading shoot sfx (laser)
     rst.lil $18                         ; send data
     ret 
 laserStr:
-    .db     23,0,85h                    ; audio command
+    .db     23,0,$85                    ; audio command
     .db     -1, 5                       ; sample number, sample management
     .db     0                           ; load
     .dl     3848                        ; length in bytes (LONG)
     incbin "sounds/laser.raw"           ; raw file path
 endLaserStr:
+
+loadDoor:                              ; for loading shoot sfx (laser)
+    ld hl, doorStr                     ; start of data to send
+    ld bc, endDoorStr - doorStr       ; length of data to send
+    rst.lil $18                         ; send data
+    ret 
+doorStr:
+    .db     23,0,$85                    ; audio command
+    .db     -2, 5                       ; sample number, sample management
+    .db     0                           ; load
+    .dl     11010                        ; length in bytes (LONG)
+    incbin "sounds/sci_fi_door.raw"           ; raw file path
+endDoorStr:
+
+loadFootsteps:                               ; for loading shoot sfx (laser)
+    ld hl, footstepsStr                      ; start of data to send
+    ld bc, endFootstepsStr - footstepsStr         ; length of data to send
+    rst.lil $18                         ; send data
+    ret 
+footstepsStr:
+    .db     23,0,$85                    ; audio command
+    .db     -3, 5                       ; sample number, sample management
+    .db     0                           ; load
+    .dl     3060                        ; length in bytes (LONG)
+    incbin "sounds/footsteps.raw"         ; raw file path
+endFootstepsStr:
+
+
 
 
 

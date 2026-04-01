@@ -60,6 +60,11 @@ main_loop:
 ;----------------------------------------
 ; Debug Print outs top left of screen
 ;----------------------------------------
+    ; check for debug flag
+    ld a, (debug_is_active)
+    cp $01
+    jp nz, .skip_debug
+
     ; --- Delayed Debug Update ---
     ld a, (debug_delay_counter) ; get debug delay counter
     dec a                       ; decrement debug delay counter
@@ -80,9 +85,9 @@ main_loop:
 ; END MAIN GAME LOOP
 ;===========================================
 
-;------------------------------------
-; Update Player and Aliens MidPoints
-;------------------------------------
+;----------------------------------------------
+; Update Player, Bullets and Aliens MidPoints
+;----------------------------------------------
 Update_Midpoints:
 ; --- Player ---
 ld a, (player_x)

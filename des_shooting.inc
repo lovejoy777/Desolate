@@ -15,9 +15,13 @@ Shoot:
     ret z
 
     ; laser sfx
-    ld hl, startLaser
-    ld bc, endLaser - startLaser
-    rst.lil $18
+    ;call playLaser
+    ; laser sfx
+    call playZap
+    ; Scifi Door sfx
+    ;call playDoor
+    ; Footsteps sfx
+    ;call playFootsteps
 
     ld a, (player_dir)
     ld (bullet_direction), a
@@ -461,15 +465,3 @@ send_bul_vdu:
 
     ret
 
-;---------------
-; Sound Set-Up
-;---------------
-startLaser: 
-    .db 23,0,$85                        ; do sound
-    .db 2,4,-1                          ; channel
-
-    .db 23,0,$85                        ; do sound
-    .db 2,0, 127                        ; channel, volume
-    .dw 125                             ; freq (ignored for samples)
-    .dw 100                             ; duration (ignored for samples) .init_small
-endLaser:

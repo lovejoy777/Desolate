@@ -20,12 +20,12 @@ macro PLAY_SOUND chan, vol, freq, dur
     rst.lil $10
     ld a, 0 
     rst.lil $10
-    ld a, 133 
+    ld a, $85       ;133 dec
     rst.lil $10
     ld a, chan 
     rst.lil $10
-    ld a, 0 
-    rst.lil $10 ; Command 0 (Play)
+    ld a, 0              ; Command 0: Play Note
+    rst.lil $10 
     ld a, vol 
     rst.lil $10
     ld a, freq & $FF 
@@ -48,7 +48,7 @@ macro SET_SOUND_WAVEFORM chan, wave
     rst.lil $10
     ld a, 0
     rst.lil $10
-    ld a, 133
+    ld a, $85          ; 133 dec
     rst.lil $10
     ld a, chan
     rst.lil $10

@@ -1,5 +1,5 @@
 ; =============================================================================
-; FILE: Desolate's des_main.asm
+; FILE: Desolate's des_loader.asm
 ; TARGET: Agon Light 2 & ez80asm Assembler.
 ; =============================================================================
     
@@ -24,7 +24,11 @@
     .include "des_main_subs.inc"
     .include "des_data.inc"
     .include "des_tiles.inc"
+    .include "des_sounds.inc"
     .include "des_strings.inc"
+    .include "des_print_frac_string.inc"
+
+    .include "des_print_debug.inc"      ; Temp for development
     
     .include "des_load_assets.inc"
     .include "des_draw_banner.inc"
@@ -45,25 +49,22 @@
 ; --- Global Variables ---
 ;-------------------------
 
+debug_is_active:        db    0       ; 0 = Inactive (Default)
 debug_delay_counter:    db    60      ; delay counter for debugging
-debug_is_active:        db    1       ; 1 = Active (Default)
-banner_colour:          db    7
+
+banner_colour:          db    7       ; 7 = light grey (Default)
 story_mode_is_active:   db    0       ; 1 = Active (Default)
 story_page:             db    1       ; 1 = Default (page 1)
-info_mode_is_active:    db    0
-credits_mode_is_active: db    0
+info_mode_is_active:    db    0       ; 0 = Default (inactive)
+credits_mode_is_active: db    0       ; 0 = Default (inactive)
 game_screen_offset_x:   dw    63
 game_screen_offset_x16: dw    63
 game_screen_offset_y:   dw    83
 game_screen_offset_y16: dw    83
 
-last_char_spacing:      db    1
+last_char_spacing:      db    1       ; 1 = Default (default char)
 start_char_story_x:     db    56
-start_char_popup_x:     db    86
-
-move_menu_bg_x:         db    8
-move_menu_bg_y:         db    8
-
+start_char_popup_x:     db    78
 
 ;--------
 ;UI vars
@@ -87,11 +88,11 @@ main_menu_bg_ptr:       dl    main_menu_bg     ; data block in des_data.inc
 inventory_popup_ptr:    dl    inventory_popup  ; data block in des_data.inc
 data_cart_popup_ptr:    dl    data_cart_popup  ; data block in des_data.inc
 door_lock_popup_ptr:    dl    door_lock_popup  ; data block in des_data.inc
-small_popup_ptr:        dl    small_popup      ; data block in des_data.inc Decode_Room_Metadata
+small_popup_ptr:        dl    small_popup      ; data block in des_data.inc
 
 current_room_id:        db    0
 current_room_metadata:  ds    49             ; 49 byte buffer
-Alien_Kill_Table:       ds    80      ; Allocate 80 bytes
+Alien_Kill_Table:       ds    80             ; Allocate 80 bytes
 
 ;---------
 ; sprites

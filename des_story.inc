@@ -21,7 +21,6 @@ story_mode:
 
     CLG
 
-
     ld a, (story_page)
     cp $01
     jp z, .draw_page_01
@@ -40,7 +39,9 @@ story_mode:
     ; Draw Strings with Fractional spacings
     ;---------------------------------------
 .draw_page_01:
+    
     ld hl, SE115
+    ld bc, 0
     ld b, 56
     ld c, 98
     call print_frac_string
@@ -50,7 +51,9 @@ story_mode:
     ret
 
 .draw_page_02:
-    ld hl, SE117 
+
+    ld hl, SE117
+    ld bc, 0
     ld b, 56
     ld c, 98
     call print_frac_string
@@ -60,7 +63,9 @@ story_mode:
     ret
    
 .draw_page_03:
+
     ld hl, SE119
+    ld bc, 0
     ld b, 56
     ld c, 98
     call print_frac_string

@@ -80,6 +80,8 @@ set_moving:
 ; apply_movement 
 ;-----------------------------------------------------------
 apply_movement:
+    
+
     ld a, (player_dir)
     cp 0
     jp z, check_down       ; South
@@ -286,7 +288,6 @@ resolve_frame:
     cp 3
     jp z, map_left
     ret
-
 map_down:
     ld a, (anim_frame)
     or a
@@ -306,6 +307,7 @@ map_up:
     jp z, use_bm_3
     jp use_bm_5
 map_right:
+    
     ld a, (anim_frame)
     or a
     jp z, use_bm_6
@@ -401,6 +403,7 @@ send_vdu:
     rst.lil $10
 
     Show_Sprite
+    
     ret
 
 ;---------------------------------------------------------
@@ -586,10 +589,7 @@ Take_Damage:
 
 .is_dead:
     ; --- Trigger Death Sound Sequence ---
-    PLAY_SOUND 0, 127, 400, 150     ; Mid note
-    PLAY_SOUND 0, 127, 300, 150     ; Lower note
-    PLAY_SOUND 0, 127, 200, 400     ; Long low note
-    PLAY_SOUND 1, 100, 50, 500      ; Add a bit of white noise "crash"
+    call sound_play_crash
 
     ;call Draw_Banner_BG
     call Game_Over
