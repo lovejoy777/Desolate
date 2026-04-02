@@ -120,9 +120,11 @@ check_down:
     jp z, .at_south_door
     cp $19                 ; south door tile id                
     jp z, .at_south_door
-    cp $01                 ; floor tile id                
+    cp $01                   ; floor tile id
+    jp nz, .bump_object                                 
     jp nz, update_animation
-    
+
+    ; clear to walk
     ld hl, (player_y)
     inc hl
     ld (player_y), hl
@@ -132,7 +134,11 @@ check_down:
     ; "Player hit a South door, find where it leads."
     ld a, 0                 ; 0 = South direction ID
     call Find_And_Load_Room
-    ret         
+    ret     
+
+.bump_object:
+    call playBump
+    ret   
 
 ; NORTH
 check_up:
@@ -158,7 +164,8 @@ check_up:
     jp z, .at_north_door
     cp $2A                 ; north door tile id                
     jp z, .at_north_door
-    cp $01                 ; floor tile id                
+    cp $01                 ; floor tile id  
+    jp nz, .bump_object              
     jp nz, update_animation
 
     ld hl, (player_y)
@@ -198,6 +205,7 @@ check_right:
     cp $2D                 ; east door tile id
     jp z, .at_east_door
     cp $01                 ; floor tile id
+    jp nz, .bump_object
     jp nz, update_animation
 
     ld hl, (player_x)
@@ -237,6 +245,7 @@ check_left:
     cp $2F                 ; west door tile id
     jp z, .at_west_door
     cp $01                 ; floor tile id
+    jp nz, .bump_object
     jp nz, update_animation
 
     ld hl, (player_x)
@@ -481,8 +490,7 @@ Take_Damage:
     ret nz                          ; Exit if we are still in cooldown
 
     ; --- Play Damage Sound ---
-    ; Channel 0, Volume 127, 150Hz, 100ms
-    PLAY_SOUND 0, 20, 75, 100
+    call playBump
     
     call Draw_Health_Value          ; from main_subs.inc
 

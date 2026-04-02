@@ -108,7 +108,7 @@ Check_Action_Triggers:
 
     sub 1
     ld (main_menu_mode), a
-    call playFootsteps
+    call playMenu_nav
     call Main_Menu_Mode
 
 .go_to_4_end:
@@ -118,7 +118,7 @@ Check_Action_Triggers:
 .go_to_4:
     ld a, $04
     ld (main_menu_mode), a
-    call playFootsteps
+    call playMenu_nav
     call Main_Menu_Mode
     jp .go_to_4_end
 
@@ -140,7 +140,7 @@ Check_Action_Triggers:
 
     add 1
     ld (main_menu_mode), a
-    call playFootsteps
+    call playMenu_nav
     call Main_Menu_Mode
 
 .go_to_0_end:
@@ -150,7 +150,7 @@ Check_Action_Triggers:
 .go_to_0:
     ld a, $00
     ld (main_menu_mode), a
-    call playFootsteps
+    call playMenu_nav
     call Main_Menu_Mode
     jp .go_to_0_end
 
@@ -166,7 +166,7 @@ Check_Action_Triggers:
     cp $01
     ret nz
     ;call Draw_Small_Popup
-    call playFootsteps
+    call playMenu_nav
     
     ret
     
@@ -183,7 +183,7 @@ Check_Action_Triggers:
     cp $01
     ret nz
 
-    call playFootsteps
+    call playMenu_nav
     
     ret
 
@@ -218,7 +218,7 @@ Check_Action_Triggers:
     jp z, .quit
 
 .new:
-    call playFootsteps
+    call playGame_start
    
     call story_mode
 
@@ -231,7 +231,7 @@ Check_Action_Triggers:
     ret
 
 .cont:
-    call playFootsteps
+    call playGame_start
     ld a, 0
     ld (main_menu_is_active), a
     ld (ui_win_active), a
@@ -240,7 +240,8 @@ Check_Action_Triggers:
     ret
 
 .info:
-    call playFootsteps
+    call playSelect
+
     call Draw_Data_Cart_Popup
     TEXT_AT_GRAPHICS_CURSOR
 
@@ -265,7 +266,7 @@ Check_Action_Triggers:
 
 
 .creds:
-    call playFootsteps
+    call playSelect
 
     ld a, $01
     ld (credits_mode_is_active), a
@@ -409,7 +410,7 @@ Check_Action_Triggers:
     ld (ui_win_active), a        
    ; ld hl, SE131  ; message from des_strings
 
-    call sound_play_bump
+    call playSelect
     
 
     Select_Sprite_8bit playerSprite
@@ -455,7 +456,7 @@ Check_Action_Triggers:
     ld a, 0
     ld (look_shoot_mode), a
 
-    call playFootsteps
+    call playSelect
     call Look_Shoot_Mode
     
     ret
@@ -476,7 +477,7 @@ Check_Action_Triggers:
     ld (shoot_lock), a
     ld (look_shoot_mode), a
 
-    call playFootsteps
+    call playSelect
     call Look_Shoot_Mode
 
     ret
@@ -489,7 +490,11 @@ Check_Action_Triggers:
     cp $01
     ret nz
 
-    call playFootsteps
+    ld a, (close_lock)        ; Debounce check for X shoot key
+    or a
+    ret nz
+
+    call playBump
 
     ld a, 0
     ld (ui_win_active), a
@@ -514,6 +519,9 @@ Check_Action_Triggers:
     ret
 
 back_to_main_menu:
+    ld a, $00
+    ld (info_mode_is_active), a
+    ld (credits_mode_is_active), a
     call Menu_Screen
     ret
 
@@ -534,7 +542,7 @@ back_to_main_menu:
     ld (menu_lock), a
     ld (main_menu_is_active), a
 
-    call playFootsteps
+    call playSelect
 
     Select_Sprite_8bit playerSprite
     Hide_Sprite
@@ -596,7 +604,7 @@ back_to_main_menu:
     ld a, 1
     ld (ui_win_active), a   ; This freezes the main_loop logic
     
-    call playFootsteps
+    call playSelect
     
     ; Hide the player and aliens
     Select_Sprite_8bit playerSprite

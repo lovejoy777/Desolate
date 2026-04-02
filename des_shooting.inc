@@ -15,9 +15,9 @@ Shoot:
     ret z
 
     ; laser sfx
-    ;call playLaser
+    call playLaser
     ; laser sfx
-    call playZap
+    ;call playZap
     ; Scifi Door sfx
     ;call playDoor
     ; Footsteps sfx

@@ -180,6 +180,82 @@ startLaser:
     .dw 100                             ; duration (ignored for samples) .init_small
 endLaser:
 
+playMenu_nav:
+    ; Menu Navigation sfx
+    ld hl, startMenu_nav
+    ld bc, endMenu_nav - startMenu_nav
+    rst.lil $18
+    ret
+startMenu_nav:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-2                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 127                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 100                             ; duration (ignored for samples) .init_small
+endMenu_nav:
+
+playSelect:
+    ; Select sfx
+    ld hl, startSelect
+    ld bc, endSelect - startSelect
+    rst.lil $18
+    ret
+startSelect:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-3                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 127                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 100                             ; duration (ignored for samples) .init_small
+endSelect:
+
+playBump:
+    ; Bump sfx
+    ld hl, startBump
+    ld bc, endBump - startBump
+    rst.lil $18
+    ret
+startBump:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-4                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 70                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 100                             ; duration (ignored for samples) .init_small
+endBump:
+
+playGame_start:
+    ; Game Start sfx
+    ld hl, startGame_start
+    ld bc, endGame_start - startGame_start
+    rst.lil $18
+    ret
+startGame_start:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 0,4,-5                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 0,0, 127                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 1000                             ; duration (ignored for samples) .init_small
+endGame_start:
+
 playDoor:
     ; Door sfx
     ld hl, startDoor
@@ -191,7 +267,7 @@ startDoor:
     ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
     ; set wave form as sample
     .db 23,0,$85                        ; do sound (audio command)
-    .db 1,4,-2                          ; channel 1, command 4, sample id -1
+    .db 1,4,-6                          ; channel 1, command 4, sample id -1
     ; Play Note
     .db 23,0,$85                        ; do sound
     .db 1,0, 127                        ; channel 1, command 0 (play note), volume 127 (max)
@@ -210,7 +286,7 @@ startFootsteps:
     ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
     ; set wave form as sample
     .db 23,0,$85                        ; do sound (audio command)
-    .db 1,4,-3                          ; channel 1, command 4, sample id -1
+    .db 1,4,-7                          ; channel 1, command 4, sample id -1
     ; Play Note
     .db 23,0,$85                        ; do sound
     .db 1,0, 50                        ; channel 1, command 0 (play note), volume 127 (max)

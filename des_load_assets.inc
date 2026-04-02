@@ -24,9 +24,12 @@ Load_All_Assets:
     ; 0=player, 1=small alien, 2=big alien, 3=bullet 
     Activate_amount_sprites 4         
 
-    ; Load SFX: Laser, blip
+    ; Load SFX:
     call loadLaser
-    call loadFootsteps
+    call loadMenu_nav
+    call loadSelect
+    call loadBump
+    call loadGame_start
     call loadDoor
     
     ret
@@ -371,30 +374,82 @@ laserStr:
     incbin "sounds/laser.raw"           ; raw file path
 endLaserStr:
 
-loadDoor:                              ; for loading shoot sfx (laser)
-    ld hl, doorStr                     ; start of data to send
-    ld bc, endDoorStr - doorStr       ; length of data to send
-    rst.lil $18                         ; send data
+loadMenu_nav:                              ; for loading shoot sfx (laser)
+    ld hl, menu_navStr                     ; start of data to send
+    ld bc, endMenu_navStr - menu_navStr    ; length of data to send
+    rst.lil $18                            ; send data
     ret 
-doorStr:
+menu_navStr:
     .db     23,0,$85                    ; audio command
     .db     -2, 5                       ; sample number, sample management
     .db     0                           ; load
-    .dl     11010                        ; length in bytes (LONG)
-    incbin "sounds/sci_fi_door.raw"           ; raw file path
+    .dl     2522                        ; length in bytes (LONG)
+    incbin "sounds/menu_nav.raw"        ; raw file path
+endMenu_navStr:
+
+loadSelect:                              ; for loading shoot sfx (laser)
+    ld hl, selectStr                     ; start of data to send
+    ld bc, endSelectStr - selectStr    ; length of data to send
+    rst.lil $18                            ; send data
+    ret 
+selectStr:
+    .db     23,0,$85                    ; audio command
+    .db     -3, 5                       ; sample number, sample management
+    .db     0                           ; load
+    .dl     5293                        ; length in bytes (LONG)
+    incbin "sounds/select.raw"        ; raw file path
+endSelectStr:
+
+loadBump:                              ; for loading shoot sfx (laser)
+    ld hl, bumpStr                     ; start of data to send
+    ld bc, endBumpStr - bumpStr    ; length of data to send
+    rst.lil $18                            ; send data
+    ret 
+bumpStr:
+    .db     23,0,$85                    ; audio command
+    .db     -4, 5                       ; sample number, sample management
+    .db     0                           ; load
+    .dl     9830                        ; length in bytes (LONG)
+    incbin "sounds/bump.raw"        ; raw file path
+endBumpStr:
+
+loadGame_start:                              ; for loading shoot sfx (laser)
+    ld hl, game_startStr                     ; start of data to send
+    ld bc, endGame_startStr - game_startStr    ; length of data to send
+    rst.lil $18                            ; send data
+    ret 
+game_startStr:
+    .db     23,0,$85                    ; audio command
+    .db     -5, 5                       ; sample number, sample management
+    .db     0                           ; load
+    .dl     16527                        ; length in bytes (LONG)
+    incbin "sounds/game_start.raw"        ; raw file path
+endGame_startStr:
+
+loadDoor:                              ; for loading shoot sfx (laser)
+    ld hl, doorStr                     ; start of data to send
+    ld bc, endDoorStr - doorStr        ; length of data to send
+    rst.lil $18                        ; send data
+    ret 
+doorStr:
+    .db     23,0,$85                    ; audio command
+    .db     -6, 5                       ; sample number, sample management
+    .db     0                           ; load
+    .dl     11010                       ; length in bytes (LONG)
+    incbin "sounds/sci_fi_door.raw"     ; raw file path
 endDoorStr:
 
 loadFootsteps:                               ; for loading shoot sfx (laser)
     ld hl, footstepsStr                      ; start of data to send
-    ld bc, endFootstepsStr - footstepsStr         ; length of data to send
-    rst.lil $18                         ; send data
+    ld bc, endFootstepsStr - footstepsStr    ; length of data to send
+    rst.lil $18                              ; send data
     ret 
 footstepsStr:
     .db     23,0,$85                    ; audio command
-    .db     -3, 5                       ; sample number, sample management
+    .db     -7, 5                       ; sample number, sample management
     .db     0                           ; load
     .dl     3060                        ; length in bytes (LONG)
-    incbin "sounds/footsteps.raw"         ; raw file path
+    incbin "sounds/footsteps.raw"       ; raw file path
 endFootstepsStr:
 
 
