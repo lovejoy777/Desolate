@@ -111,6 +111,7 @@ story_cleanup:
 
 .new_game:
     call CleanStart
+    call playGame_start
     call Trigger_Room_Load
     ret
 

@@ -108,7 +108,7 @@ Check_Action_Triggers:
 
     sub 1
     ld (main_menu_mode), a
-    call playMenu_nav
+    call playNav_tick
     call Main_Menu_Mode
 
 .go_to_4_end:
@@ -118,7 +118,7 @@ Check_Action_Triggers:
 .go_to_4:
     ld a, $04
     ld (main_menu_mode), a
-    call playMenu_nav
+    call playNav_tick
     call Main_Menu_Mode
     jp .go_to_4_end
 
@@ -140,7 +140,7 @@ Check_Action_Triggers:
 
     add 1
     ld (main_menu_mode), a
-    call playMenu_nav
+    call playNav_tick
     call Main_Menu_Mode
 
 .go_to_0_end:
@@ -150,7 +150,7 @@ Check_Action_Triggers:
 .go_to_0:
     ld a, $00
     ld (main_menu_mode), a
-    call playMenu_nav
+    call playNav_tick
     call Main_Menu_Mode
     jp .go_to_0_end
 
@@ -166,7 +166,7 @@ Check_Action_Triggers:
     cp $01
     ret nz
     ;call Draw_Small_Popup
-    call playMenu_nav
+    call playNav_tick
     
     ret
     
@@ -183,7 +183,7 @@ Check_Action_Triggers:
     cp $01
     ret nz
 
-    call playMenu_nav
+    call playNav_tick
     
     ret
 
@@ -218,7 +218,7 @@ Check_Action_Triggers:
     jp z, .quit
 
 .new:
-    call playGame_start
+    call playSelect
    
     call story_mode
 
@@ -231,7 +231,7 @@ Check_Action_Triggers:
     ret
 
 .cont:
-    call playGame_start
+    call playSelect
     ld a, 0
     ld (main_menu_is_active), a
     ld (ui_win_active), a
@@ -240,7 +240,7 @@ Check_Action_Triggers:
     ret
 
 .info:
-    call playSelect
+    call playGlitch
 
     call Draw_Data_Cart_Popup
     TEXT_AT_GRAPHICS_CURSOR
@@ -410,7 +410,7 @@ Check_Action_Triggers:
     ld (ui_win_active), a        
    ; ld hl, SE131  ; message from des_strings
 
-    call playSelect
+    call playGlitch
     
 
     Select_Sprite_8bit playerSprite
@@ -494,7 +494,7 @@ Check_Action_Triggers:
     or a
     ret nz
 
-    call playBump
+    call playSelect
 
     ld a, 0
     ld (ui_win_active), a
@@ -512,9 +512,6 @@ Check_Action_Triggers:
 
     Select_Sprite_8bit playerSprite
     Show_Sprite
-
-    ld a, 1
-    ld (debug_is_active), a
 
     ret
 
@@ -604,7 +601,7 @@ back_to_main_menu:
     ld a, 1
     ld (ui_win_active), a   ; This freezes the main_loop logic
     
-    call playSelect
+    call playGlitch
     
     ; Hide the player and aliens
     Select_Sprite_8bit playerSprite
@@ -613,9 +610,6 @@ back_to_main_menu:
     Hide_Sprite
     Select_Sprite_8bit bigAlienSprite
     Hide_Sprite
-
-    ld a, 0
-    ld (debug_is_active), a
 
     ; Draw the UI
     call Draw_Inventory_Popup

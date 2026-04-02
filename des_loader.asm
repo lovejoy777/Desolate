@@ -7,7 +7,7 @@
     .include "des_vdp_macros.inc"
     .include "des_sound_macros.inc"
     
-    assume adl=1             ; use 24-bit addressing mode
+    assume adl=1              ; use 24-bit addressing mode
     .org $40000              ; set origin to $40000
     jp start_here            ; jump to start_here
     .align 64                ; align to 64 bytes
@@ -53,7 +53,7 @@ debug_is_active:        db    0       ; 0 = Inactive (Default)
 debug_delay_counter:    db    60      ; delay counter for debugging
 
 banner_colour:          db    7       ; 7 = light grey (Default)
-story_mode_is_active:   db    0       ; 1 = Active (Default)
+story_mode_is_active:   db    1       ; 1 = Active (Default)
 story_page:             db    1       ; 1 = Default (page 1)
 info_mode_is_active:    db    0       ; 0 = Default (inactive)
 credits_mode_is_active: db    0       ; 0 = Default (inactive)
@@ -242,12 +242,20 @@ start_here:
     call Draw_Banner_Image     ; from des_draw_banner.inc
     call Set_Game_VP
 
-    call Debug_Overlay_Titles  ; Temp debug overlay, top left
+    
+    ; check for debug flag
+    ld a, (debug_is_active)
+    cp $01
+    jp z, .debug_overlay
            
     V_SYNC 
 
     call Main_Game
 
+    ret
+
+.debug_overlay: 
+    call Debug_Overlay_Titles      ; des_ui_logic.inc
     ret
 
 

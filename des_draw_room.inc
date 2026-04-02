@@ -18,6 +18,8 @@ Trigger_Room_Load:
     call Draw_Room                 ; from des_draw_room.inc
     call Draw_Health_Value         ; from main_subs.inc
     call Look_Shoot_Mode           ; from des_ui_logic.inc 
+
+    
     
     
     jp main_loop

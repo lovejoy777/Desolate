@@ -120,8 +120,7 @@ check_down:
     jp z, .at_south_door
     cp $19                 ; south door tile id                
     jp z, .at_south_door
-    cp $01                   ; floor tile id
-    jp nz, .bump_object                                 
+    cp $01                   ; floor tile id                    
     jp nz, update_animation
 
     ; clear to walk
@@ -131,14 +130,12 @@ check_down:
     jp update_animation
 
 .at_south_door:
+    call playDoor
     ; "Player hit a South door, find where it leads."
     ld a, 0                 ; 0 = South direction ID
     call Find_And_Load_Room
     ret     
 
-.bump_object:
-    call playBump
-    ret   
 
 ; NORTH
 check_up:
@@ -165,7 +162,6 @@ check_up:
     cp $2A                 ; north door tile id                
     jp z, .at_north_door
     cp $01                 ; floor tile id  
-    jp nz, .bump_object              
     jp nz, update_animation
 
     ld hl, (player_y)
@@ -174,6 +170,7 @@ check_up:
     jp update_animation
 
 .at_north_door:
+    call playDoor
     ; "Player hit a North door, find where it leads."
     ld a, 1                 ; 1 = North direction ID
     call Find_And_Load_Room
@@ -205,7 +202,6 @@ check_right:
     cp $2D                 ; east door tile id
     jp z, .at_east_door
     cp $01                 ; floor tile id
-    jp nz, .bump_object
     jp nz, update_animation
 
     ld hl, (player_x)
@@ -214,6 +210,7 @@ check_right:
     jp update_animation
 
 .at_east_door:
+    call playDoor
     ; "Player hit a East door, find where it leads."
     ld a, 2                 ; 2 = East direction ID
     call Find_And_Load_Room
@@ -245,7 +242,6 @@ check_left:
     cp $2F                 ; west door tile id
     jp z, .at_west_door
     cp $01                 ; floor tile id
-    jp nz, .bump_object
     jp nz, update_animation
 
     ld hl, (player_x)
@@ -254,6 +250,7 @@ check_left:
     jp update_animation
 
 .at_west_door:
+    call playDoor
     ; "Player hit a West door, find where it leads."
     ld a, 3                 ; 3 = West direction ID
     call Find_And_Load_Room

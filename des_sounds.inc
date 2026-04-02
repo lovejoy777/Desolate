@@ -125,6 +125,182 @@ sound_play_bump:
 ;---------------
 ; Sound Set-Up
 ;---------------
+playMenu_nav:
+    ; Menu Navigation sfx
+    ld hl, startMenu_nav
+    ld bc, endMenu_nav - startMenu_nav
+    rst.lil $18
+    ret
+startMenu_nav:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-1                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 10                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 100                             ; duration (ignored for samples) .init_small
+endMenu_nav:
+
+playNav_tick:
+    ; Menu Navigation sfx
+    ld hl, startNav_tick
+    ld bc, endNav_tick - startNav_tick
+    rst.lil $18
+    ret
+startNav_tick:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-2                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 10                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 100                             ; duration (ignored for samples) .init_small
+endNav_tick:
+
+playSelect:
+    ; Select sfx
+    ld hl, startSelect
+    ld bc, endSelect - startSelect
+    rst.lil $18
+    ret
+startSelect:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-3                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 20                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 200                             ; duration (ignored for samples) .init_small
+endSelect:
+
+playGame_start:
+    ; Game Start sfx
+    ld hl, startGame_start
+    ld bc, endGame_start - startGame_start
+    rst.lil $18
+    ret
+startGame_start:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 0,4,-4                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 0,0, 15                       ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 1500                             ; duration (ignored for samples) .init_small
+endGame_start:
+
+playLaser:
+    ; Laser sfx
+    ld hl, startLaser
+    ld bc, endLaser - startLaser
+    rst.lil $18
+    ret
+startLaser:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-5                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 40                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 100                             ; duration (ignored for samples) .init_small
+endLaser:
+
+playBump:
+    ; Bump sfx
+    ld hl, startBump
+    ld bc, endBump - startBump
+    rst.lil $18
+    ret
+startBump:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-6                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 10                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 200                             ; duration (ignored for samples) .init_small
+endBump:
+
+playDoor:
+    ; Laser sfx
+    ld hl, startDoor
+    ld bc, endDoor - startDoor
+    rst.lil $18
+    ret
+startDoor:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-7                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 10                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 600                            ; duration (ignored for samples) .init_small
+endDoor:
+
+playError:
+    ; Error sfx
+    ld hl, startError
+    ld bc, endError - startError
+    rst.lil $18
+    ret
+startError:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-8                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 60                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 100                             ; duration (ignored for samples) .init_small
+endError:
+
+playGlitch:
+    ; Error sfx
+    ld hl, startGlitch
+    ld bc, endGlitch - startGlitch
+    rst.lil $18
+    ret
+startGlitch:
+    ; Command 0: Play note
+    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
+    ; set wave form as sample
+    .db 23,0,$85                        ; do sound (audio command)
+    .db 1,4,-9                          ; channel 1, command 4, sample id -1
+    ; Play Note
+    .db 23,0,$85                        ; do sound
+    .db 1,0, 60                        ; channel 1, command 0 (play note), volume 127 (max)
+    .dw 125                             ; freq (ignored for samples)
+    .dw 100                             ; duration (ignored for samples) .init_small
+endGlitch:
+
+
+
+;------------------------------------
+; Experimental for native envelopes.
+;------------------------------------
 playZap:
     ; Zap sfx
     ld hl, startZap
@@ -161,138 +337,7 @@ startZap:
 endZap:
 
 
-playLaser:
-    ; Laser sfx
-    ld hl, startLaser
-    ld bc, endLaser - startLaser
-    rst.lil $18
-    ret
-startLaser:
-    ; Command 0: Play note
-    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
-    ; set wave form as sample
-    .db 23,0,$85                        ; do sound (audio command)
-    .db 1,4,-1                          ; channel 1, command 4, sample id -1
-    ; Play Note
-    .db 23,0,$85                        ; do sound
-    .db 1,0, 127                        ; channel 1, command 0 (play note), volume 127 (max)
-    .dw 125                             ; freq (ignored for samples)
-    .dw 100                             ; duration (ignored for samples) .init_small
-endLaser:
 
-playMenu_nav:
-    ; Menu Navigation sfx
-    ld hl, startMenu_nav
-    ld bc, endMenu_nav - startMenu_nav
-    rst.lil $18
-    ret
-startMenu_nav:
-    ; Command 0: Play note
-    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
-    ; set wave form as sample
-    .db 23,0,$85                        ; do sound (audio command)
-    .db 1,4,-2                          ; channel 1, command 4, sample id -1
-    ; Play Note
-    .db 23,0,$85                        ; do sound
-    .db 1,0, 127                        ; channel 1, command 0 (play note), volume 127 (max)
-    .dw 125                             ; freq (ignored for samples)
-    .dw 100                             ; duration (ignored for samples) .init_small
-endMenu_nav:
-
-playSelect:
-    ; Select sfx
-    ld hl, startSelect
-    ld bc, endSelect - startSelect
-    rst.lil $18
-    ret
-startSelect:
-    ; Command 0: Play note
-    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
-    ; set wave form as sample
-    .db 23,0,$85                        ; do sound (audio command)
-    .db 1,4,-3                          ; channel 1, command 4, sample id -1
-    ; Play Note
-    .db 23,0,$85                        ; do sound
-    .db 1,0, 127                        ; channel 1, command 0 (play note), volume 127 (max)
-    .dw 125                             ; freq (ignored for samples)
-    .dw 100                             ; duration (ignored for samples) .init_small
-endSelect:
-
-playBump:
-    ; Bump sfx
-    ld hl, startBump
-    ld bc, endBump - startBump
-    rst.lil $18
-    ret
-startBump:
-    ; Command 0: Play note
-    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
-    ; set wave form as sample
-    .db 23,0,$85                        ; do sound (audio command)
-    .db 1,4,-4                          ; channel 1, command 4, sample id -1
-    ; Play Note
-    .db 23,0,$85                        ; do sound
-    .db 1,0, 70                        ; channel 1, command 0 (play note), volume 127 (max)
-    .dw 125                             ; freq (ignored for samples)
-    .dw 100                             ; duration (ignored for samples) .init_small
-endBump:
-
-playGame_start:
-    ; Game Start sfx
-    ld hl, startGame_start
-    ld bc, endGame_start - startGame_start
-    rst.lil $18
-    ret
-startGame_start:
-    ; Command 0: Play note
-    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
-    ; set wave form as sample
-    .db 23,0,$85                        ; do sound (audio command)
-    .db 0,4,-5                          ; channel 1, command 4, sample id -1
-    ; Play Note
-    .db 23,0,$85                        ; do sound
-    .db 0,0, 127                        ; channel 1, command 0 (play note), volume 127 (max)
-    .dw 125                             ; freq (ignored for samples)
-    .dw 1000                             ; duration (ignored for samples) .init_small
-endGame_start:
-
-playDoor:
-    ; Door sfx
-    ld hl, startDoor
-    ld bc, endDoor - startDoor
-    rst.lil $18
-    ret
-startDoor:
-    ; Command 0: Play note
-    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
-    ; set wave form as sample
-    .db 23,0,$85                        ; do sound (audio command)
-    .db 1,4,-6                          ; channel 1, command 4, sample id -1
-    ; Play Note
-    .db 23,0,$85                        ; do sound
-    .db 1,0, 127                        ; channel 1, command 0 (play note), volume 127 (max)
-    .dw 125                             ; freq (ignored for samples)
-    .dw 1000                             ; duration (ignored for samples) .init_small
-endDoor:
-
-playFootsteps:
-    ; Footsteps sfx
-    ld hl, startFootsteps
-    ld bc, endFootsteps - startFootsteps
-    rst.lil $18
-    ret
-startFootsteps:
-    ; Command 0: Play note
-    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
-    ; set wave form as sample
-    .db 23,0,$85                        ; do sound (audio command)
-    .db 1,4,-7                          ; channel 1, command 4, sample id -1
-    ; Play Note
-    .db 23,0,$85                        ; do sound
-    .db 1,0, 50                        ; channel 1, command 0 (play note), volume 127 (max)
-    .dw 125                             ; freq (ignored for samples)
-    .dw 100                             ; duration (ignored for samples) .init_small
-endFootsteps:
 
 ;----------
 ; usage:
