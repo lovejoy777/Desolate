@@ -88,102 +88,115 @@ Check_Action_Triggers:
 ;==============================
 
 ;=========================
-;  Main Menu Mode KEY
+;  Main Menu KEYs
 ;=========================
 .up_key_is_down:
-    ld a, (up_lock)        ; Debounce check for up cursor key
+    ; Debounce check for up cursor key
+    ld a, (up_lock)        
     or a
     ret nz
-
+    ; Lock it now so we only trigger once per press
     ld a, 1
     ld (up_lock), a
 
-    ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
+    ; only carry on if main menu screen is open
+    ld a, (main_menu_is_active)    
     cp $01
     ret nz
+
+    ; sfx
+    call playMenu_nav
 
     ld a, (main_menu_mode)
     cp $00
-    jp z, .go_to_4
+    jp z, .loopToBottom
 
     sub 1
     ld (main_menu_mode), a
-    call playNav_tick
+
     call Main_Menu_Mode
 
-.go_to_4_end:
+.upKeyEnd:
 
     ret
 
-.go_to_4:
+.loopToBottom:
     ld a, $04
     ld (main_menu_mode), a
-    call playNav_tick
     call Main_Menu_Mode
-    jp .go_to_4_end
+    jp .upKeyEnd
 
 .down_key_is_down:
-    ld a, (down_lock)        ; Debounce check for down cursor key
+    ; Debounce check for down cursor key
+    ld a, (down_lock)        
     or a
     ret nz
-
+    ; Lock it now so we only trigger once per press
     ld a, 1
     ld (down_lock), a
 
-    ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
+    ; only carry on if main menu screen is open
+    ld a, (main_menu_is_active)    
     cp $01
     ret nz
+
+    ; sfx
+    call playMenu_nav
 
     ld a, (main_menu_mode)
     cp $04
-    jp z, .go_to_0
+    jp z, .loopToTop
 
     add 1
     ld (main_menu_mode), a
-    call playNav_tick
+
     call Main_Menu_Mode
 
-.go_to_0_end:
+.downKeyEnd:
 
     ret
 
-.go_to_0:
+.loopToTop:
     ld a, $00
     ld (main_menu_mode), a
-    call playNav_tick
     call Main_Menu_Mode
-    jp .go_to_0_end
+    jp .downKeyEnd
 
 .left_key_is_down:
-    ld a, (left_lock)        ; Debounce check for left cursor key
+    ; Debounce check for left cursor key
+    ld a, (left_lock)        
     or a
     ret nz
-
+    ; Lock it now so we only trigger once per press
     ld a, 1
     ld (left_lock), a
 
-    ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
+    ; only carry on if main menu screen is open
+    ld a, (main_menu_is_active)    
     cp $01
     ret nz
-    ;call Draw_Small_Popup
-    call playNav_tick
+
+    ; sfx
+    call playMenu_nav
     
     ret
     
 
 .right_key_is_down:
-    ld a, (right_lock)        ; Debounce check for right cursor key
+    ; Debounce check for right cursor key
+    ld a, (right_lock)        
     or a
     ret nz
-
+    ; Lock it now so we only trigger once per press
     ld a, 1
     ld (right_lock), a
-
-    ld a, (main_menu_is_active)    ; only carry on if main menu screen is open
+    ; only carry on if main menu screen is open
+    ld a, (main_menu_is_active)    
     cp $01
     ret nz
 
-    call playNav_tick
+    ; sfx
+    call playMenu_nav
     
     ret
 
@@ -192,7 +205,6 @@ Check_Action_Triggers:
     ld a, (space_lock)
     or a
     ret nz
-
     ; Lock it now so we only trigger once per press
     ld a, 1
     ld (space_lock), a
@@ -201,8 +213,8 @@ Check_Action_Triggers:
     cp $01
     jp nz, .skip_menu 
 
-    ld a, 1
-    ld (ui_win_active), a
+    ;ld a, 1
+    ;ld (ui_win_active), a
 
     ; main menu
     ld a, (main_menu_mode)
@@ -218,6 +230,7 @@ Check_Action_Triggers:
     jp z, .quit
 
 .new:
+    ; sfx
     call playSelect
    
     call story_mode
@@ -231,21 +244,41 @@ Check_Action_Triggers:
     ret
 
 .cont:
+    ; sfx
     call playSelect
+
+    call Reset_VP
+    ld a, grey
+    ld (banner_colour), a
+    call Draw_Banner_Image     ; from des_draw_banner.inc
+    call Set_Game_VP
+
     ld a, 0
-    ld (main_menu_is_active), a
+    ; reset window flags
     ld (ui_win_active), a
+    ld (main_menu_is_active), a
+    ld (info_mode_is_active), a
+    ld (credits_mode_is_active), a
+   
     call Trigger_Room_Load
 
     ret
 
 .info:
+    ; sfx
     call playGlitch
+
+    call Reset_VP
+    ld a, bright_cyan
+    ld (banner_colour), a
+    call Draw_Banner_Image     ; from des_draw_banner.inc
+    call Set_Game_VP
 
     call Draw_Data_Cart_Popup
     TEXT_AT_GRAPHICS_CURSOR
 
-    ld a, $01
+    ld a, 1
+    ld (ui_win_active), a
     ld (info_mode_is_active), a
 
     ; -Controls- (title)
@@ -266,9 +299,11 @@ Check_Action_Triggers:
 
 
 .creds:
+    ; sfx
     call playSelect
 
-    ld a, $01
+    ld a, 1
+    ld (ui_win_active), a
     ld (credits_mode_is_active), a
 
     call Reset_VP
@@ -304,12 +339,12 @@ Check_Action_Triggers:
     call print_frac_string
     ; by lovejoy777
     ld hl, SCR42 
-    ld b, 108
+    ld b, 106
     ld c, 174
     call print_frac_string
     ; 2026 +
     ld hl, SCR43 
-    ld b, 136
+    ld b, 134
     ld c, 188
     call print_frac_string
     
@@ -405,14 +440,16 @@ Check_Action_Triggers:
     ret
 
 .terminal_found:
-    ; --- SUCCESS: OPEN WINDOW ---
+    ; set ui win flag
     ld a, 1
     ld (ui_win_active), a        
+
    ; ld hl, SE131  ; message from des_strings
 
+    ; sfx
     call playGlitch
     
-
+    ; hide all sprites
     Select_Sprite_8bit playerSprite
     Hide_Sprite
     Select_Sprite_8bit smAlienSprite
@@ -430,6 +467,7 @@ Check_Action_Triggers:
     ret
 
 .shoot:
+    ; check if ui window is open
     ld a, (ui_win_active)
     cp $01
     ret z
@@ -443,20 +481,26 @@ Check_Action_Triggers:
 ; Z Look Mode KEY
 ;=========================
 .z_key_is_down:
+    ; Debounce check for Z look key
+    ld a, (look_lock)        
+    or a
+    ret nz
+    ; Lock it now so we only trigger once per press
+    ld a, 1
+    ld (look_lock), a
+
+    ; return if ui window is open
     ld a, (ui_win_active)
     cp $01
     ret z
 
-    ld a, (look_lock)        ; Debounce check for Z look key
-    or a
-    ret nz
-
-    ld a, 1
-    ld (look_lock), a
+    ; set look mode
     ld a, 0
     ld (look_shoot_mode), a
 
+    ; sfx
     call playSelect
+
     call Look_Shoot_Mode
     
     ret
@@ -465,19 +509,26 @@ Check_Action_Triggers:
 ; X Shoot Mode KEY
 ;=========================
 .x_key_is_down:
+    ; Debounce check for X shoot key
+    ld a, (shoot_lock)        
+    or a
+    ret nz
+    ; Lock it now so we only trigger once per press
+    ld a, 1
+    ld (shoot_lock), a
+    
+    ; return if ui window is open
     ld a, (ui_win_active)
     cp $01
     ret z
     
-    ld a, (shoot_lock)        ; Debounce check for X shoot key
-    or a
-    ret nz
-
+    ; set shoot mode
     ld a, 1
-    ld (shoot_lock), a
     ld (look_shoot_mode), a
 
+    ; sfx
     call playSelect
+
     call Look_Shoot_Mode
 
     ret
@@ -486,26 +537,39 @@ Check_Action_Triggers:
 ; "C" Close All Popup Windows KEY
 ;=================================
 .c_key_is_down:
+    call playSelect
+    ; Debounce check for C Close key
+    ld a, (close_lock)        
+    or a
+    ret nz
+    ; Lock it now so we only trigger once per press
+    ld a, 1
+    ld (close_lock), a
+
+    ; return if ui window is not open
     ld a, (ui_win_active)
     cp $01
     ret nz
 
-    ld a, (close_lock)        ; Debounce check for X shoot key
-    or a
-    ret nz
+    ;call playSelect
 
-    call playSelect
-
-    ld a, 0
-    ld (ui_win_active), a
-
+    ; if menu flag is set then return to the menu.
     ld a, (main_menu_is_active)
     cp $01
-    jp z, back_to_main_menu
+    jp z, Menu_Screen        ; from des_main.asm
+
+    ; if not menu then fall through to .continue_game
 
 .continue_game:
 
     CLG
+    ; reset ui window & menu flags
+    ld a, 0
+    ld (ui_win_active), a
+    ld (main_menu_is_active), a
+    ld (info_mode_is_active), a
+    ld (credits_mode_is_active), a
+
     call Draw_Room
     call Draw_Health_Value         ; from main_subs.inc
     call Look_Shoot_Mode           ; from des_ui_logic.inc
@@ -515,32 +579,27 @@ Check_Action_Triggers:
 
     ret
 
-back_to_main_menu:
-    ld a, $00
-    ld (info_mode_is_active), a
-    ld (credits_mode_is_active), a
-    call Menu_Screen
-    ret
-
 ;=========================
 ; "M" Menu KEY
 ;=========================
 .m_key_is_down:
-    ld a, (menu_lock)        ; Debounce check for M Menu key
+    ; Debounce check for M Menu key
+    ld a, (menu_lock)        
     or a
     ret nz
+    ; Lock it now so we only trigger once per press
+    ld a, 1
+    ld (menu_lock), a
 
     ; Check if player is alive
     ld a, (player_is_alive) 
     cp $01
     jp nz, .player_is_dead
 
-    ld a, 1
-    ld (menu_lock), a
-    ld (main_menu_is_active), a
-
+    ; sfx
     call playSelect
 
+    ; hide all sprites
     Select_Sprite_8bit playerSprite
     Hide_Sprite
     Select_Sprite_8bit smAlienSprite
@@ -548,28 +607,17 @@ back_to_main_menu:
     Select_Sprite_8bit bigAlienSprite
     Hide_Sprite
 
-    ld a, $00
-    ld (info_mode_is_active), a
-    ld (credits_mode_is_active), a
-
-    jp Menu_Screen
+    jp Menu_Screen       ; from des_main.asm
     
     ret
 
 .player_is_dead:
     ; "m" key while player is dead.
-    ld a, 1
-    ld (main_menu_is_active), a
-    ld (ui_win_active), a
-    ld (player_is_alive), a
-
-    ld a, (menu_lock)        ; Debounce check for M Menu key
-    or a
-    ret nz
 
     call Reset_VP
     ld a, grey
     ld (banner_colour), a
+
     call Draw_Banner_Image      ; from des_draw_banner.inc
     call Set_Game_VP
 
@@ -578,8 +626,8 @@ back_to_main_menu:
     
     CLG
 
-    call CleanStart
-    jp Menu_Screen
+    call CleanStart         ; from des_main_subs.inc
+    jp Menu_Screen          ; from des_main.asm
 
     ret
 
@@ -587,23 +635,27 @@ back_to_main_menu:
 ; I INVENTORY KEY
 ;=========================
 .i_key_is_down:
-    ld a, (inv_lock)        ; Debounce check for inventory key
+    ; Debounce check for inventory key
+    ld a, (inv_lock)
     or a
     ret nz
-
+    ; Lock it now so we only trigger once per press
     ld a, 1
     ld (inv_lock), a
 
-    ld a, (ui_win_active)    ; if already open then return
+    ; if already open then return
+    ld a, (ui_win_active)    
     cp $01
     ret z
 
+    ; This freezes the main_loop logic
     ld a, 1
-    ld (ui_win_active), a   ; This freezes the main_loop logic
+    ld (ui_win_active), a  
     
+    ; sfx
     call playGlitch
-    
-    ; Hide the player and aliens
+
+    ; Hide all sprites
     Select_Sprite_8bit playerSprite
     Hide_Sprite
     Select_Sprite_8bit smAlienSprite
@@ -611,12 +663,11 @@ back_to_main_menu:
     Select_Sprite_8bit bigAlienSprite
     Hide_Sprite
 
-    ; Draw the UI
+    ; Draw the Inventory Popup
     call Draw_Inventory_Popup
 
-    TEXT_AT_GRAPHICS_CURSOR     ; set text at graphics cursor.
-   ; SET_GCOL_BG_COL black
-   ; SET_GCOL_COL bright_cyan
+    ; set text at graphics cursor.
+    TEXT_AT_GRAPHICS_CURSOR    
 
     ; - Inventory -
     ld hl, SE0BB 
@@ -626,6 +677,7 @@ back_to_main_menu:
     call print_frac_string
 
     ; call Display_Inv_Items; (Optional: call the item list here)
+
     ; --- No Item ---
     ld hl, SE0DB 
     ld bc, 0
@@ -634,7 +686,6 @@ back_to_main_menu:
     call print_frac_string
 
     TEXT_AT_TEXT_CURSOR
-
 
     ret
  

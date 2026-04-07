@@ -4,8 +4,9 @@
 ;------------------------------------------------------------------------
 
 story_mode:
-    ; check if in story mode
-    ld a, (story_mode_is_active)    ; only carry on if story mode is active
+    ; check if story mode is active
+    ; if not start new game without story.
+    ld a, (story_mode_is_active)
     cp $01
     jp nz, .new_game
 
@@ -32,6 +33,13 @@ story_mode:
     jp z, story_cleanup
 
 .skip_story:
+    ; reset window flag
+    ld a, 0
+    ld (story_mode_is_active), a 
+    ld (main_menu_is_active), a
+    ld (ui_win_active), a
+    ld (info_mode_is_active), a
+    ld (credits_mode_is_active), a
 
     ret
 
@@ -39,7 +47,6 @@ story_mode:
     ; Draw Strings with Fractional spacings
     ;---------------------------------------
 .draw_page_01:
-    
     ld hl, SE115
     ld bc, 0
     ld b, 56
@@ -51,7 +58,6 @@ story_mode:
     ret
 
 .draw_page_02:
-
     ld hl, SE117
     ld bc, 0
     ld b, 56
@@ -63,7 +69,6 @@ story_mode:
     ret
    
 .draw_page_03:
-
     ld hl, SE119
     ld bc, 0
     ld b, 56
@@ -87,15 +92,15 @@ story_cleanup:
     SET_GCOL_BG_COL grey
     SET_TXT_COL bright_white
 
-
-    ld a, $00
-    ld (story_mode_is_active), a
-    ld a, $01
-    ld (story_page), a
-
+    ; reset flag
     ld a, 0
+    ld (story_mode_is_active), a 
     ld (main_menu_is_active), a
     ld (ui_win_active), a
+    ld (info_mode_is_active), a
+    ld (credits_mode_is_active), a
+    
+    ; reset story to page 1
     ld a, 1
     ld (story_page), a
 
@@ -103,16 +108,16 @@ story_cleanup:
     ld a, grey
     ld (banner_colour), a
     call Draw_Banner_Image     ; from des_draw_banner.inc
-    call Set_Game_VP
+    call Set_Game_VP           ; from des_main_subs
 
     CLG
 
     ; fall into new game
 
 .new_game:
-    call CleanStart
-    call playGame_start
-    call Trigger_Room_Load
+    call CleanStart              ;  from des_main_subs.inc
+    ;call playGame_start
+    call Trigger_Room_Load       ; from des_draw_room.inc
     ret
 
     

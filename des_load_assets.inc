@@ -25,10 +25,9 @@ Load_All_Assets:
     Activate_amount_sprites 4         
 
     ; Load SFX:
-    ;call loadMenu_nav
-    call loadNav_tick
+    call loadMenu_nav
+    ;call loadNav_tick
     call loadSelect
-    call loadGame_start
     call loadLaser
     call loadBump
     call loadDoor
@@ -403,19 +402,6 @@ selectStr:
     incbin "sounds/new/select.raw"        ; raw file path
 endSelectStr:
 
-loadGame_start:                              ; for loading shoot sfx (laser)
-    ld hl, game_startStr                     ; start of data to send
-    ld bc, endGame_startStr - game_startStr    ; length of data to send
-    rst.lil $18                            ; send data
-    ret 
-game_startStr:
-    .db     23,0,$85                    ; audio command
-    .db     -4, 5                       ; sample number, sample management
-    .db     0                           ; load
-    .dl     16527                        ; length in bytes (LONG)
-    incbin "sounds/game_start.raw"        ; raw file path
-endGame_startStr:
-
 loadLaser:                              ; for loading shoot sfx (laser)
     ld hl, laserStr                     ; start of data to send
     ld bc, endLaserStr - laserStr       ; length of data to send
@@ -451,8 +437,8 @@ doorStr:
     .db     23,0,$85                    ; audio command
     .db     -7, 5                       ; sample number, sample management
     .db     0                           ; load
-    .dl     8598                        ; length in bytes (LONG)
-    incbin "sounds/new/door.raw"        ; raw file path
+    .dl     10243                        ; length in bytes (LONG)
+    incbin "sounds/new/door_2.raw"        ; raw file path
 endDoorStr:
 
 loadError:                              ; for loading shoot sfx (laser)

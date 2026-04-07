@@ -49,18 +49,16 @@
 ; --- Global Variables ---
 ;-------------------------
 
-debug_is_active:        db    0       ; 0 = Inactive (Default)
+debug_is_active:        db    1       ; 0 = Inactive (Default)
 debug_delay_counter:    db    60      ; delay counter for debugging
 
 banner_colour:          db    7       ; 7 = light grey (Default)
-story_mode_is_active:   db    1       ; 1 = Active (Default)
+story_mode_is_active:   db    0       ; 1 = Active (Default)
 story_page:             db    1       ; 1 = Default (page 1)
 info_mode_is_active:    db    0       ; 0 = Default (inactive)
 credits_mode_is_active: db    0       ; 0 = Default (inactive)
 game_screen_offset_x:   dw    63
-game_screen_offset_x16: dw    63
 game_screen_offset_y:   dw    83
-game_screen_offset_y16: dw    83
 
 last_char_spacing:      db    1       ; 1 = Default (default char)
 start_char_story_x:     db    56
@@ -72,7 +70,7 @@ start_char_popup_x:     db    78
 look_shoot_mode:        db    0       ; Look/Shoot Mode (0 = Look, 1 = Shoot)
 main_menu_mode:         db    0       ; Look/Shoot Mode (0 = New Game, 1 = Continue Game, 2 = info, 3 = credits, 4 = quit)
 
-main_menu_is_active:    db    1       ; 1 = Active (Default)
+main_menu_is_active:    db    0       ; 1 = Active (Default)
 start_win_active:       db    0       ; start Window Flag
 ui_win_active:          db    0       ; Popup Window Flag
 restart_win_active:     db    0       ; Restart Window Flag
@@ -250,12 +248,16 @@ start_here:
            
     V_SYNC 
 
-    call Main_Game
+    call Main_Game                 ; from des_main.asm
 
     ret
 
 .debug_overlay: 
-    call Debug_Overlay_Titles      ; des_ui_logic.inc
+    call Debug_Overlay_Titles      ; from des_print_debug.inc
+
+    V_SYNC 
+
+    call Main_Game                 ; from des_main.asm
     ret
 
 

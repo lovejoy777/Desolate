@@ -158,7 +158,7 @@ startNav_tick:
     .db 1,4,-2                          ; channel 1, command 4, sample id -1
     ; Play Note
     .db 23,0,$85                        ; do sound
-    .db 1,0, 10                        ; channel 1, command 0 (play note), volume 127 (max)
+    .db 1,0, 6                        ; channel 1, command 0 (play note), volume 127 (max)
     .dw 125                             ; freq (ignored for samples)
     .dw 100                             ; duration (ignored for samples) .init_small
 endNav_tick:
@@ -182,25 +182,6 @@ startSelect:
     .dw 200                             ; duration (ignored for samples) .init_small
 endSelect:
 
-playGame_start:
-    ; Game Start sfx
-    ld hl, startGame_start
-    ld bc, endGame_start - startGame_start
-    rst.lil $18
-    ret
-startGame_start:
-    ; Command 0: Play note
-    ; VDU 23, 0, &85, Channel, Command, Volume, Frequency; Duration;
-    ; set wave form as sample
-    .db 23,0,$85                        ; do sound (audio command)
-    .db 0,4,-4                          ; channel 1, command 4, sample id -1
-    ; Play Note
-    .db 23,0,$85                        ; do sound
-    .db 0,0, 15                       ; channel 1, command 0 (play note), volume 127 (max)
-    .dw 125                             ; freq (ignored for samples)
-    .dw 1500                             ; duration (ignored for samples) .init_small
-endGame_start:
-
 playLaser:
     ; Laser sfx
     ld hl, startLaser
@@ -215,7 +196,7 @@ startLaser:
     .db 1,4,-5                          ; channel 1, command 4, sample id -1
     ; Play Note
     .db 23,0,$85                        ; do sound
-    .db 1,0, 40                        ; channel 1, command 0 (play note), volume 127 (max)
+    .db 1,0, 30                        ; channel 1, command 0 (play note), volume 127 (max)
     .dw 125                             ; freq (ignored for samples)
     .dw 100                             ; duration (ignored for samples) .init_small
 endLaser:
@@ -253,7 +234,7 @@ startDoor:
     .db 1,4,-7                          ; channel 1, command 4, sample id -1
     ; Play Note
     .db 23,0,$85                        ; do sound
-    .db 1,0, 10                        ; channel 1, command 0 (play note), volume 127 (max)
+    .db 1,0, 8                        ; channel 1, command 0 (play note), volume 127 (max)
     .dw 125                             ; freq (ignored for samples)
     .dw 600                            ; duration (ignored for samples) .init_small
 endDoor:
@@ -272,7 +253,7 @@ startError:
     .db 1,4,-8                          ; channel 1, command 4, sample id -1
     ; Play Note
     .db 23,0,$85                        ; do sound
-    .db 1,0, 60                        ; channel 1, command 0 (play note), volume 127 (max)
+    .db 1,0, 40                        ; channel 1, command 0 (play note), volume 127 (max)
     .dw 125                             ; freq (ignored for samples)
     .dw 100                             ; duration (ignored for samples) .init_small
 endError:
@@ -291,7 +272,7 @@ startGlitch:
     .db 1,4,-9                          ; channel 1, command 4, sample id -1
     ; Play Note
     .db 23,0,$85                        ; do sound
-    .db 1,0, 60                        ; channel 1, command 0 (play note), volume 127 (max)
+    .db 1,0, 10                        ; channel 1, command 0 (play note), volume 127 (max)
     .dw 125                             ; freq (ignored for samples)
     .dw 100                             ; duration (ignored for samples) .init_small
 endGlitch:
@@ -308,21 +289,27 @@ playZap:
     rst.lil $18
     ret
 startZap:
+    ;------------------------------
     ; Command 6: Volume envelope
+    ;------------------------------
     ; Type 1: ADSR
     ; VDU 23, 0, &85, channel, 6, 1, attack; decay; sustain, release;
     .db 23,0,$85                       ; Do sound (audio command)
     .db 0,6,1                          ; Channel 0, command 6, type 1
+
     .dw 126,50                         ; Attack 400, Decay 100
     .db 50                             ; Sustain 100
     .dw 100                             ; release 2000 m/s
 
+    ;--------------------------------
     ; Command 7: Frequency envelope
+    ;--------------------------------
     ; VDU 23, 0, &85, channel, 7, type, [parameters]
     ; VDU 23, 0, &85, channel, 7, 1, phaseCount, controlByte, stepLength;
     .db 23,0,$85                       ; Do sound (audio command)
     .db 0,7,1                          ; Channel 0, command 7, type 1 (stepped freq)
     .db 2,3                            ; phaseCount, controlByte
+
     .dw 30                             ; stepLength m/s
     .dw 40                             ; phase 1 adjustment
     .dw 6                              ; phase 1 number of steps

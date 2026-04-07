@@ -1,18 +1,34 @@
 Main_Game: 
 
 Menu_Screen:
+    
     CLG
+    ; set flag
+    ld a, 1
+    ld (main_menu_is_active), a
+    ld (ui_win_active), a
+
+    call Reset_VP
+    ld a, bright_cyan
+    ld (banner_colour), a
+
+    call Draw_Banner_Image           ; from des_draw_banner.inc
+    call Set_Game_VP                 ; from des_main_subs.inc
+
     call Draw_Main_Menu_BG           ; from des_draw_menu.inc
     call Draw_Main_Menu              ; from des_draw_menu.inc
     call Main_Menu_Mode              ; from des_ui_logic.inc
-    
-    ; fall into wait_here:
 
-Wait_Here:       
+    ;ld a, 1
     
-    call Check_Action_Triggers       ; from des_ui_logic.inc 
 
-    jp Wait_Here
+    ; fall into Check_Keys:
+
+Check_Keys:       
+    
+    call Check_Action_Triggers       ; from des_ui_logic.inc
+
+    jp Check_Keys
 
 
 ;=====================================================================

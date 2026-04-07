@@ -16,12 +16,6 @@ Shoot:
 
     ; laser sfx
     call playLaser
-    ; laser sfx
-    ;call playZap
-    ; Scifi Door sfx
-    ;call playDoor
-    ; Footsteps sfx
-    ;call playFootsteps
 
     ld a, (player_dir)
     ld (bullet_direction), a

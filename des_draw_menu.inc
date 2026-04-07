@@ -3,9 +3,7 @@
 ;--------------------------
 ; Draw 96 bytes full (12x8) 16x16 tiles from Tileset1 
 Draw_Main_Menu_BG:
-    ld a, $01
-    ld (ui_win_active), a
-
+    
     push ix
     push iy
 

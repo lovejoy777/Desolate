@@ -8,12 +8,6 @@ Debug_Overlay_Titles:
     cp $01
     ret nz
 
-    push af
-    push bc
-    push de
-    push hl
-    push ix
-
     ;----------------------------
     ; Current Room Number Title
     ;----------------------------
@@ -84,11 +78,6 @@ Debug_Overlay_Titles:
     ld hl, Debug_KIL_String         
     call print_string
 
-    pop ix
-    pop hl
-    pop de
-    pop bc
-    pop af
 
     ret
 ;---------------------------------------------------------

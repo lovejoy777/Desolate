@@ -19,15 +19,14 @@ CleanStart:
     ld a, 3                  ; restore a for the next loop
     jr nz, .init_kill_table
 
-    ; player vars to reset
+    ; vars to reset to 1
     ld a, 1
     ld (player_is_alive), a
+    
+    ; vars to reset to 0
     ld a, 0
     ld (look_shoot_mode), a
     ld (ui_win_active), a
-    ld (info_mode_is_active), a
-    ld (credits_mode_is_active), a
-    
     ld (current_room_id), a
     ld (player_dir), a
     ld (is_moving), a;
